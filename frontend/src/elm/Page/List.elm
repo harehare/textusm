@@ -93,7 +93,7 @@ import Json.Encode as E
 import List.Extra as ListEx
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.Diagram.Id as DiagramId
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
 import Models.Dialog as Dialog
@@ -128,7 +128,7 @@ type Msg
     | Reload
     | Remove DiagramItem
     | RemoveRemote D.Value
-    | Removed (Result RequestError String)
+    | Removed (Result RequestError DiagramId)
     | Bookmarked (Result RequestError ())
     | GotTimeZone Zone
     | GetDiagrams
@@ -213,7 +213,7 @@ load : { session : Session, isOnline : Bool } -> Return.ReturnF Msg Model
 load { session, isOnline } =
     Return.andThen <|
         \m ->
-            Return.singleton { m | session = session, isOnline = isOnline }
+            Return.singleton { m | session = session, isOnline = isOnline, diagramList = DiagramList.notAsked }
                 |> Return.command (getDiagrams ())
 
 

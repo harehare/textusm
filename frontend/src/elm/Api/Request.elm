@@ -71,17 +71,17 @@ bookmark idToken itemID isBookmark =
         |> Task.mapError toError
 
 
-delete : Maybe IdToken -> DiagramId -> Bool -> Task RequestError String
+delete : Maybe IdToken -> DiagramId -> Bool -> Task RequestError DiagramId
 delete idToken itemID isPublic =
     Mutation.delete (DiagramId.toString itemID) isPublic
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
-        |> Task.map (\(Graphql.Scalar.Id id) -> id)
+        |> Task.map (\(Graphql.Scalar.Id id) -> DiagramId.fromString id)
         |> Task.mapError toError
 
 
-deleteGist : Maybe IdToken -> AccessToken -> DiagramId -> Task RequestError String
+deleteGist : Maybe IdToken -> AccessToken -> DiagramId -> Task RequestError DiagramId
 deleteGist idToken accessToken gistId =
     GithubRequest.deleteGist accessToken gistId
         |> Task.mapError RequestError.fromHttpError
@@ -91,7 +91,7 @@ deleteGist idToken accessToken gistId =
                     |> Http.mutationRequest graphQLUrl
                     |> authHeaders idToken
                     |> Http.toTask
-                    |> Task.map (\(Graphql.Scalar.Id id) -> id)
+                    |> Task.map (\(Graphql.Scalar.Id id) -> DiagramId.fromString id)
                     |> Task.mapError toError
             )
 

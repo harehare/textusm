@@ -61,6 +61,7 @@ export type ElmApp = {
     saveToLocalCompleted: Send<DiagramItem>;
     removeRemoteDiagram: Send<Diagram>;
     reload: Send<string>;
+    removedLocalDiagram: Send<string>;
     gotLocalDiagramJson: Send<DiagramItem>;
     gotLocalDiagramJsonForCopy: Send<DiagramItem>;
     gotLocalDiagramsJson: Send<DiagramItem[]>;
