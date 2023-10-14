@@ -753,6 +753,7 @@ subscriptions model =
          , Ports.loadSettingsFromLocalCompleted M.LoadSettingsFromLocal
          , Ports.startDownload M.StartDownload
          , Ports.gotLocalDiagramsJson (\json -> M.UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
+         , Ports.removedLocalDiagram (\idString -> (Ok <| DiagramId.fromString idString) |> DiagramList.Removed |> M.UpdateDiagramList)
          , Ports.reload (\_ -> M.UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange M.HandleVisibilityChange
          , onResize (\width height -> M.UpdateDiagram (DiagramModel.Resize width height))
@@ -1390,6 +1391,15 @@ processDiagramListMsg msg =
 
         DiagramList.GotExportDiagrams (Err e) ->
             showErrorMessage <| RequestError.toMessage e
+
+        DiagramList.Removed (Ok diagramId) ->
+            Return.map <|
+                \m ->
+                    if (m.currentDiagram.id |> Maybe.withDefault (DiagramId.fromString "")) == diagramId then
+                        { m | currentDiagram = DiagramItem.new DiagramType.UserStoryMap }
+
+                    else
+                        m
 
         DiagramList.Removed (Err _) ->
             showErrorMessage Message.messagEerrorOccurred

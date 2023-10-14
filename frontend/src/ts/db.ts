@@ -125,7 +125,7 @@ export const initDB = (app: ElmApp): void => {
       app.ports.removeRemoteDiagram.send(diagram);
     } else {
       await db.diagrams.delete(id);
-      app.ports.reload.send('');
+      app.ports.removedLocalDiagram.send(id);
     }
   });
 
