@@ -6,6 +6,10 @@ on:
       ref:
         required: true
         type: string
+      noop:
+        default: "false"
+        required: false
+        type: string
 
 jobs:
   build:
@@ -81,6 +85,7 @@ jobs:
           name: dist
           path: frontend/dist
       - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: ${{ inputs.noop != 'true' }}
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEXTUSM }}"
@@ -94,6 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy backend to render.com
+        if: ${{ inputs.noop != 'true' }}
         run: curl --silent --show-error --fail $RENDER_DEPLOY_HOOK_URL > /dev/null
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}

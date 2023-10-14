@@ -17,6 +17,7 @@ jobs:
     outputs:
       continue: ${{ steps.branch-deploy.outputs.continue }}
       ref: ${{ steps.branch-deploy.outputs.ref }}
+      noop: ${{ steps.branch-deploy.outputs.noop }}
     steps:
       - uses: github/branch-deploy@v7.3.0
         id: branch-deploy
@@ -28,3 +29,4 @@ jobs:
     secrets: inherit
     with:
       ref: ${{ needs.branch-deploy.outputs.ref }}
+      noop: ${{ needs.branch-deploy.outputs.noop }}
