@@ -21,7 +21,7 @@
   "devDependencies": {
     "@dillonkearns/elm-graphql": "^4.3.1",
     "@sentry/vite-plugin": "^2.9.0",
-    "@size-limit/file": "^9.0.0",
+    "@size-limit/file": "^10.0.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@trivago/prettier-plugin-sort-imports": "^4.2.1",
     "@tsconfig/strictest": "^2.0.2",
@@ -44,7 +44,7 @@
     "knip": "^2.38.4",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
-    "size-limit": "^9.0.0",
+    "size-limit": "^10.0.1",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "terser": "^5.24.0",
