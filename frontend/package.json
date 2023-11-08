@@ -28,7 +28,7 @@
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20.9.0",
     "@types/requestidlecallback": "^0.3.6",
-    "@types/uuid": "^9.0.6",
+    "@types/uuid": "^9.0.7",
     "@types/wicg-file-system-access": "^2023.10.3",
     "concurrently": "^8.2.2",
     "cypress": "^13.4.0",
