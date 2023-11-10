@@ -108,7 +108,7 @@ init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontL
         , settings = settings
         , session = session
         , canUseNativeFileSystem = canUseNativeFileSystem
-        , usableFontList = usableFontList |> Maybe.withDefault [ settings.storyMap.font ]
+        , usableFontList = usableFontList |> Maybe.withDefault [ settings.diagramSettings.font ]
         , lang = lang
         , isLoading = False
         }
@@ -329,7 +329,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.backgroundColor
+                            settings.diagramSettings.backgroundColor
                         ]
                     ]
                 , conrtolView
@@ -381,7 +381,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Zoom Control" ]
-                    , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
+                    , Switch.view (Maybe.withDefault True settings.diagramSettings.zoomControl)
                         (\v ->
                             UpdateSettings
                                 (\_ -> settings |> Settings.zoomControl.set (Just v))
@@ -390,7 +390,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Toolbar" ]
-                    , Switch.view (Maybe.withDefault True settings.storyMap.toolbar)
+                    , Switch.view (Maybe.withDefault True settings.diagramSettings.toolbar)
                         (\v ->
                             UpdateSettings
                                 (\_ -> Settings.toolbar.set (Just v) settings)
@@ -454,7 +454,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.storyMap.size.width)
+                            (String.fromInt settings.diagramSettings.size.width)
                         ]
                     ]
                 , conrtolView
@@ -469,7 +469,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.storyMap.size.height)
+                            (String.fromInt settings.diagramSettings.size.height)
                         ]
                     ]
                 ]
@@ -489,7 +489,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.activity.backgroundColor
+                            settings.diagramSettings.color.activity.backgroundColor
                         ]
                     ]
                 , conrtolView
@@ -504,7 +504,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.activity.color
+                            settings.diagramSettings.color.activity.color
                         ]
                     ]
                 ]
@@ -522,7 +522,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.task.backgroundColor
+                            settings.diagramSettings.color.task.backgroundColor
                         ]
                     ]
                 , conrtolView
@@ -537,7 +537,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.task.color
+                            settings.diagramSettings.color.task.color
                         ]
                     ]
                 ]
@@ -555,7 +555,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.story.backgroundColor
+                            settings.diagramSettings.color.story.backgroundColor
                         ]
                     ]
                 , conrtolView
@@ -570,7 +570,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.story.color
+                            settings.diagramSettings.color.story.color
                         ]
                     ]
                 ]
@@ -589,7 +589,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.line
+                            settings.diagramSettings.color.line
                         ]
                     ]
                 , conrtolView
@@ -604,7 +604,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.label
+                            settings.diagramSettings.color.label
                         ]
                     ]
                 , conrtolView
@@ -619,7 +619,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 )
                             )
                             baseColorItems
-                            (settings.storyMap.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
+                            (settings.diagramSettings.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
                         ]
                     ]
                 ]

@@ -320,7 +320,7 @@ init flags url key =
             DiagramList.init Session.guest lang Env.apiRoot flags.isOnline
 
         ( diagramModel, _ ) =
-            Diagram.init initSettings.storyMap
+            Diagram.init initSettings.diagramSettings
 
         initSettings : Settings
         initSettings =
@@ -611,7 +611,7 @@ setDiagramSettings settings =
             in
             { m
                 | diagramModel = m.diagramModel |> DiagramModel.settings.set settings
-                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
+                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.diagramSettingsOfSettings.set settings }
             }
         )
         >> setDiagramSettingsCache settings
@@ -879,7 +879,7 @@ update model message =
                         |> Return.mapBoth M.UpdateSettings
                             (\model_ ->
                                 { m
-                                    | diagramModel = m.diagramModel |> DiagramModel.settings.set model_.settings.storyMap
+                                    | diagramModel = m.diagramModel |> DiagramModel.settings.set model_.settings.diagramSettings
                                     , page = Page.Settings
                                     , settingsModel = model_
                                 }
@@ -1024,7 +1024,7 @@ update model message =
                                 , diagramType = diagramType
                                 , settings = model.settingsModel.settings
                                 }
-                            >> setDiagramSettingsCache model.settingsModel.settings.storyMap
+                            >> setDiagramSettingsCache model.settingsModel.settings.diagramSettings
 
                     _ ->
                         pushUrl (Url.toString url)
@@ -1042,13 +1042,13 @@ update model message =
                     { position = Just model.window.position
                     , font = model.settingsModel.settings.font
                     , diagramId = Maybe.map DiagramId.toString model.currentDiagram.id
-                    , storyMap =
+                    , diagramSettings =
                         DiagramSettings.ofScale.set
                             (model.diagramModel.diagram.scale
                                 |> Scale.toFloat
                                 |> Just
                             )
-                            newStoryMap.storyMap
+                            newStoryMap.diagramSettings
                     , text = Just (Text.toString model.diagramModel.text)
                     , title = Just <| Title.toString model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor
@@ -1220,7 +1220,7 @@ update model message =
             setDiagramSettings settings >> stopProgress
 
         M.LoadSettings (Err _) ->
-            setDiagramSettings (.storyMap (defaultSettings (Theme.System model.browserStatus.isDarkMode)))
+            setDiagramSettings (.diagramSettings (defaultSettings (Theme.System model.browserStatus.isDarkMode)))
                 >> stopProgress
 
         M.LoadSettingsFromLocal settingsJson ->
@@ -1241,7 +1241,7 @@ update model message =
                                             , usableFontList = BoolEx.toMaybe m.settingsModel.usableFontList (Settings.isFetchedUsableFont m.settingsModel)
                                             }
                                 in
-                                { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.settings.set settings.storyMap m.diagramModel }
+                                { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.settings.set settings.diagramSettings m.diagramModel }
                             )
                     )
                 |> Maybe.withDefault (showWarningMessage Message.messageFailedLoadSettings)
@@ -1437,7 +1437,7 @@ updateSettings msg diagramType =
                             , session = m.session
                             , settings = m.settingsModel.settings
                             }
-                        |> setDiagramSettingsCache m.settingsModel.settings.storyMap
+                        |> setDiagramSettingsCache m.settingsModel.settings.diagramSettings
                 )
 
         _ ->
@@ -1548,7 +1548,7 @@ mainView model =
                                 ]
 
                         else
-                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex model.settingsModel.settings.storyMap.backgroundColor ] ]
+                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex model.settingsModel.settings.diagramSettings.backgroundColor ] ]
                                 [ Lazy.lazy Diagram.view model.diagramModel
                                     |> Html.map M.UpdateDiagram
                                 ]

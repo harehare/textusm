@@ -28,7 +28,7 @@ view model =
     div
         [ Attr.css
             [ border3 (px 1) solid Color.darkTextColor
-            , backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor
+            , backgroundColor <| hex model.settingsModel.settings.diagramSettings.backgroundColor
             , Style.full
             , position relative
             ]

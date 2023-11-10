@@ -62,7 +62,8 @@ export type Settings = {
   text: string;
   title: string | undefined;
   diagramId: string | undefined;
-  storyMap: DiagramSettings;
+  diagramSettings?: DiagramSettings;
+  storyMap?: DiagramSettings;
   diagram: Diagram | undefined;
   location: DiagramLocation | undefined;
   theme: Theme | undefined;

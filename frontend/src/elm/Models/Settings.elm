@@ -6,6 +6,7 @@ module Models.Settings exposing
     , backgroundColor
     , defaultEditorSettings
     , defaultSettings
+    , diagramSettingsOfSettings
     , font
     , fontSize
     , height
@@ -16,7 +17,6 @@ module Models.Settings exposing
     , showLineNumber
     , storyBackgroundColor
     , storyColor
-    , storyMapOfSettings
     , taskBackgroundColor
     , taskColor
     , textColor
@@ -27,7 +27,7 @@ module Models.Settings exposing
     )
 
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (optional, required)
+import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color
@@ -51,7 +51,7 @@ type alias Settings =
     { position : Maybe Int
     , font : String
     , diagramId : Maybe String
-    , storyMap : DiagramSettings.Settings
+    , diagramSettings : DiagramSettings.Settings
     , text : Maybe String
     , title : Maybe String
     , editor : Maybe EditorSettings
@@ -76,7 +76,7 @@ defaultSettings theme =
     { position = Just -10
     , font = "Nunito Sans"
     , diagramId = Nothing
-    , storyMap =
+    , diagramSettings =
         { font = "Nunito Sans"
         , size = { width = 140, height = 65 }
         , color =
@@ -124,22 +124,22 @@ defaultSettings theme =
 
 activityBackgroundColor : Lens Settings String
 activityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor diagramSettingsOfSettings
 
 
 activityColor : Lens Settings String
 activityColor =
-    Compose.lensWithLens DiagramSettings.ofActivityColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityColor diagramSettingsOfSettings
 
 
 backgroundColor : Lens Settings String
 backgroundColor =
-    Compose.lensWithLens DiagramSettings.ofBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofBackgroundColor diagramSettingsOfSettings
 
 
 font : Lens Settings String
 font =
-    Compose.lensWithLens DiagramSettings.ofFont storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofFont diagramSettingsOfSettings
 
 
 fontSize : Optional Settings Int
@@ -149,17 +149,17 @@ fontSize =
 
 height : Lens Settings Int
 height =
-    Compose.lensWithLens DiagramSettings.ofHeight storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofHeight diagramSettingsOfSettings
 
 
 labelColor : Lens Settings String
 labelColor =
-    Compose.lensWithLens DiagramSettings.ofLabelColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofLabelColor diagramSettingsOfSettings
 
 
 lineColor : Lens Settings String
 lineColor =
-    Compose.lensWithLens DiagramSettings.ofLineColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofLineColor diagramSettingsOfSettings
 
 
 showLineNumber : Optional Settings Bool
@@ -169,37 +169,37 @@ showLineNumber =
 
 storyBackgroundColor : Lens Settings String
 storyBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor diagramSettingsOfSettings
 
 
 storyColor : Lens Settings String
 storyColor =
-    Compose.lensWithLens DiagramSettings.ofStoryColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryColor diagramSettingsOfSettings
 
 
 taskBackgroundColor : Lens Settings String
 taskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor diagramSettingsOfSettings
 
 
 taskColor : Lens Settings String
 taskColor =
-    Compose.lensWithLens DiagramSettings.ofTaskColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskColor diagramSettingsOfSettings
 
 
 textColor : Optional Settings String
 textColor =
-    Compose.lensWithOptional DiagramSettings.ofTextColor storyMapOfSettings
+    Compose.lensWithOptional DiagramSettings.ofTextColor diagramSettingsOfSettings
 
 
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
-    Compose.lensWithLens DiagramSettings.ofToolbar storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofToolbar diagramSettingsOfSettings
 
 
 width : Lens Settings Int
 width =
-    Compose.lensWithLens DiagramSettings.ofWidth storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofWidth diagramSettingsOfSettings
 
 
 wordWrap : Optional Settings Bool
@@ -209,7 +209,7 @@ wordWrap =
 
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
-    Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofZoomControl diagramSettingsOfSettings
 
 
 settingsDecoder : D.Decoder Settings
@@ -218,7 +218,7 @@ settingsDecoder =
         |> optional "position" (D.map Just D.int) Nothing
         |> required "font" D.string
         |> optional "diagramId" (D.map Just D.string) Nothing
-        |> required "storyMap" diagramDecoder
+        |> custom (D.oneOf [ D.field "storyMap" diagramDecoder, D.field "diagramSettings" diagramDecoder ])
         |> optional "text" (D.map Just D.string) Nothing
         |> optional "title" (D.map Just D.string) Nothing
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
@@ -233,7 +233,7 @@ settingsEncoder settings =
         [ ( "position", maybe E.int settings.position )
         , ( "font", E.string settings.font )
         , ( "diagramId", maybe E.string settings.diagramId )
-        , ( "storyMap", diagramEncoder settings.storyMap )
+        , ( "diagramSettings", diagramEncoder settings.diagramSettings )
         , ( "text", maybe E.string settings.text )
         , ( "title", maybe E.string settings.title )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
@@ -243,9 +243,9 @@ settingsEncoder settings =
         ]
 
 
-storyMapOfSettings : Lens Settings DiagramSettings.Settings
-storyMapOfSettings =
-    Lens .storyMap (\b a -> { a | storyMap = b })
+diagramSettingsOfSettings : Lens Settings DiagramSettings.Settings
+diagramSettingsOfSettings =
+    Lens .diagramSettings (\b a -> { a | diagramSettings = b })
 
 
 colorDecoder : D.Decoder DiagramSettings.Color

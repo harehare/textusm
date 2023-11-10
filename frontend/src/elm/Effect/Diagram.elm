@@ -174,47 +174,47 @@ saveDiagramSettings msg { diagramType, session, settings } =
         Request.saveSettings
             (Session.getIdToken session)
             diagramType
-            { font = settings.storyMap.font
-            , width = settings.storyMap.size.width
-            , height = settings.storyMap.size.height
-            , backgroundColor = settings.storyMap.backgroundColor
+            { font = settings.diagramSettings.font
+            , width = settings.diagramSettings.size.width
+            , height = settings.diagramSettings.size.height
+            , backgroundColor = settings.diagramSettings.backgroundColor
             , activityColor =
-                { foregroundColor = settings.storyMap.color.activity.color
-                , backgroundColor = settings.storyMap.color.activity.backgroundColor
+                { foregroundColor = settings.diagramSettings.color.activity.color
+                , backgroundColor = settings.diagramSettings.color.activity.backgroundColor
                 }
             , taskColor =
-                { foregroundColor = settings.storyMap.color.task.color
-                , backgroundColor = settings.storyMap.color.task.backgroundColor
+                { foregroundColor = settings.diagramSettings.color.task.color
+                , backgroundColor = settings.diagramSettings.color.task.backgroundColor
                 }
             , storyColor =
-                { foregroundColor = settings.storyMap.color.story.color
-                , backgroundColor = settings.storyMap.color.story.backgroundColor
+                { foregroundColor = settings.diagramSettings.color.story.color
+                , backgroundColor = settings.diagramSettings.color.story.backgroundColor
                 }
-            , lineColor = settings.storyMap.color.line
-            , labelColor = settings.storyMap.color.label
+            , lineColor = settings.diagramSettings.color.line
+            , labelColor = settings.diagramSettings.color.label
             , textColor =
-                case settings.storyMap.color.text of
+                case settings.diagramSettings.color.text of
                     Just c ->
                         OptionalArgument.Present c
 
                     Nothing ->
                         OptionalArgument.Absent
             , zoomControl =
-                case settings.storyMap.zoomControl of
+                case settings.diagramSettings.zoomControl of
                     Just z ->
                         OptionalArgument.Present z
 
                     Nothing ->
                         OptionalArgument.Absent
             , scale =
-                case settings.storyMap.scale of
+                case settings.diagramSettings.scale of
                     Just s ->
                         OptionalArgument.Present s
 
                     Nothing ->
                         OptionalArgument.Absent
             , toolbar =
-                case settings.storyMap.toolbar of
+                case settings.diagramSettings.toolbar of
                     Just z ->
                         OptionalArgument.Present z
 
