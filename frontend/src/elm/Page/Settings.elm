@@ -35,9 +35,11 @@ import Css
         , wrap
         , zero
         )
+import File.Download as Download
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
+import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
@@ -55,6 +57,7 @@ import Style.Style as Style
 import Style.Text as Text
 import Task
 import Views.DropDownList as DropDownList exposing (DropDownValue)
+import Views.Icon as Icon
 import Views.Switch as Switch
 
 
@@ -79,6 +82,7 @@ type Msg
     | ToggleDropDownList String
     | DropDownClose
     | UpdateUsableFontList (Result RequestError FontList)
+    | Export
 
 
 loadUsableFontList :
@@ -150,6 +154,20 @@ update msg =
         UpdateUsableFontList (Err _) ->
             Return.map (\m -> { m | usableFontList = [], isLoading = False })
 
+        Export ->
+            Return.andThen
+                (\m ->
+                    Return.singleton m
+                        |> Return.command
+                            (Download.string "settings.json"
+                                "application/json"
+                                (E.encode
+                                    2
+                                    (Settings.settingsEncoder m.settings)
+                                )
+                            )
+                )
+
 
 isFetchedUsableFont : Model -> Bool
 isFetchedUsableFont model =
@@ -165,6 +183,7 @@ view model =
         , session = model.session
         , usableFontList = model.usableFontList
         , isLoading = model.isLoading
+        , lang = model.lang
         }
 
 
@@ -273,9 +292,10 @@ view_ :
     , session : Session
     , usableFontList : FontList
     , isLoading : Bool
+    , lang : Lang
     }
     -> Html Msg
-view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading } =
+view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading, lang } =
     Html.div
         [ Attr.css
             [ Breakpoint.style
@@ -622,6 +642,18 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             (settings.diagramSettings.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
                         ]
                     ]
+                ]
+            ]
+        , Html.div
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 8, Css.top <| Css.px 8 ]
+            , onClick Export
+            ]
+            [ Icon.cloudDownload Color.white 24
+            , Html.span
+                [ Attr.class "bottom-tooltip"
+                ]
+                [ Html.span [ Attr.class "text" ]
+                    [ Html.text <| Message.toolTipExport lang ]
                 ]
             ]
         ]

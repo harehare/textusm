@@ -38,7 +38,7 @@ import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
-import Models.Export.Diagram as Exporter
+import Models.Export.Diagram as ExportDiagram
 import Models.Hotkey as Hotkey
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
@@ -908,7 +908,7 @@ update model message =
                 ( posX, posY ) =
                     model.diagramModel.diagram.position
             in
-            Exporter.export
+            ExportDiagram.export
                 exportDiagram
                 { data = model.diagramModel.data
                 , diagramType = model.diagramModel.diagramType
