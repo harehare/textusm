@@ -1,4 +1,4 @@
-port module Models.Exporter exposing (Export(..), ExportInfo, copyable, downloadable, export)
+port module Models.Export.Diagram exposing (Export(..), ExportInfo, copyable, downloadable, export)
 
 import File.Download as Download
 import Models.Diagram.Data as DiagramData

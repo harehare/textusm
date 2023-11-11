@@ -38,7 +38,7 @@ import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
-import Models.Exporter as Exporter
+import Models.Export.Diagram as Exporter
 import Models.Hotkey as Hotkey
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt

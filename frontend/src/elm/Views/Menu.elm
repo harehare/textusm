@@ -61,7 +61,7 @@ import Models.Color as Color
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type exposing (DiagramType(..))
-import Models.Exporter as Exporter
+import Models.Export.Diagram as ExportDiagram
 import Models.FileType as FileType
 import Models.Model exposing (BrowserStatus, Menu(..))
 import Models.Page as Page
@@ -102,7 +102,7 @@ type alias Props msg =
     , currentDiagram : DiagramItem
     , onOpenLocalFile : msg
     , onOpenMenu : Menu -> msg
-    , onDownload : Exporter.Export -> msg
+    , onDownload : ExportDiagram.Export -> msg
     , onSaveLocalFile : msg
     , onSave : msg
     , onOpenCurrentFile : msg
@@ -369,36 +369,36 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
         ]
 
 
-baseExportMenu : { browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
+baseExportMenu : { browserStatus : BrowserStatus, onDownload : ExportDiagram.Export -> msg } -> List (MenuItem msg)
 baseExportMenu { browserStatus, onDownload } =
     [ MenuItem
-        { e = Just <| onDownload <| Exporter.downloadable FileType.svg
+        { e = Just <| onDownload <| ExportDiagram.downloadable FileType.svg
         , title = FileType.toString FileType.svg
         }
     , MenuItem
-        { e = Just <| onDownload <| Exporter.downloadable FileType.png
+        { e = Just <| onDownload <| ExportDiagram.downloadable FileType.png
         , title = FileType.toString FileType.png
         }
     , MenuItem
-        { e = Just <| onDownload <| Exporter.downloadable FileType.pdf
+        { e = Just <| onDownload <| ExportDiagram.downloadable FileType.pdf
         , title = FileType.toString FileType.pdf
         }
     , MenuItem
-        { e = Just <| onDownload <| Exporter.downloadable FileType.plainText
+        { e = Just <| onDownload <| ExportDiagram.downloadable FileType.plainText
         , title = FileType.toString FileType.plainText
         }
     , MenuItem
-        { e = Just <| onDownload <| Exporter.downloadable FileType.html
+        { e = Just <| onDownload <| ExportDiagram.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
     ]
         ++ (if browserStatus.canUseClipboardItem then
                 [ MenuItem
-                    { e = Just <| onDownload <| Exporter.copyable FileType.png
+                    { e = Just <| onDownload <| ExportDiagram.copyable FileType.png
                     , title = "Copy " ++ FileType.toString FileType.png
                     }
                 , MenuItem
-                    { e = Just <| onDownload <| Exporter.copyable FileType.Base64
+                    { e = Just <| onDownload <| ExportDiagram.copyable FileType.Base64
                     , title = "Copy " ++ FileType.toString FileType.Base64
                     }
                 ]
@@ -408,69 +408,69 @@ baseExportMenu { browserStatus, onDownload } =
            )
 
 
-exportMenu : { route : Route, browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
+exportMenu : { route : Route, browserStatus : BrowserStatus, onDownload : ExportDiagram.Export -> msg } -> List (MenuItem msg)
 exportMenu { route, browserStatus, onDownload } =
     case route of
         Route.Edit GanttChart _ _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit ErDiagram _ _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.ddl
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: MenuItem
-                    { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                    { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit Table _ _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.markdown
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit SequenceDiagram _ _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile GanttChart _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile ErDiagram _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.ddl
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: MenuItem
-                    { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                    { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile Table _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.markdown
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile SequenceDiagram _ ->
             MenuItem
-                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
