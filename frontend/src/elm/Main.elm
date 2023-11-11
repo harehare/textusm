@@ -611,7 +611,7 @@ setDiagramSettings settings =
             in
             { m
                 | diagramModel = m.diagramModel |> DiagramModel.settings.set settings
-                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.diagramSettingsOfSettings.set settings }
+                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.ofDiagramSettings.set settings }
             }
         )
         >> setDiagramSettingsCache settings

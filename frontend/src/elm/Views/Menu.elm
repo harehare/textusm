@@ -158,6 +158,9 @@ editMenu { diagramItem, lang, route, onOpenCurrentFile } =
         Route.EditLocalFile _ _ ->
             Lazy.lazy newMenu lang
 
+        Route.NotFound ->
+            Lazy.lazy newMenu lang
+
         _ ->
             case diagramItem.id of
                 Just _ ->

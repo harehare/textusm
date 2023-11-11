@@ -6,12 +6,12 @@ module Models.Settings exposing
     , backgroundColor
     , defaultEditorSettings
     , defaultSettings
-    , diagramSettingsOfSettings
     , font
     , fontSize
     , height
     , labelColor
     , lineColor
+    , ofDiagramSettings
     , settingsDecoder
     , settingsEncoder
     , showLineNumber
@@ -124,22 +124,22 @@ defaultSettings theme =
 
 activityBackgroundColor : Lens Settings String
 activityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor ofDiagramSettings
 
 
 activityColor : Lens Settings String
 activityColor =
-    Compose.lensWithLens DiagramSettings.ofActivityColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityColor ofDiagramSettings
 
 
 backgroundColor : Lens Settings String
 backgroundColor =
-    Compose.lensWithLens DiagramSettings.ofBackgroundColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofBackgroundColor ofDiagramSettings
 
 
 font : Lens Settings String
 font =
-    Compose.lensWithLens DiagramSettings.ofFont diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofFont ofDiagramSettings
 
 
 fontSize : Optional Settings Int
@@ -149,17 +149,17 @@ fontSize =
 
 height : Lens Settings Int
 height =
-    Compose.lensWithLens DiagramSettings.ofHeight diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofHeight ofDiagramSettings
 
 
 labelColor : Lens Settings String
 labelColor =
-    Compose.lensWithLens DiagramSettings.ofLabelColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofLabelColor ofDiagramSettings
 
 
 lineColor : Lens Settings String
 lineColor =
-    Compose.lensWithLens DiagramSettings.ofLineColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofLineColor ofDiagramSettings
 
 
 showLineNumber : Optional Settings Bool
@@ -169,37 +169,37 @@ showLineNumber =
 
 storyBackgroundColor : Lens Settings String
 storyBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor ofDiagramSettings
 
 
 storyColor : Lens Settings String
 storyColor =
-    Compose.lensWithLens DiagramSettings.ofStoryColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryColor ofDiagramSettings
 
 
 taskBackgroundColor : Lens Settings String
 taskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor ofDiagramSettings
 
 
 taskColor : Lens Settings String
 taskColor =
-    Compose.lensWithLens DiagramSettings.ofTaskColor diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskColor ofDiagramSettings
 
 
 textColor : Optional Settings String
 textColor =
-    Compose.lensWithOptional DiagramSettings.ofTextColor diagramSettingsOfSettings
+    Compose.lensWithOptional DiagramSettings.ofTextColor ofDiagramSettings
 
 
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
-    Compose.lensWithLens DiagramSettings.ofToolbar diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofToolbar ofDiagramSettings
 
 
 width : Lens Settings Int
 width =
-    Compose.lensWithLens DiagramSettings.ofWidth diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofWidth ofDiagramSettings
 
 
 wordWrap : Optional Settings Bool
@@ -209,7 +209,7 @@ wordWrap =
 
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
-    Compose.lensWithLens DiagramSettings.ofZoomControl diagramSettingsOfSettings
+    Compose.lensWithLens DiagramSettings.ofZoomControl ofDiagramSettings
 
 
 settingsDecoder : D.Decoder Settings
@@ -243,8 +243,8 @@ settingsEncoder settings =
         ]
 
 
-diagramSettingsOfSettings : Lens Settings DiagramSettings.Settings
-diagramSettingsOfSettings =
+ofDiagramSettings : Lens Settings DiagramSettings.Settings
+ofDiagramSettings =
     Lens .diagramSettings (\b a -> { a | diagramSettings = b })
 
 
