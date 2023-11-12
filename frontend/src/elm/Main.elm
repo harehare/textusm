@@ -1440,6 +1440,13 @@ updateSettings msg diagramType =
                         |> setDiagramSettingsCache m.settingsModel.settings.diagramSettings
                 )
 
+
+        Settings.LoadSettings (Ok _ ) ->
+            showInfoMessage Message.messageImportCompleted
+
+        Settings.LoadSettings (Err _) ->
+            showErrorMessage Message.messagEerrorOccurred
+
         _ ->
             Return.zero
 

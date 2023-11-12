@@ -35,10 +35,13 @@ import Css
         , wrap
         , zero
         )
+import File exposing (File)
 import File.Download as Download
-import Html.Styled as Html exposing (Html)
+import File.Select as Select
+import Html.Styled as Html exposing (Html, i)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
+import Json.Decode as D
 import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
@@ -82,7 +85,10 @@ type Msg
     | ToggleDropDownList String
     | DropDownClose
     | UpdateUsableFontList (Result RequestError FontList)
+    | ImportFile File
+    | Import
     | Export
+    | LoadSettings (Result String Settings)
 
 
 loadUsableFontList :
@@ -129,12 +135,18 @@ load { diagramType, session } =
 update : Msg -> Return.ReturnF Msg Model
 update msg =
     case msg of
+        LoadSettings (Ok settings) ->
+            Return.map <| \m -> { m | settings = settings }
+
+        LoadSettings (Err _) ->
+            Return.zero
+
         UpdateSettings getSetting value ->
-            Return.map (\m -> { m | dropDownIndex = Nothing, settings = getSetting value })
+            Return.map <| \m -> { m | dropDownIndex = Nothing, settings = getSetting value }
 
         ToggleDropDownList id ->
-            Return.map
-                (\m ->
+            Return.map <|
+                \m ->
                     { m
                         | dropDownIndex =
                             if (m.dropDownIndex |> Maybe.withDefault "") == id then
@@ -143,20 +155,19 @@ update msg =
                             else
                                 Just id
                     }
-                )
 
         DropDownClose ->
-            Return.map (\m -> { m | dropDownIndex = Nothing })
+            Return.map <| \m -> { m | dropDownIndex = Nothing }
 
         UpdateUsableFontList (Ok fontList) ->
-            Return.map (\m -> { m | usableFontList = fontList, isLoading = False })
+            Return.map <| \m -> { m | usableFontList = fontList, isLoading = False }
 
         UpdateUsableFontList (Err _) ->
-            Return.map (\m -> { m | usableFontList = [], isLoading = False })
+            Return.map <| \m -> { m | usableFontList = [], isLoading = False }
 
         Export ->
-            Return.andThen
-                (\m ->
+            Return.andThen <|
+                \m ->
                     Return.singleton m
                         |> Return.command
                             (Download.string "settings.json"
@@ -166,7 +177,15 @@ update msg =
                                     (Settings.settingsEncoder m.settings)
                                 )
                             )
-                )
+
+        Import ->
+            Return.command <| Select.file [ "application/json" ] ImportFile
+
+        ImportFile file ->
+            File.toString file
+                |> Task.map (\s -> D.decodeString Settings.settingsDecoder s |> Result.mapError D.errorToString)
+                |> Task.perform LoadSettings
+                |> Return.command
 
 
 isFetchedUsableFont : Model -> Bool
@@ -643,6 +662,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 ]
+            ]
+        , Html.div
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 48, Css.top <| Css.px 8 ]
+            , onClick Import
+            ]
+            [ Icon.cloudUpload Color.white 24
+            , Html.span [ Attr.class "bottom-tooltip" ]
+                [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport lang ] ]
             ]
         , Html.div
             [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 8, Css.top <| Css.px 8 ]
