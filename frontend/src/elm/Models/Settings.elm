@@ -4,16 +4,18 @@ module Models.Settings exposing
     , activityBackgroundColor
     , activityColor
     , backgroundColor
+    , decoder
     , defaultEditorSettings
     , defaultSettings
+    , encoder
+    , exportEncoder
     , font
     , fontSize
     , height
+    , importDecoder
     , labelColor
     , lineColor
     , ofDiagramSettings
-    , settingsDecoder
-    , settingsEncoder
     , showLineNumber
     , storyBackgroundColor
     , storyColor
@@ -27,7 +29,7 @@ module Models.Settings exposing
     )
 
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (custom, optional, required)
+import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color
@@ -212,8 +214,8 @@ zoomControl =
     Compose.lensWithLens DiagramSettings.ofZoomControl ofDiagramSettings
 
 
-settingsDecoder : D.Decoder Settings
-settingsDecoder =
+decoder : D.Decoder Settings
+decoder =
     D.succeed Settings
         |> optional "position" (D.map Just D.int) Nothing
         |> required "font" D.string
@@ -227,8 +229,8 @@ settingsDecoder =
         |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
 
 
-settingsEncoder : Settings -> E.Value
-settingsEncoder settings =
+encoder : Settings -> E.Value
+encoder settings =
     E.object
         [ ( "position", maybe E.int settings.position )
         , ( "font", E.string settings.font )
@@ -241,6 +243,33 @@ settingsEncoder settings =
         , ( "location", maybe DiagramLocation.encoder settings.location )
         , ( "theme", maybe Theme.encoder settings.theme )
         ]
+
+
+exportEncoder : Settings -> E.Value
+exportEncoder settings =
+    E.object
+        [ ( "position", maybe E.int settings.position )
+        , ( "font", E.string settings.font )
+        , ( "diagramSettings", diagramEncoder settings.diagramSettings )
+        , ( "editor", maybe editorSettingsEncoder settings.editor )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
+        ]
+
+
+importDecoder : Settings -> D.Decoder Settings
+importDecoder settings =
+    D.succeed Settings
+        |> optional "position" (D.map Just D.int) Nothing
+        |> required "font" D.string
+        |> hardcoded settings.diagramId
+        |> custom (D.oneOf [ D.field "storyMap" diagramDecoder, D.field "diagramSettings" diagramDecoder ])
+        |> hardcoded settings.text
+        |> hardcoded settings.title
+        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
+        |> hardcoded settings.diagram
+        |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
+        |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
 
 
 ofDiagramSettings : Lens Settings DiagramSettings.Settings

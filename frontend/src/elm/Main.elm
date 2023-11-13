@@ -52,7 +52,6 @@ import Models.Settings as Settings
         ( Settings
         , defaultEditorSettings
         , defaultSettings
-        , settingsDecoder
         )
 import Models.SettingsCache as SettingsCache
 import Models.ShareState as ShareState
@@ -324,7 +323,7 @@ init flags url key =
 
         initSettings : Settings
         initSettings =
-            D.decodeValue settingsDecoder flags.settings
+            D.decodeValue Settings.decoder flags.settings
                 |> Result.withDefault (defaultSettings (Theme.System flags.isDarkMode))
 
         lang : Message.Lang
@@ -1224,7 +1223,7 @@ update model message =
                 >> stopProgress
 
         M.LoadSettingsFromLocal settingsJson ->
-            D.decodeValue settingsDecoder settingsJson
+            D.decodeValue Settings.decoder settingsJson
                 |> Result.toMaybe
                 |> Maybe.map
                     (\settings ->
@@ -1440,9 +1439,18 @@ updateSettings msg diagramType =
                         |> setDiagramSettingsCache m.settingsModel.settings.diagramSettings
                 )
 
-
-        Settings.LoadSettings (Ok _ ) ->
-            showInfoMessage Message.messageImportCompleted
+        Settings.LoadSettings (Ok settings) ->
+            Return.andThen
+                (\m ->
+                    Return.singleton m
+                        |> Effect.Settings.save M.SaveDiagramSettings
+                            { diagramType = diagramType
+                            , session = m.session
+                            , settings = settings
+                            }
+                        |> setDiagramSettingsCache settings.diagramSettings
+                )
+                >> showInfoMessage Message.messageImportCompleted
 
         Settings.LoadSettings (Err _) ->
             showErrorMessage Message.messagEerrorOccurred

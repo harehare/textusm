@@ -50,7 +50,7 @@ load msg { cache, diagramType, session } =
 
 saveToLocal : Settings.Settings -> Return.ReturnF msg model
 saveToLocal settings =
-    Settings.settingsEncoder settings |> Ports.saveSettingsToLocal |> Return.command
+    Settings.encoder settings |> Ports.saveSettingsToLocal |> Return.command
 
 
 save :

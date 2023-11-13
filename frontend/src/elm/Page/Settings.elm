@@ -174,7 +174,7 @@ update msg =
                                 "application/json"
                                 (E.encode
                                     2
-                                    (Settings.settingsEncoder m.settings)
+                                    (Settings.exportEncoder m.settings)
                                 )
                             )
 
@@ -182,10 +182,14 @@ update msg =
             Return.command <| Select.file [ "application/json" ] ImportFile
 
         ImportFile file ->
-            File.toString file
-                |> Task.map (\s -> D.decodeString Settings.settingsDecoder s |> Result.mapError D.errorToString)
-                |> Task.perform LoadSettings
-                |> Return.command
+            Return.andThen <|
+                \m ->
+                    Return.singleton m
+                        |> (File.toString file
+                                |> Task.map (\s -> D.decodeString (Settings.importDecoder m.settings) s |> Result.mapError D.errorToString)
+                                |> Task.perform LoadSettings
+                                |> Return.command
+                           )
 
 
 isFetchedUsableFont : Model -> Bool

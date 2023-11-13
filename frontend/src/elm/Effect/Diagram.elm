@@ -158,7 +158,7 @@ loadFromShareWithoutPassword msg { session, token } =
 
 saveSettingsToLocal : Settings.Settings -> Return.ReturnF msg model
 saveSettingsToLocal settings =
-    Settings.settingsEncoder settings |> Ports.saveSettingsToLocal |> Return.command
+    Settings.encoder settings |> Ports.saveSettingsToLocal |> Return.command
 
 
 saveDiagramSettings :
