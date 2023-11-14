@@ -10,6 +10,7 @@ module Models.Color exposing
     , darkIconColor
     , decoder
     , disabledIconColor
+    , encoder
     , fromString
     , gray
     , green
@@ -36,6 +37,7 @@ module Models.Color exposing
     )
 
 import Json.Decode as D
+import Json.Encode as E
 import Regex
 
 
@@ -110,6 +112,11 @@ darkIconColor =
 decoder : D.Decoder Color
 decoder =
     D.map fromString D.string
+
+
+encoder : Color -> E.Value
+encoder color =
+    E.string <| toString color
 
 
 disabledIconColor : Color

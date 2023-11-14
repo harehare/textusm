@@ -3,6 +3,7 @@ module Views.Diagram.MindMap exposing (ViewType(..), docs, view)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
+import Models.Color exposing (Color)
 import Models.Diagram as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
@@ -170,7 +171,7 @@ view { data, settings, property, selectedItem, moveState, viewType, onEditSelect
             Empty.view
 
 
-nodeLineView : Size -> String -> Position -> Position -> Svg msg
+nodeLineView : Size -> Color -> Position -> Position -> Svg msg
 nodeLineView ( width, height ) colour fromBase toBase =
     let
         ( fromPoint, toPoint ) =

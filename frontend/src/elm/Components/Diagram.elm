@@ -1357,7 +1357,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     , SvgAttr.y "8"
                     , SvgAttr.fontSize "12"
                     , SvgAttr.fontFamily <| DiagramSettings.fontStyle model.settings
-                    , SvgAttr.fill (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
+                    , SvgAttr.fill <| Color.toString (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
                     ]
                     [ Svg.text (Property.getTitle model.property |> Maybe.withDefault "") ]
 
@@ -1376,7 +1376,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     ++ String.fromFloat
                         (model.diagram.scale |> Scale.toFloat)
                     ++ ")"
-            , SvgAttr.fill model.settings.backgroundColor
+            , SvgAttr.fill <| Color.toString model.settings.backgroundColor
             , SvgAttr.style "will-change: transform;"
             ]
             [ mainSvg ]

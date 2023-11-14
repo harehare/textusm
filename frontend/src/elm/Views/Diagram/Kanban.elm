@@ -3,6 +3,7 @@ module Views.Diagram.Kanban exposing (docs, view)
 import Constants
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
+import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
@@ -127,7 +128,7 @@ listView { settings, property, height, position, selectedItem, kanban, onEditSel
             [ SvgAttr.x <| String.fromInt <| posX + 8
             , SvgAttr.y <| String.fromInt <| posY + kanbanMargin
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "16"
             , SvgAttr.fontWeight "bold"
             ]
@@ -137,7 +138,7 @@ listView { settings, property, height, position, selectedItem, kanban, onEditSel
                 , SvgAttr.y1 "0"
                 , SvgAttr.x2 <| String.fromInt <| posX + settings.size.width + 8 + Constants.itemMargin
                 , SvgAttr.y2 <| String.fromInt <| height + Constants.itemMargin
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "3"
                 ]
                 []

@@ -404,7 +404,7 @@ labelTextView settings ( posX, posY ) t =
         , SvgAttr.y <| String.fromInt posY
         , SvgAttr.width "100"
         , SvgAttr.height "40"
-        , SvgAttr.color settings.color.label
+        , SvgAttr.color <| Color.toString settings.color.label
         , SvgAttr.fontSize "12"
         , SvgAttr.fontWeight "bold"
         ]

@@ -15,6 +15,7 @@ import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
+import Models.Color as Color
 import Models.Diagram.Id as DiagramId
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
@@ -95,18 +96,18 @@ settingsSelection =
                 |> with (Graphql.Object.Settings.activityColor colorSelection)
                 |> with (Graphql.Object.Settings.taskColor colorSelection)
                 |> with (Graphql.Object.Settings.storyColor colorSelection)
-                |> with Graphql.Object.Settings.lineColor
-                |> with Graphql.Object.Settings.labelColor
-                |> with Graphql.Object.Settings.textColor
+                |> with (SelectionSet.map Color.fromString Graphql.Object.Settings.lineColor)
+                |> with (SelectionSet.map Color.fromString Graphql.Object.Settings.labelColor)
+                |> with (SelectionSet.map (Maybe.map Color.fromString) Graphql.Object.Settings.textColor)
             )
-        |> with Graphql.Object.Settings.backgroundColor
+        |> with (SelectionSet.map Color.fromString Graphql.Object.Settings.backgroundColor)
         |> with Graphql.Object.Settings.zoomControl
         |> with Graphql.Object.Settings.scale
         |> with Graphql.Object.Settings.toolbar
 
 
-colorSelection : SelectionSet DiagramSettings.Color Graphql.Object.Color
+colorSelection : SelectionSet DiagramSettings.ColorSetting Graphql.Object.Color
 colorSelection =
-    SelectionSet.succeed DiagramSettings.Color
-        |> with Graphql.Object.Color.foregroundColor
-        |> with Graphql.Object.Color.backgroundColor
+    SelectionSet.succeed DiagramSettings.ColorSetting
+        |> with (SelectionSet.map Color.fromString Graphql.Object.Color.foregroundColor)
+        |> with (SelectionSet.map Color.fromString Graphql.Object.Color.backgroundColor)

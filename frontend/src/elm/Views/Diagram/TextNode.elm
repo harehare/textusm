@@ -68,7 +68,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , SvgAttr.height <| String.fromInt <| height - 1
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.fill settings.backgroundColor
+                    , SvgAttr.fill <| Color.toString settings.backgroundColor
                     ]
                     []
                 , textNode settings property ( posX, posY ) ( width, height ) color item
@@ -118,7 +118,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.y <| String.fromInt y_
                         , SvgAttr.strokeWidth "1"
                         , SvgAttr.stroke "transparent"
-                        , SvgAttr.fill settings.backgroundColor
+                        , SvgAttr.fill <| Color.toString settings.backgroundColor
                         , SvgAttr.class "ts-node"
                         ]
                         []
@@ -246,18 +246,15 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
         ( posX, posY ) =
             position
 
-        borderColor : String
+        borderColor : Color
         borderColor =
             Item.getBackgroundColor item
-                |> Maybe.map Color.toString
                 |> Maybe.withDefault settings.color.activity.backgroundColor
 
         textColor : Color
         textColor =
             Item.getForegroundColor item
-                |> Maybe.map Color.toString
                 |> Maybe.withDefault settings.color.activity.color
-                |> Color.fromString
 
         ( width, height ) =
             ( Property.getNodeWidth property, Property.getNodeHeight property )
@@ -275,10 +272,10 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
                     , SvgAttr.strokeWidth "3"
-                    , SvgAttr.stroke borderColor
+                    , SvgAttr.stroke <| Color.toString borderColor
                     , SvgAttr.rx "32"
                     , SvgAttr.ry "32"
-                    , SvgAttr.fill settings.backgroundColor
+                    , SvgAttr.fill <| Color.toString settings.backgroundColor
                     , SvgAttr.class "ts-node"
                     ]
                     []
@@ -295,10 +292,10 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.x <| String.fromInt posX
                         , SvgAttr.y <| String.fromInt posY
                         , SvgAttr.strokeWidth "3"
-                        , SvgAttr.stroke borderColor
+                        , SvgAttr.stroke <| Color.toString borderColor
                         , SvgAttr.rx "32"
                         , SvgAttr.ry "32"
-                        , SvgAttr.fill settings.backgroundColor
+                        , SvgAttr.fill <| Color.toString settings.backgroundColor
                         , SvgAttr.class "ts-node"
                         ]
                         []

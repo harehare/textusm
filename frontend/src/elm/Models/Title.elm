@@ -1,4 +1,20 @@
-module Models.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, map, toString, untitled, view)
+module Models.Title exposing
+    ( Title
+    , decoder
+    , edit
+    , encoder
+    , fromString
+    , isEdit
+    , isUntitled
+    , isView
+    , map
+    , toString
+    , untitled
+    , view
+    )
+
+import Json.Decode as D exposing (Decoder)
+import Json.Encode as E
 
 
 type Title
@@ -122,3 +138,13 @@ view title =
 
         View t ->
             View t
+
+
+decoder : Decoder Title
+decoder =
+    D.map fromString D.string
+
+
+encoder : Title -> E.Value
+encoder text =
+    E.string <| toString text

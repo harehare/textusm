@@ -30,6 +30,7 @@ import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
+import Models.Color as Color
 import Models.Diagram as DiagramModel
 import Models.Diagram.Id as DiagramId
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
@@ -335,12 +336,12 @@ init flags url key =
             { key = key
             , url = url
             , page = Page.Main
-            , diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
+            , diagramModel = { diagramModel | text = Maybe.withDefault Text.empty initSettings.text }
             , diagramListModel = diagramListModel
             , settingsModel = settingsModel
             , shareModel = shareModel
             , session = Session.guest
-            , currentDiagram = { currentDiagram | title = Title.fromString (Maybe.withDefault "" initSettings.title) }
+            , currentDiagram = { currentDiagram | title = Maybe.withDefault Title.untitled initSettings.title }
             , openMenu = Nothing
             , window = Window.init <| Maybe.withDefault 0 initSettings.position
             , progress = False
@@ -1040,7 +1041,7 @@ update model message =
                 newSettings =
                     { position = Just model.window.position
                     , font = model.settingsModel.settings.font
-                    , diagramId = Maybe.map DiagramId.toString model.currentDiagram.id
+                    , diagramId = model.currentDiagram.id
                     , diagramSettings =
                         DiagramSettings.ofScale.set
                             (model.diagramModel.diagram.scale
@@ -1048,8 +1049,8 @@ update model message =
                                 |> Just
                             )
                             newStoryMap.diagramSettings
-                    , text = Just (Text.toString model.diagramModel.text)
-                    , title = Just <| Title.toString model.currentDiagram.title
+                    , text = Just model.diagramModel.text
+                    , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor
                     , diagram = Just model.currentDiagram
                     , location = model.settingsModel.settings.location
@@ -1563,7 +1564,7 @@ mainView model =
                                 ]
 
                         else
-                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex model.settingsModel.settings.diagramSettings.backgroundColor ] ]
+                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex <| Color.toString model.settingsModel.settings.diagramSettings.backgroundColor ] ]
                                 [ Lazy.lazy Diagram.view model.diagramModel
                                     |> Html.map M.UpdateDiagram
                                 ]
@@ -1574,7 +1575,7 @@ mainView model =
             if Size.getWidth model.diagramModel.windowSize > 0 && Utils.isPhone (Size.getWidth model.diagramModel.windowSize) then
                 Lazy.lazy3 SwitchWindow.view
                     { onSwitchWindow = M.SwitchWindow
-                    , bgColor = Css.hex model.diagramModel.settings.backgroundColor
+                    , bgColor = Css.hex <| Color.toString model.diagramModel.settings.backgroundColor
                     , window = model.window
                     }
                     (Html.div
@@ -1596,7 +1597,7 @@ mainView model =
 
             else
                 Lazy.lazy3 SplitWindow.view
-                    { bgColor = Css.hex model.diagramModel.settings.backgroundColor
+                    { bgColor = Css.hex <| Color.toString model.diagramModel.settings.backgroundColor
                     , window = model.window
                     , onToggleEditor = M.ShowEditor
                     , onResize = M.HandleStartWindowResize

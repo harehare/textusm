@@ -17,6 +17,7 @@ import Css
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
+import Models.Color as Color
 import Models.Model exposing (Model, Msg(..))
 import Style.Color as Color
 import Style.Style as Style
@@ -28,7 +29,7 @@ view model =
     div
         [ Attr.css
             [ border3 (px 1) solid Color.darkTextColor
-            , backgroundColor <| hex model.settingsModel.settings.diagramSettings.backgroundColor
+            , backgroundColor <| hex <| Color.toString model.settingsModel.settings.diagramSettings.backgroundColor
             , Style.full
             , position relative
             ]

@@ -196,11 +196,7 @@ canvasBase { settings, property, isTitleBottom, size, position, selectedItem, it
                                               )
                                     )
                         , size = ( Size.getWidth selectedItemSize, settings.size.height )
-                        , color =
-                            Item.getForegroundColor item
-                                |> Maybe.map Color.toString
-                                |> Maybe.withDefault settings.color.label
-                                |> Color.fromString
+                        , color = Item.getForegroundColor item |> Maybe.withDefault settings.color.label
                         , item = item_
                         , onEditSelectedItem = onEditSelectedItem
                         , onEndEditSelectedItem = onEndEditSelectedItem
@@ -402,11 +398,11 @@ title { settings, position, item, onSelect } =
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position + 14
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-        , SvgAttr.fill
-            (Item.getForegroundColor item
-                |> Maybe.map Color.toString
-                |> Maybe.withDefault settings.color.label
-            )
+        , SvgAttr.fill <|
+            Color.toString
+                (Item.getForegroundColor item
+                    |> Maybe.withDefault settings.color.label
+                )
         , FontSize.svgStyledFontSize (Item.getFontSize item |> Maybe.withDefault FontSize.lg)
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "ts-title"

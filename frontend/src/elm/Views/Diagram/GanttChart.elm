@@ -5,7 +5,7 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
-import Models.Color as Color
+import Models.Color as Color exposing (Color)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -152,7 +152,7 @@ daysView settings svgHeight ( from, to ) =
                                     [ Html.div
                                         [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                                         , Attr.style "word-wrap" "break-word"
-                                        , Attr.style "color" settings.color.label
+                                        , Attr.style "color" <| Color.toString settings.color.label
                                         ]
                                         [ Html.text <| String.fromInt day ]
                                     ]
@@ -161,7 +161,7 @@ daysView settings svgHeight ( from, to ) =
                                     , SvgAttr.y1 <| String.fromInt <| Constants.ganttItemSize
                                     , SvgAttr.x2 <| String.fromInt posX
                                     , SvgAttr.y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight
-                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.stroke <| Color.toString settings.color.line
                                     , SvgAttr.strokeWidth "0.3"
                                     ]
                                     []
@@ -172,7 +172,7 @@ daysView settings svgHeight ( from, to ) =
         )
 
 
-headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg msg
+headerItemView : DiagramSettings.Settings -> ( Color, Color ) -> Position -> Posix -> String -> Schedule -> Svg msg
 headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -194,7 +194,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
             , SvgAttr.y1 <| String.fromInt <| posY
             , SvgAttr.x2 <| String.fromInt <| posX + sectionWidth + sectionMargin + Constants.ganttItemSize
             , SvgAttr.y2 <| String.fromInt <| posY
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "0.3"
             ]
             []
@@ -208,7 +208,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
                 [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "padding" "8px"
-                , Attr.style "color" settings.color.label
+                , Attr.style "color" <| Color.toString settings.color.label
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
@@ -228,7 +228,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
         ]
 
 
-headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg msg
+headerTaskView : DiagramSettings.Settings -> ( Color, Color ) -> Position -> Posix -> Posix -> String -> Svg msg
 headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         fromPolygon : String
@@ -288,24 +288,24 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , SvgAttr.height <| String.fromInt <| Constants.ganttItemSize // 2 - 8
             , SvgAttr.x "0"
             , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize // 4
-            , SvgAttr.fill backgroundColor
+            , SvgAttr.fill <| Color.toString backgroundColor
             ]
             []
         , Svg.polygon
             [ SvgAttr.points fromPolygon
-            , SvgAttr.fill backgroundColor
+            , SvgAttr.fill <| Color.toString backgroundColor
             ]
             []
         , Svg.polygon
             [ SvgAttr.points toPolygon
-            , SvgAttr.fill backgroundColor
+            , SvgAttr.fill <| Color.toString backgroundColor
             ]
             []
         , Views.plainText
             { settings = settings
             , position = ( svgWidth, -3 )
             , size = ( textWidth, Constants.ganttItemSize )
-            , foreColor = Color.fromString colour
+            , foreColor = colour
             , fontSize = FontSize.default
             , text = text
             , isHighlight = False
@@ -313,7 +313,7 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
         ]
 
 
-itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg msg
+itemView : DiagramSettings.Settings -> ( Color, Color ) -> Position -> Posix -> String -> Schedule -> Svg msg
 itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -336,7 +336,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
             , SvgAttr.y1 <| String.fromInt <| posY
             , SvgAttr.x2 <| String.fromInt <| posX + sectionWidth + sectionMargin - posX + Constants.ganttItemSize
             , SvgAttr.y2 <| String.fromInt <| posY
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "0.3"
             ]
             []
@@ -350,7 +350,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
                 [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "padding" "8px"
-                , Attr.style "color" settings.color.label
+                , Attr.style "color" <| Color.toString settings.color.label
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
@@ -369,7 +369,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
         ]
 
 
-taskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg msg
+taskView : DiagramSettings.Settings -> ( Color, Color ) -> Position -> Posix -> Posix -> String -> Svg msg
 taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval : Int
@@ -395,7 +395,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , SvgAttr.height <| String.fromInt <| Constants.ganttItemSize - 6
             , SvgAttr.x "0"
             , SvgAttr.y "3"
-            , SvgAttr.fill backgroundColor
+            , SvgAttr.fill <| Color.toString backgroundColor
             , SvgAttr.rx "3"
             , SvgAttr.ry "3"
             ]
@@ -404,7 +404,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             { settings = settings
             , position = ( svgWidth, -3 )
             , size = ( textWidth, Constants.ganttItemSize )
-            , foreColor = Color.fromString colour
+            , foreColor = colour
             , fontSize = FontSize.default
             , text = text
             , isHighlight = False
@@ -440,7 +440,7 @@ weekView settings ( from, to ) =
                                 [ Html.div
                                     [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                                     , Attr.style "word-wrap" "break-word"
-                                    , Attr.style "color" settings.color.label
+                                    , Attr.style "color" <| Color.toString settings.color.label
                                     , Attr.style "font-size" "11px"
                                     , Attr.style "font-weight" "bold"
                                     ]

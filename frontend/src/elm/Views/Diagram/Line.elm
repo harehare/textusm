@@ -241,4 +241,4 @@ getLineColor : DiagramSettings.Settings -> Item -> Color
 getLineColor settings item =
     item
         |> Item.getBackgroundColor
-        |> Maybe.withDefault (Color.fromString settings.color.line)
+        |> Maybe.withDefault settings.color.line

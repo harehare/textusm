@@ -159,7 +159,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             , SvgAttr.y <| String.fromInt fromY
             , SvgAttr.width <| String.fromInt fragmentWidth
             , SvgAttr.height <| String.fromInt fragmentHeight
-            , SvgAttr.stroke settings.color.activity.backgroundColor
+            , SvgAttr.stroke <| Color.toString settings.color.activity.backgroundColor
             , SvgAttr.strokeWidth "2"
             , SvgAttr.fill backgroundColor
             ]
@@ -169,7 +169,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             , SvgAttr.y <| String.fromInt fromY
             , SvgAttr.width <| String.fromInt <| max 44 (String.length label * 7 + 16)
             , SvgAttr.height "20"
-            , SvgAttr.fill settings.color.activity.backgroundColor
+            , SvgAttr.fill <| Color.toString settings.color.activity.backgroundColor
             , SvgAttr.strokeWidth "2"
             ]
             []
@@ -177,7 +177,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             [ SvgAttr.x <| String.fromInt <| fromX + 8
             , SvgAttr.y <| String.fromInt <| fromY + 14
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.task.color
+            , SvgAttr.fill <| Color.toString settings.color.task.color
             , SvgAttr.fontSize Constants.fontSize
             , SvgAttr.fontWeight "bold"
             ]
@@ -226,7 +226,7 @@ lineView settings ( fromX, fromY ) ( toX, toY ) =
         , SvgAttr.y1 <| String.fromInt fromY
         , SvgAttr.x2 <| String.fromInt toX
         , SvgAttr.y2 <| String.fromInt toY
-        , SvgAttr.stroke settings.color.line
+        , SvgAttr.stroke <| Color.toString settings.color.line
         , SvgAttr.strokeWidth "2"
         ]
         []
@@ -246,7 +246,7 @@ markerView settings =
             ]
             [ Svg.polygon
                 [ SvgAttr.points "0,0 0,10 10,5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -262,7 +262,7 @@ markerView settings =
             [ Svg.polyline
                 [ SvgAttr.points "0,0 10,5 0,10"
                 , SvgAttr.fill "none"
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "2"
                 ]
                 []
@@ -280,7 +280,7 @@ markerView settings =
                 [ SvgAttr.cx "10"
                 , SvgAttr.cy "5"
                 , SvgAttr.r "5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -296,7 +296,7 @@ markerView settings =
             [ Svg.polyline
                 [ SvgAttr.points "0,0 10,5 0,10"
                 , SvgAttr.fill "none"
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "2"
                 ]
                 []
@@ -304,7 +304,7 @@ markerView settings =
                 [ SvgAttr.cx "12"
                 , SvgAttr.cy "5"
                 , SvgAttr.r "5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -381,7 +381,7 @@ messageView settings property ( fromX, fromY ) ( toX, toY ) messageType =
             , SvgAttr.y1 <| String.fromInt fromY
             , SvgAttr.x2 <| String.fromInt <| toX - toOffset
             , SvgAttr.y2 <| String.fromInt toY
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "2"
             , if isDot then
                 SvgAttr.strokeDasharray "3"
@@ -486,7 +486,7 @@ selfMessageView settings property ( posX, posY ) messageType =
             [ SvgAttr.points messagePoints
             , SvgAttr.markerEnd "url(#sync)"
             , SvgAttr.fill "none"
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "2"
             ]
             []
@@ -518,7 +518,7 @@ sequenceItemView settings property level y item =
                     , SvgAttr.y1 <| String.fromInt elseY
                     , SvgAttr.x2 <| String.fromInt <| toX
                     , SvgAttr.y2 <| String.fromInt elseY
-                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.stroke <| Color.toString settings.color.line
                     , SvgAttr.strokeWidth "2"
                     , SvgAttr.strokeDasharray "3"
                     ]
@@ -547,7 +547,7 @@ sequenceItemView settings property level y item =
                                     , SvgAttr.y1 <| String.fromInt messageY
                                     , SvgAttr.x2 <| String.fromInt <| toX
                                     , SvgAttr.y2 <| String.fromInt messageY
-                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.stroke <| Color.toString settings.color.line
                                     , SvgAttr.strokeWidth "2"
                                     , SvgAttr.strokeDasharray "3"
                                     ]

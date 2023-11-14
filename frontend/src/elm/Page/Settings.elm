@@ -368,11 +368,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.backgroundColor.set x settings
+                                    Settings.backgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.backgroundColor
+                            (settings.diagramSettings.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -528,11 +528,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityBackgroundColor.set x settings
+                                    Settings.activityBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.activity.backgroundColor
+                            (settings.diagramSettings.color.activity.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -543,11 +543,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityColor.set x settings
+                                    Settings.activityColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.activity.color
+                            (settings.diagramSettings.color.activity.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -561,11 +561,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.taskBackgroundColor.set x settings
+                                    Settings.taskBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.task.backgroundColor
+                            (settings.diagramSettings.color.task.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -576,11 +576,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.taskColor.set x
+                                    settings |> Settings.taskColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.task.color
+                            (settings.diagramSettings.color.task.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -594,11 +594,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyBackgroundColor.set x settings
+                                    Settings.storyBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.story.backgroundColor
+                            (settings.diagramSettings.color.story.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -609,11 +609,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyColor.set x settings
+                                    Settings.storyColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.story.color
+                            (settings.diagramSettings.color.story.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -628,11 +628,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.lineColor.set x settings
+                                    Settings.lineColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.line
+                            (settings.diagramSettings.color.line |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -643,11 +643,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.labelColor.set x settings
+                                    Settings.labelColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.diagramSettings.color.label
+                            (settings.diagramSettings.color.label |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -658,11 +658,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.textColor.set x settings
+                                    Settings.textColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
+                            (settings.diagramSettings.color.text |> Maybe.withDefault Color.textDefalut |> Color.toString)
                         ]
                     ]
                 ]

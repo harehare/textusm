@@ -18,6 +18,7 @@ module Effect.Diagram exposing
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
 import Graphql.OptionalArgument as OptionalArgument
+import Models.Color as Color
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
@@ -177,25 +178,25 @@ saveDiagramSettings msg { diagramType, session, settings } =
             { font = settings.diagramSettings.font
             , width = settings.diagramSettings.size.width
             , height = settings.diagramSettings.size.height
-            , backgroundColor = settings.diagramSettings.backgroundColor
+            , backgroundColor = Color.toString settings.diagramSettings.backgroundColor
             , activityColor =
-                { foregroundColor = settings.diagramSettings.color.activity.color
-                , backgroundColor = settings.diagramSettings.color.activity.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.activity.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.activity.backgroundColor
                 }
             , taskColor =
-                { foregroundColor = settings.diagramSettings.color.task.color
-                , backgroundColor = settings.diagramSettings.color.task.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.task.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.task.backgroundColor
                 }
             , storyColor =
-                { foregroundColor = settings.diagramSettings.color.story.color
-                , backgroundColor = settings.diagramSettings.color.story.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.story.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.story.backgroundColor
                 }
-            , lineColor = settings.diagramSettings.color.line
-            , labelColor = settings.diagramSettings.color.label
+            , lineColor = Color.toString settings.diagramSettings.color.line
+            , labelColor = Color.toString settings.diagramSettings.color.label
             , textColor =
                 case settings.diagramSettings.color.text of
                     Just c ->
-                        OptionalArgument.Present c
+                        OptionalArgument.Present <| Color.toString c
 
                     Nothing ->
                         OptionalArgument.Absent

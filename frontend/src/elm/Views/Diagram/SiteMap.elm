@@ -4,6 +4,7 @@ import Constants
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
+import Models.Color as Color
 import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
@@ -89,7 +90,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             , SvgAttr.y1 <| String.fromInt yy1
             , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
             , SvgAttr.y2 <| String.fromInt yy2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -101,7 +102,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
                 , SvgAttr.y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
                 , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
                 , SvgAttr.y2 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "1"
                 ]
                 []
@@ -110,7 +111,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
                 , SvgAttr.y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
                 , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
                 , SvgAttr.y2 <| String.fromInt <| yy2
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "1"
                 ]
                 []
@@ -130,7 +131,7 @@ siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             , SvgAttr.y1 <| String.fromInt <| yy1
             , SvgAttr.x2 <| String.fromInt <| xx1 + itemPadding
             , SvgAttr.y2 <| String.fromInt <| yy2 + settings.size.height // 2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -139,7 +140,7 @@ siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             , SvgAttr.y1 <| String.fromInt <| yy2 + settings.size.height // 2
             , SvgAttr.x2 <| String.fromInt <| xx2 + settings.size.width
             , SvgAttr.y2 <| String.fromInt <| yy2 + settings.size.height // 2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []

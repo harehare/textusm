@@ -52,7 +52,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , SvgAttr.x (String.fromInt posX)
                     , SvgAttr.y (String.fromInt posY)
                     , SvgAttr.fill <| Color.toString backgroundColor
-                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.stroke <| Color.toString settings.color.line
                     , SvgAttr.strokeWidth "1"
                     ]
                     []
@@ -77,7 +77,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.y (String.fromInt posY)
                         , SvgAttr.stroke "rgba(0, 0, 0, 0.1)"
                         , SvgAttr.fill <| Color.toString backgroundColor
-                        , SvgAttr.stroke settings.color.line
+                        , SvgAttr.stroke <| Color.toString settings.color.line
                         , SvgAttr.strokeWidth "1"
                         , SvgAttr.class "ts-grid"
                         ]
