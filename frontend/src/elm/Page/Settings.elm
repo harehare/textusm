@@ -47,7 +47,7 @@ import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
 import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Type exposing (DiagramType)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Settings as Settings exposing (Settings)
@@ -170,7 +170,7 @@ update msg =
                 \m ->
                     Return.singleton m
                         |> Return.command
-                            (Download.string "settings.json"
+                            (Download.string ((m.diagramType |> DiagramType.toTypeString |> String.toLower) ++ "_settings.json")
                                 "application/json"
                                 (E.encode
                                     2

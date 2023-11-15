@@ -86,7 +86,7 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
         selectedItem =
             items
                 |> ListEx.find (\item -> unwrapValue item.value == selectedValue)
-                |> Maybe.withDefault { name = "", value = stringValue selectedValue }
+                |> Maybe.withDefault { name = selectedValue, value = stringValue selectedValue }
     in
     Html.div
         [ Attr.css
