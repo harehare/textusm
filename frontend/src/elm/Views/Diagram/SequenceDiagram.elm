@@ -6,6 +6,7 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -48,7 +49,7 @@ view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSele
                         (\item y ->
                             y + List.length (SequenceDiagram.sequenceItemMessages item) * Constants.messageMargin
                         )
-                        (settings.size.height + Constants.messageMargin)
+                        (CardSize.toInt settings.size.height + Constants.messageMargin)
                         items
             in
             Svg.g []
@@ -88,7 +89,7 @@ fragmentAndMessageView : DiagramSettings.Settings -> Property -> Int -> Int -> L
 fragmentAndMessageView settings property level y messages fragmentText fragment =
     let
         ( ( fromX, fromY ), ( toX, toY ) ) =
-            fragmentRect ( settings.size.width, settings.size.height ) y level messages
+            fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
     in
     Svg.g []
         [ mesageViewList settings property level y messages
@@ -190,7 +191,7 @@ fragmentTextView settings property ( fromX, fromY ) fragmentText =
     let
         offset : Int
         offset =
-            settings.size.width
+            CardSize.toInt settings.size.width
                 // 2
                 + 16
     in
@@ -324,10 +325,10 @@ mesageViewList settings property level y messages =
                 case message of
                     Message messageType (Participant _ order1) (Participant _ order2) ->
                         if order1 == order2 then
-                            selfMessageView settings property ( messageX settings.size.width order1, messageY ) messageType
+                            selfMessageView settings property ( messageX (CardSize.toInt settings.size.width) order1, messageY ) messageType
 
                         else
-                            messageView settings property ( messageX settings.size.width order1, messageY ) ( messageX settings.size.width order2, messageY ) messageType
+                            messageView settings property ( messageX (CardSize.toInt settings.size.width) order1, messageY ) ( messageX (CardSize.toInt settings.size.width) order2, messageY ) messageType
 
                     SubMessage subItem ->
                         sequenceItemView settings property (level + 1) messageY subItem
@@ -393,7 +394,7 @@ messageView settings property ( fromX, fromY ) ( toX, toY ) messageType =
             ]
             []
         , if isReverse then
-            textView settings property ( fromX + 8 - settings.size.width - Constants.participantMargin, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
+            textView settings property ( fromX + 8 - CardSize.toInt settings.size.width - Constants.participantMargin, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
 
           else
             textView settings property ( fromX + 8 + fromOffset, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
@@ -422,15 +423,15 @@ participantView { settings, property, selectedItem, position, participant, messa
     let
         fromY : Int
         fromY =
-            Position.getY position + settings.size.height
+            Position.getY position + CardSize.toInt settings.size.height
 
         lineX : Int
         lineX =
-            Position.getX position + settings.size.width // 2
+            Position.getX position + CardSize.toInt settings.size.width // 2
 
         toY : Int
         toY =
-            fromY + messageHeight + settings.size.height + Constants.messageMargin
+            fromY + messageHeight + CardSize.toInt settings.size.height + Constants.messageMargin
 
         (Participant item _) =
             participant
@@ -466,7 +467,7 @@ participantView { settings, property, selectedItem, position, participant, messa
 
 participantX : DiagramSettings.Settings -> Int -> Int
 participantX settings order =
-    (settings.size.width + Constants.participantMargin) * order + 8
+    (CardSize.toInt settings.size.width + Constants.participantMargin) * order + 8
 
 
 selfMessageView : DiagramSettings.Settings -> Property -> Position -> MessageType -> Svg msg
@@ -504,7 +505,7 @@ sequenceItemView settings property level y item =
                     y + SequenceDiagram.messagesCount ifMessages * Constants.messageMargin - Constants.messageMargin + 16
 
                 ( ( fromX, fromY ), ( toX, toY ) ) =
-                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+                    fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
 
                 messages : List Message
                 messages =
@@ -533,7 +534,7 @@ sequenceItemView settings property level y item =
         Fragment (Par parMessages) ->
             let
                 ( ( fromX, fromY ), ( toX, toY ) ) =
-                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+                    fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
 
                 lines : List (Svg msg)
                 lines =

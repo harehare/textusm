@@ -11,6 +11,7 @@ import Html.Styled.Attributes exposing (css)
 import Markdown
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
@@ -93,8 +94,8 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                 ( width, height ) =
                     ( Property.getCardWidth property, Property.getCardHeight property )
                         |> Tuple.mapBoth
-                            (\w -> Maybe.withDefault settings.size.width w)
-                            (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                            (\w -> Maybe.withDefault (CardSize.toInt settings.size.width) w)
+                            (\h -> Maybe.withDefault (CardSize.toInt settings.size.height - 1) h)
                         |> Tuple.mapBoth
                             (\w -> w + offsetWidth)
                             (\h -> h + offsetHeight)
@@ -151,7 +152,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
 
                     selectedItemSize : Size
                     selectedItemSize =
-                        ( settings.size.width, settings.size.height - 1 )
+                        ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height - 1 )
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))

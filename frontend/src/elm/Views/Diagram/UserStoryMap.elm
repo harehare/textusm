@@ -10,6 +10,7 @@ import List
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
@@ -96,7 +97,7 @@ mainView { settings, property, selectedItem, items, countByTasks, countByRelease
                         { settings = settings
                         , property = property
                         , verticalCount = List.drop 2 countByReleaseLevel
-                        , position = ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 )
+                        , position = ( Constants.leftMargin + count * (CardSize.toInt settings.size.width + Constants.itemMargin), 10 )
                         , selectedItem = selectedItem
                         , item = item
                         , onEditSelectedItem = onEditSelectedItem
@@ -134,9 +135,9 @@ labelView { settings, property, width, userStoryMap } =
         (([ BoolEx.ifElse
                 (Svg.line
                     [ SvgAttr.x1 <| String.fromInt posX
-                    , SvgAttr.y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
+                    , SvgAttr.y1 <| String.fromInt (Constants.itemMargin // 2 + (CardSize.toInt settings.size.height + Constants.itemMargin) * 2)
                     , SvgAttr.x2 <| String.fromInt width
-                    , SvgAttr.y2 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
+                    , SvgAttr.y2 <| String.fromInt (Constants.itemMargin // 2 + (CardSize.toInt settings.size.height + Constants.itemMargin) * 2)
                     , SvgAttr.stroke <| Color.toString <| DiagramSettings.getLineColor settings property
                     , SvgAttr.strokeWidth "2"
                     ]
@@ -149,13 +150,13 @@ labelView { settings, property, width, userStoryMap } =
                 (Svg.g [] [])
                 (hierarchy > 0)
           , BoolEx.ifElse
-                (labelTextView settings ( posX, settings.size.height + 25 ) (Property.getUserTask property |> Maybe.withDefault "USER TASKS"))
+                (labelTextView settings ( posX, CardSize.toInt settings.size.height + 25 ) (Property.getUserTask property |> Maybe.withDefault "USER TASKS"))
                 (Svg.g [] [])
                 (hierarchy > 0)
           ]
             ++ BoolEx.ifElse
-                [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
-                , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel 1 property |> Maybe.withDefault "RELEASE 1")
+                [ labelTextView settings ( posX, CardSize.toInt settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
+                , labelTextView settings ( posX, CardSize.toInt settings.size.height * 2 + 80 ) (Property.getReleaseLevel 1 property |> Maybe.withDefault "RELEASE 1")
                 ]
                 [ Svg.g [] [] ]
                 (hierarchy > 1)
@@ -170,7 +171,7 @@ labelView { settings, property, width, userStoryMap } =
                                         Constants.itemMargin
                                             // 2
                                             + Constants.itemMargin
-                                            + ((settings.size.height + Constants.itemMargin)
+                                            + ((CardSize.toInt settings.size.height + Constants.itemMargin)
                                                 * (countPerReleaseLevel
                                                     |> List.take (xx + 2)
                                                     |> List.sum
@@ -235,14 +236,14 @@ activityView { settings, property, verticalCount, position, selectedItem, item, 
                                 , verticalCount = verticalCount
                                 , position =
                                     ( Position.getX position
-                                        + (i * settings.size.width)
+                                        + (i * CardSize.toInt settings.size.width)
                                         + (if i > 0 then
                                             i * Constants.itemMargin
 
                                            else
                                             0
                                           )
-                                    , Position.getY position + Constants.itemMargin + settings.size.height
+                                    , Position.getY position + Constants.itemMargin + CardSize.toInt settings.size.height
                                     )
                                 , selectedItem = selectedItem
                                 , item = it
@@ -302,7 +303,7 @@ taskView { settings, property, verticalCount, position, selectedItem, item, onEd
                                     , position =
                                         ( Position.getX position
                                         , Position.getY position
-                                            + ((i + 1) * settings.size.height)
+                                            + ((i + 1) * CardSize.toInt settings.size.height)
                                             + (Constants.itemMargin * 2)
                                             + (if i > 0 then
                                                 Constants.itemMargin * i
@@ -367,7 +368,7 @@ storyView { settings, property, verticalCount, parentCount, position, selectedIt
                             ( Position.getX position
                             , Position.getY position
                                 + (Basics.max 1 (itemCount - parentCount + i + 1)
-                                    * (Constants.itemMargin + settings.size.height)
+                                    * (Constants.itemMargin + CardSize.toInt settings.size.height)
                                   )
                                 + Constants.itemMargin
                             )

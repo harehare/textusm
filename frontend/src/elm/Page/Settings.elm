@@ -46,6 +46,7 @@ import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
@@ -493,11 +494,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150) settings
+                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150 |> CardSize.fromInt) settings
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.diagramSettings.size.width)
+                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.width)
                         ]
                     ]
                 , conrtolView
@@ -508,11 +509,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45)
+                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45 |> CardSize.fromInt)
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.diagramSettings.size.height)
+                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.height)
                         ]
                     ]
                 ]

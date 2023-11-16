@@ -8,6 +8,7 @@ import Api.Request as Request
 import Api.RequestError exposing (RequestError)
 import Graphql.OptionalArgument as OptionalArgument
 import Models.Color as Color
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Session as Session exposing (Session)
@@ -16,6 +17,7 @@ import Models.SettingsCache as SettingCache exposing (SettingsCache)
 import Ports
 import Return
 import Task
+import Models.Diagram.CardSize as CardSize
 
 
 load :
@@ -68,8 +70,8 @@ save msg { diagramType, session, settings } =
             (Session.getIdToken session)
             diagramType
             { font = settings.diagramSettings.font
-            , width = settings.diagramSettings.size.width
-            , height = settings.diagramSettings.size.height
+            , width = CardSize.toInt settings.diagramSettings.size.width
+            , height = CardSize.toInt settings.diagramSettings.size.height
             , backgroundColor = Color.toString settings.diagramSettings.backgroundColor
             , activityColor =
                 { foregroundColor = Color.toString settings.diagramSettings.color.activity.color
@@ -102,7 +104,7 @@ save msg { diagramType, session, settings } =
             , scale =
                 case settings.diagramSettings.scale of
                     Just s ->
-                        OptionalArgument.Present s
+                        OptionalArgument.Present <| Scale.toFloat s
 
                     Nothing ->
                         OptionalArgument.Absent

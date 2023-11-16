@@ -1,6 +1,7 @@
 module Models.Diagram.SiteMap exposing (size)
 
 import Constants
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Models.Size exposing (Size)
@@ -33,7 +34,7 @@ size settings siteMapitems hierarchy =
 
         svgHeight : Int
         svgHeight =
-            (settings.size.height
+            (CardSize.toInt settings.size.height
                 + Constants.itemSpan
             )
                 * (maxChildrenCount
@@ -42,7 +43,7 @@ size settings siteMapitems hierarchy =
 
         svgWidth : Int
         svgWidth =
-            (settings.size.width
+            (CardSize.toInt settings.size.width
                 + Constants.itemSpan
             )
                 * Item.length items

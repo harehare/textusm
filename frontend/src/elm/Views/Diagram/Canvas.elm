@@ -4,6 +4,7 @@ import Constants
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
@@ -195,7 +196,7 @@ canvasBase { settings, property, isTitleBottom, size, position, selectedItem, it
                                                 6
                                               )
                                     )
-                        , size = ( Size.getWidth selectedItemSize, settings.size.height )
+                        , size = ( Size.getWidth selectedItemSize, CardSize.toInt settings.size.height )
                         , color = Item.getForegroundColor item |> Maybe.withDefault settings.color.label
                         , item = item_
                         , onEditSelectedItem = onEditSelectedItem
@@ -274,7 +275,7 @@ canvasBase { settings, property, isTitleBottom, size, position, selectedItem, it
 
         Nothing ->
             Svg.g
-                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + CardSize.toInt settings.size.height ), displayAllMenu = True } ]
                 [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                 , title
                     { settings = settings
@@ -367,7 +368,7 @@ text { settings, property, svgWidth, position, selectedItem, items, onEditSelect
     let
         newSettings : DiagramSettings.Settings
         newSettings =
-            settings |> DiagramSettings.ofWidth.set (svgWidth - Constants.itemMargin * 2)
+            settings |> DiagramSettings.ofWidth.set (CardSize.fromInt <| svgWidth - Constants.itemMargin * 2)
 
         ( posX, posY ) =
             position
@@ -378,7 +379,7 @@ text { settings, property, svgWidth, position, selectedItem, items, onEditSelect
                 Card.viewWithDefaultColor
                     { settings = newSettings
                     , property = property
-                    , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
+                    , position = ( posX + 16, posY + i * (CardSize.toInt settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
                     , selectedItem = selectedItem
                     , item = item
                     , canMove = False
@@ -410,7 +411,7 @@ title { settings, position, item, onSelect } =
             onSelect <|
                 Just
                     { item = item
-                    , position = Tuple.mapSecond (\y -> y + settings.size.height) position
+                    , position = Tuple.mapSecond (\y -> y + CardSize.toInt settings.size.height) position
                     , displayAllMenu = True
                     }
         ]

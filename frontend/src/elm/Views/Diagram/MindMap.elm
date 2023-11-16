@@ -5,6 +5,7 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
 import Models.Color exposing (Color)
 import Models.Diagram as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
@@ -223,11 +224,11 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
 
         svgHeight : Int
         svgHeight =
-            settings.size.height
+            CardSize.toInt settings.size.height
 
         svgWidth : Int
         svgWidth =
-            settings.size.width
+            CardSize.toInt settings.size.width
 
         tmpNodeCounts : List Int
         tmpNodeCounts =
@@ -292,7 +293,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                                 |> Maybe.withDefault Position.zero
                     in
                     [ Lazy.lazy4 nodeLineView
-                        ( settings.size.width, settings.size.height )
+                        ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height )
                         settings.color.task.backgroundColor
                         ( x, y )
                         ( itemX + Position.getX offset, itemY + Position.getY offset )

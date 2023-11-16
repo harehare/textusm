@@ -11,6 +11,7 @@ import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Size exposing (Size)
+import Models.Diagram.CardSize as CardSize
 
 
 type FreeForm
@@ -83,8 +84,8 @@ size settings freeForm =
                         ( offsetX, offsetY ) =
                             Item.getOffset item_
                     in
-                    ( 16 + (modBy 4 i + 1) * (settings.size.width + 32)
-                    , (i // 4 + 1) * (settings.size.height + 32)
+                    ( 16 + (modBy 4 i + 1) * (CardSize.toInt settings.size.width + 32)
+                    , (i // 4 + 1) * (CardSize.toInt settings.size.height + 32)
                     )
                         |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
                 )

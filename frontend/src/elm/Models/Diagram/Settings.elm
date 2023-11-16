@@ -35,6 +35,8 @@ module Models.Diagram.Settings exposing
 
 import Css exposing (fontFamilies)
 import Models.Color as Color exposing (Color)
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
+import Models.Diagram.Scale as Scale exposing (Scale)
 import Models.Property as Property exposing (Property)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -63,21 +65,21 @@ type alias Settings =
     , color : ColorSettings
     , backgroundColor : Color
     , zoomControl : Maybe Bool
-    , scale : Maybe Float
+    , scale : Maybe Scale
     , toolbar : Maybe Bool
     }
 
 
 type alias Size =
-    { width : Int
-    , height : Int
+    { width : CardSize
+    , height : CardSize
     }
 
 
 default : Settings
 default =
     { font = "Nunito Sans"
-    , size = { width = 140, height = 65 }
+    , size = { width = CardSize.fromInt 140, height = CardSize.fromInt 65 }
     , color =
         { activity =
             { color = Color.white
@@ -98,7 +100,7 @@ default =
     , backgroundColor =
         Color.backgroundDarkDefalut
     , zoomControl = Just True
-    , scale = Just 1.0
+    , scale = Just Scale.default
     , toolbar = Nothing
     }
 
@@ -207,7 +209,7 @@ ofFont =
     Lens .font (\b a -> { a | font = b })
 
 
-ofHeight : Lens Settings Int
+ofHeight : Lens Settings CardSize
 ofHeight =
     Compose.lensWithLens sizeOfHeight ofSize
 
@@ -224,7 +226,7 @@ ofLineColor =
         |> Compose.lensWithLens colorSettingsOfLine
 
 
-ofScale : Lens Settings (Maybe Float)
+ofScale : Lens Settings (Maybe Scale)
 ofScale =
     Lens .scale (\b a -> { a | scale = b })
 
@@ -268,7 +270,7 @@ ofToolbar =
     Lens .toolbar (\b a -> { a | toolbar = b })
 
 
-ofWidth : Lens Settings Int
+ofWidth : Lens Settings CardSize
 ofWidth =
     Compose.lensWithLens sizeOfWidth ofSize
 
@@ -328,11 +330,11 @@ ofSize =
     Lens .size (\b a -> { a | size = b })
 
 
-sizeOfHeight : Lens Size Int
+sizeOfHeight : Lens Size CardSize
 sizeOfHeight =
     Lens .height (\b a -> { a | height = b })
 
 
-sizeOfWidth : Lens Size Int
+sizeOfWidth : Lens Size CardSize
 sizeOfWidth =
     Lens .width (\b a -> { a | width = b })

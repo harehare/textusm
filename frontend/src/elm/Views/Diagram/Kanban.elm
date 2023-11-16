@@ -5,6 +5,7 @@ import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -73,11 +74,11 @@ kanbanView { settings, property, selectedItem, kanban, onEditSelectedItem, onEnd
     let
         height : Int
         height =
-            Kanban.getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin
+            Kanban.getCardCount kanban * (CardSize.toInt settings.size.height + Constants.itemMargin) + Constants.itemMargin
 
         listWidth : Int
         listWidth =
-            settings.size.width + Constants.itemMargin * 3
+            CardSize.toInt settings.size.width + Constants.itemMargin * 3
 
         (Kanban lists) =
             kanban
@@ -134,9 +135,9 @@ listView { settings, property, height, position, selectedItem, kanban, onEditSel
             ]
             [ Svg.text name ]
             :: Svg.line
-                [ SvgAttr.x1 <| String.fromInt <| posX + settings.size.width + 8 + Constants.itemMargin
+                [ SvgAttr.x1 <| String.fromInt <| posX + CardSize.toInt settings.size.width + 8 + Constants.itemMargin
                 , SvgAttr.y1 "0"
-                , SvgAttr.x2 <| String.fromInt <| posX + settings.size.width + 8 + Constants.itemMargin
+                , SvgAttr.x2 <| String.fromInt <| posX + CardSize.toInt settings.size.width + 8 + Constants.itemMargin
                 , SvgAttr.y2 <| String.fromInt <| height + Constants.itemMargin
                 , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "3"
@@ -149,7 +150,7 @@ listView { settings, property, height, position, selectedItem, kanban, onEditSel
                         , item = item
                         , position =
                             ( posX
-                            , posY + kanbanMargin + Constants.itemMargin + (settings.size.height + Constants.itemMargin) * i
+                            , posY + kanbanMargin + Constants.itemMargin + (CardSize.toInt settings.size.height + Constants.itemMargin) * i
                             )
                         , property = property
                         , selectedItem = selectedItem

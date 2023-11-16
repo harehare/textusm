@@ -1,7 +1,9 @@
 module Models.Diagram.Scale exposing
     ( Scale
     , add
+    , decoder
     , default
+    , encoder
     , fromFloat
     , max
     , min
@@ -9,6 +11,9 @@ module Models.Diagram.Scale exposing
     , sub
     , toFloat
     )
+
+import Json.Decode as D exposing (Decoder)
+import Json.Encode as E
 
 
 type Scale
@@ -66,3 +71,13 @@ sub (Scale a) (Scale b) =
 toFloat : Scale -> Float
 toFloat (Scale s) =
     s
+
+
+decoder : Decoder Scale
+decoder =
+    D.map fromFloat D.float
+
+
+encoder : Scale -> E.Value
+encoder scale =
+    E.float <| toFloat scale

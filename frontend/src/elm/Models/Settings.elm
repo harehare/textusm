@@ -33,9 +33,11 @@ import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color exposing (Color)
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Text as Text exposing (Text)
 import Models.Theme as Theme exposing (Theme)
@@ -83,7 +85,7 @@ defaultSettings theme =
     , diagramId = Nothing
     , diagramSettings =
         { font = "Nunito Sans"
-        , size = { width = 140, height = 65 }
+        , size = { width = CardSize.fromInt 140, height = CardSize.fromInt 65 }
         , color =
             { activity =
                 { color = Color.white
@@ -115,7 +117,7 @@ defaultSettings theme =
                 Theme.Light ->
                     Color.backgroundDefalut
         , zoomControl = Just True
-        , scale = Just 1.0
+        , scale = Just Scale.default
         , toolbar = Nothing
         }
     , text = Nothing
@@ -152,7 +154,7 @@ fontSize =
     Compose.optionalWithLens editorOfFontSize editorOfSettings
 
 
-height : Lens Settings Int
+height : Lens Settings CardSize
 height =
     Compose.lensWithLens DiagramSettings.ofHeight ofDiagramSettings
 
@@ -202,7 +204,7 @@ toolbar =
     Compose.lensWithLens DiagramSettings.ofToolbar ofDiagramSettings
 
 
-width : Lens Settings Int
+width : Lens Settings CardSize
 width =
     Compose.lensWithLens DiagramSettings.ofWidth ofDiagramSettings
 
@@ -326,7 +328,7 @@ diagramDecoder =
         |> required "color" colorSettingsDecoder
         |> required "backgroundColor" Color.decoder
         |> optional "zoomControl" (D.map Just D.bool) Nothing
-        |> optional "scale" (D.map Just D.float) Nothing
+        |> optional "scale" (D.map Just Scale.decoder) Nothing
         |> optional "toolbar" (D.map Just D.bool) Nothing
 
 
@@ -338,7 +340,7 @@ diagramEncoder settings =
         , ( "color", colorSettingsEncoder settings.color )
         , ( "backgroundColor", Color.encoder settings.backgroundColor )
         , ( "zoomControl", maybe E.bool settings.zoomControl )
-        , ( "scale", maybe E.float settings.scale )
+        , ( "scale", maybe Scale.encoder settings.scale )
         , ( "toolbar", maybe E.bool settings.toolbar )
         ]
 
@@ -383,13 +385,13 @@ editorSettingsEncoder editorSettings =
 sizeDecoder : D.Decoder DiagramSettings.Size
 sizeDecoder =
     D.succeed DiagramSettings.Size
-        |> required "width" D.int
-        |> required "height" D.int
+        |> required "width" CardSize.decoder
+        |> required "height" CardSize.decoder
 
 
 sizeEncoder : DiagramSettings.Size -> E.Value
 sizeEncoder size =
     E.object
-        [ ( "width", E.int size.width )
-        , ( "height", E.int size.height )
+        [ ( "width", CardSize.encoder size.width )
+        , ( "height", CardSize.encoder size.height )
         ]

@@ -24,6 +24,7 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
@@ -55,8 +56,8 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                 ( width, height ) =
                     ( Property.getNodeWidth property, Property.getNodeHeight property )
                         |> Tuple.mapBoth
-                            (\w -> Maybe.withDefault settings.size.width w)
-                            (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                            (\w -> Maybe.withDefault (CardSize.toInt settings.size.width) w)
+                            (\h -> Maybe.withDefault (CardSize.toInt settings.size.height - 1) h)
                         |> Tuple.mapBoth
                             (\w -> w + offsetWidth)
                             (\h -> h + offsetHeight)
@@ -97,8 +98,8 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     selectedItemSize =
                         ( Property.getNodeWidth property, Property.getNodeHeight property )
                             |> Tuple.mapBoth
-                                (\w -> Maybe.withDefault settings.size.width w)
-                                (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                                (\w -> Maybe.withDefault (CardSize.toInt settings.size.width) w)
+                                (\h -> Maybe.withDefault (CardSize.toInt settings.size.height - 1) h)
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
@@ -259,13 +260,13 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
         ( width, height ) =
             ( Property.getNodeWidth property, Property.getNodeHeight property )
                 |> Tuple.mapBoth
-                    (\w -> Maybe.withDefault settings.size.width w)
-                    (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                    (\w -> Maybe.withDefault (CardSize.toInt settings.size.width) w)
+                    (\h -> Maybe.withDefault (CardSize.toInt settings.size.height - 1) h)
 
         view_ : Svg msg
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + CardSize.toInt settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
                     , SvgAttr.height <| String.fromInt <| height
@@ -279,7 +280,7 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , SvgAttr.class "ts-node"
                     ]
                     []
-                , textNode settings property ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
+                , textNode settings property ( posX, posY ) ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) textColor item
                 ]
     in
     case selectedItem of
@@ -287,8 +288,8 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
             if Item.eq item_ item then
                 Svg.g []
                     [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt settings.size.width
-                        , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                        [ SvgAttr.width <| String.fromInt <| CardSize.toInt settings.size.width
+                        , SvgAttr.height <| String.fromInt <| CardSize.toInt settings.size.height - 1
                         , SvgAttr.x <| String.fromInt posX
                         , SvgAttr.y <| String.fromInt posY
                         , SvgAttr.strokeWidth "3"
@@ -302,7 +303,7 @@ root { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , textNodeInput
                         { settings = settings
                         , pos = ( posX, posY )
-                        , size = ( settings.size.width, settings.size.height )
+                        , size = ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height )
                         , item = item_
                         , onEditSelectedItem = onEditSelectedItem
                         , onEndEditSelectedItem = onEndEditSelectedItem

@@ -1042,13 +1042,7 @@ update model message =
                     { position = Just model.window.position
                     , font = model.settingsModel.settings.font
                     , diagramId = model.currentDiagram.id
-                    , diagramSettings =
-                        DiagramSettings.ofScale.set
-                            (model.diagramModel.diagram.scale
-                                |> Scale.toFloat
-                                |> Just
-                            )
-                            newStoryMap.diagramSettings
+                    , diagramSettings = DiagramSettings.ofScale.set (Just model.diagramModel.diagram.scale) newStoryMap.diagramSettings
                     , text = Just model.diagramModel.text
                     , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor

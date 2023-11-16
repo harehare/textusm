@@ -4,6 +4,7 @@ import Css exposing (backgroundColor)
 import Events
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
@@ -42,13 +43,13 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     onSelect <|
                         Just
                             { item = item
-                            , position = ( posX, posY + settings.size.height )
+                            , position = ( posX, posY + CardSize.toInt settings.size.height )
                             , displayAllMenu = True
                             }
                 ]
                 [ Svg.rect
-                    [ SvgAttr.width <| String.fromInt settings.size.width
-                    , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                    [ SvgAttr.width <| String.fromInt <| CardSize.toInt settings.size.width
+                    , SvgAttr.height <| String.fromInt <| CardSize.toInt settings.size.height - 1
                     , SvgAttr.x (String.fromInt posX)
                     , SvgAttr.y (String.fromInt posY)
                     , SvgAttr.fill <| Color.toString backgroundColor
@@ -59,7 +60,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                 , Card.text
                     { settings = settings
                     , position = ( posX, posY )
-                    , size = ( settings.size.width, settings.size.height )
+                    , size = ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height )
                     , color = forgroundColor
                     , fontSize = Item.getFontSize item |> Maybe.withDefault FontSize.default
                     , item = item
@@ -71,8 +72,8 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
             if Item.eq item_ item then
                 Svg.g []
                     [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt settings.size.width
-                        , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                        [ SvgAttr.width <| String.fromInt <| CardSize.toInt settings.size.width
+                        , SvgAttr.height <| String.fromInt <| CardSize.toInt settings.size.height - 1
                         , SvgAttr.x (String.fromInt posX)
                         , SvgAttr.y (String.fromInt posY)
                         , SvgAttr.stroke "rgba(0, 0, 0, 0.1)"
@@ -88,7 +89,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , item = item_
                         , position = ( posX, posY )
                         , settings = settings
-                        , size = ( settings.size.width, settings.size.height )
+                        , size = ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height )
                         , onEditSelectedItem = onEditSelectedItem
                         , onEndEditSelectedItem = onEndEditSelectedItem
                         , onSelect = onSelect

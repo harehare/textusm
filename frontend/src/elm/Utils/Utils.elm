@@ -12,6 +12,8 @@ import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Process
 import Task
+import Models.Diagram.CardSize exposing (CardSize)
+import Models.Diagram.CardSize as CardSize
 
 
 calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
@@ -54,4 +56,4 @@ getCanvasHeight settings items =
             Item.map (\i -> Item.getChildren i |> Item.unwrapChildren |> Item.length) items
                 |> List.maximum
     in
-    (settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
+    (CardSize.toInt settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50

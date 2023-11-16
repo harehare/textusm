@@ -24,6 +24,7 @@ import Dict exposing (Dict)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
+import Models.Diagram.CardSize as CardSize
 
 
 type alias AltMessage =
@@ -186,14 +187,14 @@ size settings sequenceDiagram =
         diagramHeight =
             messageCountAll sequenceDiagram
                 * Constants.messageMargin
-                + settings.size.height
+                + CardSize.toInt settings.size.height
                 * 4
                 + Constants.messageMargin
                 + 8
 
         diagramWidth : Int
         diagramWidth =
-            participantCount sequenceDiagram * (settings.size.width + Constants.participantMargin) + 8
+            participantCount sequenceDiagram * (CardSize.toInt settings.size.width + Constants.participantMargin) + 8
     in
     ( diagramWidth, diagramHeight )
 

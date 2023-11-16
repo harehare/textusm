@@ -3,6 +3,7 @@ module Views.Diagram.Table exposing (docs, view)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Table as Table exposing (Header(..), Row(..), Table(..))
@@ -87,7 +88,7 @@ headerView { settings, property, selectedItem, item, onEditSelectedItem, onEndEd
                 Lazy.lazy Grid.view
                     { settings = settings
                     , property = property
-                    , position = ( settings.size.width * i, 0 )
+                    , position = ( CardSize.toInt settings.size.width * i, 0 )
                     , selectedItem = selectedItem
                     , item = ii
                     , onEditSelectedItem = onEditSelectedItem
@@ -117,7 +118,7 @@ rowView { settings, property, selectedItem, rowNo, item, onEditSelectedItem, onE
          , Lazy.lazy Grid.view
             { settings = settings
             , property = property
-            , position = ( 0, settings.size.height * rowNo )
+            , position = ( 0, CardSize.toInt settings.size.height * rowNo )
             , selectedItem = selectedItem
             , item = item
             , onEditSelectedItem = onEditSelectedItem
@@ -131,7 +132,7 @@ rowView { settings, property, selectedItem, rowNo, item, onEditSelectedItem, onE
                     , Lazy.lazy Grid.view
                         { settings = settings
                         , property = property
-                        , position = ( settings.size.width * (i + 1), settings.size.height * rowNo )
+                        , position = ( CardSize.toInt settings.size.width * (i + 1), CardSize.toInt settings.size.height * rowNo )
                         , selectedItem = selectedItem
                         , item = childItem
                         , onEditSelectedItem = onEditSelectedItem
