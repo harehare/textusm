@@ -6,6 +6,8 @@ import Expect
 import Html.Styled
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Diagram.CardSize as CardSize
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Item as Item
@@ -632,12 +634,12 @@ defaultSettings : DiagramSettings.Settings
 defaultSettings =
     { font = "apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
     , size =
-        { width = 140
-        , height = 65
+        { width = CardSize.fromInt 140
+        , height = CardSize.fromInt 65
         }
     , backgroundColor = Color.fromString "#F5F5F6"
     , zoomControl = Just True
-    , scale = Just 1.0
+    , scale = Just Scale.default
     , color =
         { activity =
             { color = Color.fromString "#FFFFFF"
