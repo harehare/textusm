@@ -1,4 +1,4 @@
-module Models.Diagram.CardSize exposing (CardSize, decoder, encoder, fromInt, toInt)
+module Models.Diagram.CardSize exposing (CardSize, decoder, encoder, fromInt, max, min, toInt)
 
 import Json.Decode as D exposing (Decoder)
 import Json.Encode as E
@@ -8,13 +8,23 @@ type CardSize
     = CardSize Int
 
 
+max : Int
+max =
+    600
+
+
+min : Int
+min =
+    50
+
+
 fromInt : Int -> CardSize
 fromInt width =
-    if width > 600 then
-        CardSize 600
+    if width > max then
+        CardSize max
 
-    else if width < 50 then
-        CardSize 50
+    else if width < min then
+        CardSize min
 
     else
         CardSize width
