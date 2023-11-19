@@ -5,7 +5,6 @@ port module Ports exposing
     , closeLocalFile
     , copyText
     , downloadCompleted
-    , reload
     , focusEditor
     , fullscreen
     , getDiagram
@@ -28,8 +27,9 @@ port module Ports exposing
     , openedLocalFile
     , progress
     , refreshToken
-    , removedLocalDiagram
+    , reload
     , removeRemoteDiagram
+    , removedLocalDiagram
     , saveDiagram
     , saveLocalFile
     , saveSettingsToLocal
@@ -130,6 +130,7 @@ port refreshToken : () -> Cmd msg
 
 
 port removedLocalDiagram : (String -> msg) -> Sub msg
+
 
 port reload : (String -> msg) -> Sub msg
 

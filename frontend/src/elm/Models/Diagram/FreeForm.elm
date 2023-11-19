@@ -7,11 +7,11 @@ module Models.Diagram.FreeForm exposing
     , size
     )
 
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Size exposing (Size)
-import Models.Diagram.CardSize as CardSize
 
 
 type FreeForm

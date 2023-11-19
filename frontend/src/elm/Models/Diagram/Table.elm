@@ -8,10 +8,10 @@ module Models.Diagram.Table exposing
     )
 
 import Constants
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
-import Models.Diagram.CardSize as CardSize
 
 
 type Header

@@ -8,12 +8,11 @@ module Utils.Utils exposing
 
 import Constants
 import Http exposing (Error(..))
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Process
 import Task
-import Models.Diagram.CardSize exposing (CardSize)
-import Models.Diagram.CardSize as CardSize
 
 
 calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float

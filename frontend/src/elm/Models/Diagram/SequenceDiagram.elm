@@ -21,10 +21,10 @@ module Models.Diagram.SequenceDiagram exposing
 import Bool.Extra as BoolEx
 import Constants
 import Dict exposing (Dict)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
-import Models.Diagram.CardSize as CardSize
 
 
 type alias AltMessage =
