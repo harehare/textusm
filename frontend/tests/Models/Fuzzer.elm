@@ -1,16 +1,21 @@
-module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer, itemFuzzer, itemSettingsFuzzer)
+module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer, itemFuzzer, itemSettingsFuzzer, settingsFuzzer)
 
 import Fuzz exposing (Fuzzer)
 import Models.Color as Color exposing (Color)
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Scale as Scale exposing (Scale)
+import Models.Diagram.Settings exposing (ColorSetting, ColorSettings)
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
+import Models.Settings exposing (EditorSettings, Settings)
 import Models.Text as Text exposing (Text)
+import Models.Theme as Theme exposing (Theme)
 import Models.Title as Title exposing (Title)
 import Time exposing (Posix)
 
@@ -95,7 +100,7 @@ itemFuzzer =
             (Fuzz.map
                 (\s ->
                     let
-                        tokens: List String
+                        tokens : List String
                         tokens =
                             String.split "#" s
                     in
@@ -203,6 +208,15 @@ hexFuzzer =
         ]
 
 
+themeFuzzer : Fuzzer Theme
+themeFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant Theme.Dark
+        , Fuzz.constant Theme.Light
+        , Fuzz.constant <| Theme.System True
+        ]
+
+
 positionFuzzer : Fuzzer Position
 positionFuzzer =
     Fuzz.pair
@@ -237,3 +251,61 @@ textFuzzer =
 titleFuzzer : Fuzzer Title
 titleFuzzer =
     Fuzz.map Title.fromString Fuzz.string
+
+
+colorSettingFuzzer : Fuzzer ColorSetting
+colorSettingFuzzer =
+    Fuzz.map ColorSetting colorFuzzer
+        |> Fuzz.andMap colorFuzzer
+
+
+scaleFuzzer : Fuzzer Scale
+scaleFuzzer =
+    Fuzz.map Scale.fromFloat Fuzz.float
+
+
+cardSizeFuzzer : Fuzzer CardSize
+cardSizeFuzzer =
+    Fuzz.map CardSize.fromInt Fuzz.int
+
+
+colorSettingsFuzzer : Fuzzer ColorSettings
+colorSettingsFuzzer =
+    Fuzz.map ColorSettings colorSettingFuzzer
+        |> Fuzz.andMap colorSettingFuzzer
+        |> Fuzz.andMap colorSettingFuzzer
+        |> Fuzz.andMap colorFuzzer
+        |> Fuzz.andMap colorFuzzer
+        |> Fuzz.andMap (Fuzz.maybe colorFuzzer)
+
+
+diagramSettingsFuzzer : Fuzzer Models.Diagram.Settings.Settings
+diagramSettingsFuzzer =
+    Fuzz.map Models.Diagram.Settings.Settings Fuzz.string
+        |> Fuzz.andMap (Fuzz.map Models.Diagram.Settings.Size cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
+        |> Fuzz.andMap colorSettingsFuzzer
+        |> Fuzz.andMap colorFuzzer
+        |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
+        |> Fuzz.andMap (Fuzz.maybe scaleFuzzer)
+        |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
+
+
+settingsFuzzer : Fuzzer Settings
+settingsFuzzer =
+    Fuzz.map Settings (Fuzz.maybe Fuzz.int)
+        |> Fuzz.andMap Fuzz.string
+        |> Fuzz.andMap (Fuzz.maybe diagramIdFuzzer)
+        |> Fuzz.andMap diagramSettingsFuzzer
+        |> Fuzz.andMap (Fuzz.maybe textFuzzer)
+        |> Fuzz.andMap (Fuzz.maybe titleFuzzer)
+        |> Fuzz.andMap
+            (Fuzz.maybe <|
+                (Fuzz.map EditorSettings
+                    Fuzz.int
+                    |> Fuzz.andMap Fuzz.bool
+                    |> Fuzz.andMap Fuzz.bool
+                )
+            )
+        |> Fuzz.andMap (Fuzz.maybe diagramItemFuzzer)
+        |> Fuzz.andMap (Fuzz.maybe diagramLocationFuzzer)
+        |> Fuzz.andMap (Fuzz.maybe themeFuzzer)

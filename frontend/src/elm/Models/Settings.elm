@@ -14,6 +14,7 @@ module Models.Settings exposing
     , height
     , importDecoder
     , labelColor
+    , legacyEncoder
     , lineColor
     , ofDiagramSettings
     , showLineNumber
@@ -230,8 +231,8 @@ decoder =
         |> optional "title" (D.map Just Title.decoder) Nothing
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
-        |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
-        |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
+        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
+        |> optional "theme" (D.map Just Theme.decoder) Nothing
 
 
 encoder : Settings -> E.Value
@@ -241,6 +242,22 @@ encoder settings =
         , ( "font", E.string settings.font )
         , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
         , ( "diagramSettings", diagramEncoder settings.diagramSettings )
+        , ( "text", maybe Text.encoder settings.text )
+        , ( "title", maybe Title.encoder settings.title )
+        , ( "editor", maybe editorSettingsEncoder settings.editor )
+        , ( "diagram", maybe DiagramItem.encoder settings.diagram )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
+        ]
+
+
+legacyEncoder : Settings -> E.Value
+legacyEncoder settings =
+    E.object
+        [ ( "position", maybe E.int settings.position )
+        , ( "font", E.string settings.font )
+        , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
+        , ( "storyMap", diagramEncoder settings.diagramSettings )
         , ( "text", maybe Text.encoder settings.text )
         , ( "title", maybe Title.encoder settings.title )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
