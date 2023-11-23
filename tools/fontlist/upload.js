@@ -1,3 +1,6 @@
+const fs = require("fs");
+const zlib = require("zlib");
+
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getStorage } = require("firebase-admin/storage");
 
@@ -12,12 +15,25 @@ initializeApp({
   ),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
 });
-const bucket = getStorage().bucket();
 
 (async () => {
-  ["all.txt", "ja.txt"].forEach(async (file) => {
-    await bucket
-      .upload(`../assets/fontlist/${file}`, { destination: `fontlist/${file}` })
-      .catch((err) => console.log(err));
+  fs.readdir("./assets/fontlist/", (err, files) => {
+    files.forEach(async (file) => {
+      const uploadFile = `./assets/fontlist/${file}`;
+      fs.writeFileSync(
+        `${uploadFile}.gz`,
+        zlib.gzipSync(fs.readFileSync(`${uploadFile}`, "utf-8"))
+      );
+
+      await getStorage()
+        .bucket()
+        .upload(`${uploadFile}.gz`, {
+          destination: `fontlist/${file}.gz`,
+        })
+        .catch((err) => console.log(err));
+
+      fs.unlinkSync(`${uploadFile}.gz`);
+      console.log(`upload ${file}`);
+    });
   });
 })();

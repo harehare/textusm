@@ -117,7 +117,7 @@ func Run() int {
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore, storage)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
-	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore)
+	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore, storage)
 	itemService := service.NewService(repo, shareRepo, userRepo)
 	gistService := service.NewGistService(gistRepo, env.GithubClientID, env.GithubClientSecret)
 	settingsService := service.NewSettingsService(settingsRepo, env.GithubClientID, env.GithubClientSecret)
@@ -144,7 +144,7 @@ func Run() int {
 		}
 	})
 
-	restApi := api.New(*gistService)
+	restApi := api.New(*gistService, *settingsService)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
