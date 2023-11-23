@@ -3,7 +3,7 @@ module github.com/harehare/textusm
 require (
 	cloud.google.com/go/firestore v1.14.0
 	cloud.google.com/go/storage v1.35.1
-	firebase.google.com/go/v4 v4.12.1
+	firebase.google.com/go/v4 v4.13.0
 	github.com/99designs/gqlgen v0.17.40
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.10
