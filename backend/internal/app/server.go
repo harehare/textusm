@@ -15,6 +15,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/harehare/textusm/internal/domain/service"
 	itemRepo "github.com/harehare/textusm/internal/infra/firebase/item"
@@ -49,6 +50,7 @@ type Env struct {
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
 	GoEnv               string `required:"true" envconfig:"GO_ENV"`
+	REDIS_URL           string `required:"false" envconfig:"REDIS_URL"`
 }
 
 var (
@@ -113,11 +115,19 @@ func Run() int {
 		return 1
 	}
 
+	var rdb *redis.Client
+
+	if env.REDIS_URL != "" {
+		rdb = redis.NewClient(&redis.Options{
+			Addr: env.REDIS_URL,
+		})
+	}
+
 	repo := itemRepo.NewFirestoreItemRepository(firestore, storage)
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore, storage)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
-	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore, storage)
+	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore, storage, rdb)
 	itemService := service.NewService(repo, shareRepo, userRepo)
 	gistService := service.NewGistService(gistRepo, env.GithubClientID, env.GithubClientSecret)
 	settingsService := service.NewSettingsService(settingsRepo, env.GithubClientID, env.GithubClientSecret)

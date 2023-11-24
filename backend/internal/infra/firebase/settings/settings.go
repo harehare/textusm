@@ -3,15 +3,16 @@ package settings
 import (
 	"context"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/v4/storage"
 	"github.com/harehare/textusm/internal/domain/model/settings"
-	settingsModel "github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
 	"github.com/harehare/textusm/internal/domain/values"
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/harehare/textusm/internal/infra/firebase"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/mo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,10 +26,11 @@ const (
 type FirestoreSettingsRepository struct {
 	client  *firestore.Client
 	storage *storage.Client
+	redis   *redis.Client
 }
 
-func NewFirestoreSettingsRepository(client *firestore.Client, storage *storage.Client) settingsRepo.SettingsRepository {
-	return &FirestoreSettingsRepository{client: client, storage: storage}
+func NewFirestoreSettingsRepository(client *firestore.Client, storage *storage.Client, redis *redis.Client) settingsRepo.SettingsRepository {
+	return &FirestoreSettingsRepository{client: client, storage: storage, redis: redis}
 }
 
 func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, diagram values.Diagram) mo.Result[*settings.Settings] {
@@ -42,7 +44,7 @@ func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, d
 		return mo.Err[*settings.Settings](err)
 	}
 
-	var s settingsModel.Settings
+	var s settings.Settings
 	if err := fields.DataTo(&s); err != nil {
 		return mo.Err[*settings.Settings](err)
 	}
@@ -51,6 +53,21 @@ func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, d
 }
 
 func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang string) mo.Result[[]string] {
+	cacheKey := "fontlist_" + lang
+	if r.redis != nil {
+		cachedFontList, err := r.redis.Get(ctx, cacheKey).Result()
+
+		if err != redis.Nil {
+			if err != nil {
+				return mo.Err[[]string](err)
+			} else if cachedFontList == "" {
+				return mo.Err[[]string](err)
+			} else {
+				return mo.Ok(strings.Split(cachedFontList, "\n"))
+			}
+		}
+	}
+
 	storage := firebase.NewCloudStorage(r.storage)
 	fontListResult := storage.Get(ctx, "fontlist", "all")
 
@@ -58,10 +75,34 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		return mo.Err[[]string](fontListResult.Error())
 	}
 
-	langFontListResult := storage.Get(ctx, "fontlist", lang + ".txt")
+	langFontListResult := storage.Get(ctx, "fontlist", lang+".txt")
 
 	if langFontListResult.IsError() {
 		return mo.Ok(strings.Split(fontListResult.OrEmpty(), "\n"))
+	}
+
+	fontList := append(strings.Split(fontListResult.OrEmpty(), "\n"), strings.Split(langFontListResult.OrEmpty(), "\n")...)
+
+	if r.redis != nil {
+		_, err := r.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+			err := pipe.Set(ctx, cacheKey, strings.Join(fontList, "\n"), 0).Err()
+
+			if err != nil {
+				return err
+			}
+
+			err = pipe.Expire(ctx, "pipelined_counter", time.Hour).Err()
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			return mo.Err[[]string](err)
+		}
 	}
 
 	return mo.Ok(append(strings.Split(fontListResult.OrEmpty(), "\n"), strings.Split(langFontListResult.OrEmpty(), "\n")...))
