@@ -57,14 +57,8 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 	if r.redis != nil {
 		cachedFontList, err := r.redis.Get(ctx, cacheKey).Result()
 
-		if err != redis.Nil {
-			if err != nil {
-				return mo.Err[[]string](err)
-			} else if cachedFontList == "" {
-				return mo.Err[[]string](err)
-			} else {
-				return mo.Ok(strings.Split(cachedFontList, "\n"))
-			}
+		if err == nil && err != redis.Nil && cachedFontList != "" {
+			return mo.Ok(strings.Split(cachedFontList, "\n"))
 		}
 	}
 
@@ -75,7 +69,7 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		return mo.Err[[]string](fontListResult.Error())
 	}
 
-	langFontListResult := storage.Get(ctx, "fontlist", lang+".txt")
+	langFontListResult := storage.Get(ctx, "fontlist", lang)
 
 	if langFontListResult.IsError() {
 		return mo.Ok(strings.Split(fontListResult.OrEmpty(), "\n"))
@@ -91,7 +85,7 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 				return err
 			}
 
-			err = pipe.Expire(ctx, "pipelined_counter", time.Hour).Err()
+			err = pipe.Expire(ctx, cacheKey, time.Hour).Err()
 
 			if err != nil {
 				return err
@@ -101,6 +95,7 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		})
 
 		if err != nil {
+			// TODO: error send to sentry
 			return mo.Err[[]string](err)
 		}
 	}
