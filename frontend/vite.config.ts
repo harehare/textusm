@@ -129,6 +129,6 @@ export default defineConfig(({ mode }) => ({
             key: '../certs/localhost.key',
             cert: '../certs/localhost.cert',
           }
-        : false,
+        : undefined,
   },
 }));
