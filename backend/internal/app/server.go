@@ -50,7 +50,7 @@ type Env struct {
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
 	GoEnv               string `required:"true" envconfig:"GO_ENV"`
-	REDIS_URL           string `required:"false" envconfig:"REDIS_URL"`
+	RedisUrl            string `required:"false" envconfig:"REDIS_URL"`
 }
 
 var (
@@ -117,9 +117,9 @@ func Run() int {
 
 	var rdb *redis.Client
 
-	if env.REDIS_URL != "" {
+	if env.RedisUrl != "" {
 		rdb = redis.NewClient(&redis.Options{
-			Addr: env.REDIS_URL,
+			Addr: env.RedisUrl,
 		})
 	}
 
