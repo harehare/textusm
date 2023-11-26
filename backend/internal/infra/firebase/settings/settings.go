@@ -54,6 +54,7 @@ func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, d
 
 func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang string) mo.Result[[]string] {
 	cacheKey := "fontlist_" + lang
+
 	if r.redis != nil {
 		cachedFontList, err := r.redis.Get(ctx, cacheKey).Result()
 
@@ -95,7 +96,6 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		})
 
 		if err != nil {
-			// TODO: error send to sentry
 			return mo.Err[[]string](err)
 		}
 	}

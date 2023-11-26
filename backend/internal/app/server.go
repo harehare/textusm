@@ -118,9 +118,13 @@ func Run() int {
 	var rdb *redis.Client
 
 	if env.RedisUrl != "" {
-		rdb = redis.NewClient(&redis.Options{
-			Addr: env.RedisUrl,
-		})
+		opts, err := redis.ParseURL(env.RedisUrl)
+
+		if err != nil {
+			slog.Error("error initializing redis", "error", err)
+			return 1
+		}
+		rdb = redis.NewClient(opts)
 	}
 
 	repo := itemRepo.NewFirestoreItemRepository(firestore, storage)
