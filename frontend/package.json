@@ -1,7 +1,7 @@
 {
   "name": "textusm",
   "description": "Online tool for Generate a User Story Mapping from indented text.",
-  "version": "0.14.3",
+  "version": "0.14.4",
   "author": "harehare",
   "bugs": {
     "url": "https://github.com/harehare/textusm/issues"
@@ -67,7 +67,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:*\"",
     "dev:frontend": "vite",
-    "dev:backend": "cd ../backend/ && docker compose up -d && just watch",
+    "dev:backend": "cd ../backend/ && just docker-up && just watch",
     "dev:emulators": "cd .. && firebase emulators:exec --only storage 'node ./tools/fontlist/upload.js' --export-on-exit=data && firebase emulators:start --only firestore,auth,storage --import=data && npm run setup:fontlist",
     "dev:generate-elm-constants": "elm-constants --no-dotenv",
     "setup:emulators": "cd .. && firebase init emulators",
