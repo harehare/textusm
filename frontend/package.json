@@ -10,7 +10,7 @@
     "@sentry/browser": "^7.81.1",
     "clipboard-copy": "^4.0.1",
     "dexie": "^3.2.4",
-    "firebase": "^10.6.0",
+    "firebase": "^10.7.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "monaco-editor": "^0.44.0",
