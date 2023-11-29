@@ -7,6 +7,9 @@ module Effect.Settings exposing
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
 import Graphql.OptionalArgument as OptionalArgument
+import Models.Color as Color
+import Models.Diagram.CardSize as CardSize
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Session as Session exposing (Session)
@@ -50,7 +53,7 @@ load msg { cache, diagramType, session } =
 
 saveToLocal : Settings.Settings -> Return.ReturnF msg model
 saveToLocal settings =
-    Settings.settingsEncoder settings |> Ports.saveSettingsToLocal |> Return.command
+    Settings.encoder settings |> Ports.saveSettingsToLocal |> Return.command
 
 
 save :
@@ -66,47 +69,47 @@ save msg { diagramType, session, settings } =
         Request.saveSettings
             (Session.getIdToken session)
             diagramType
-            { font = settings.storyMap.font
-            , width = settings.storyMap.size.width
-            , height = settings.storyMap.size.height
-            , backgroundColor = settings.storyMap.backgroundColor
+            { font = settings.diagramSettings.font
+            , width = CardSize.toInt settings.diagramSettings.size.width
+            , height = CardSize.toInt settings.diagramSettings.size.height
+            , backgroundColor = Color.toString settings.diagramSettings.backgroundColor
             , activityColor =
-                { foregroundColor = settings.storyMap.color.activity.color
-                , backgroundColor = settings.storyMap.color.activity.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.activity.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.activity.backgroundColor
                 }
             , taskColor =
-                { foregroundColor = settings.storyMap.color.task.color
-                , backgroundColor = settings.storyMap.color.task.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.task.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.task.backgroundColor
                 }
             , storyColor =
-                { foregroundColor = settings.storyMap.color.story.color
-                , backgroundColor = settings.storyMap.color.story.backgroundColor
+                { foregroundColor = Color.toString settings.diagramSettings.color.story.color
+                , backgroundColor = Color.toString settings.diagramSettings.color.story.backgroundColor
                 }
-            , lineColor = settings.storyMap.color.line
-            , labelColor = settings.storyMap.color.label
+            , lineColor = Color.toString settings.diagramSettings.color.line
+            , labelColor = Color.toString settings.diagramSettings.color.label
             , textColor =
-                case settings.storyMap.color.text of
+                case settings.diagramSettings.color.text of
                     Just c ->
-                        OptionalArgument.Present c
+                        OptionalArgument.Present <| Color.toString c
 
                     Nothing ->
                         OptionalArgument.Absent
             , zoomControl =
-                case settings.storyMap.zoomControl of
+                case settings.diagramSettings.zoomControl of
                     Just z ->
                         OptionalArgument.Present z
 
                     Nothing ->
                         OptionalArgument.Absent
             , scale =
-                case settings.storyMap.scale of
+                case settings.diagramSettings.scale of
                     Just s ->
-                        OptionalArgument.Present s
+                        OptionalArgument.Present <| Scale.toFloat s
 
                     Nothing ->
                         OptionalArgument.Absent
             , toolbar =
-                case settings.storyMap.toolbar of
+                case settings.diagramSettings.toolbar of
                     Just z ->
                         OptionalArgument.Present z
 

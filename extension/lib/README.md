@@ -78,7 +78,7 @@ TextUSM
         Press Shift + Tab to unindent lines: Note
 ```
 
-![image](./img/usm.png)
+![image](./assets/img/usm.png)
 
 ### Business Model Canvas
 
@@ -103,7 +103,7 @@ TextUSM
     Customer Relationships
 ```
 
-![image](./img/bmc.png)
+![image](./assets/img/bmc.png)
 
 ### Opportunity Canvas
 
@@ -130,7 +130,7 @@ Budget
     Budget
 ```
 
-![image](./img/opc.png)
+![image](./assets/img/opc.png)
 
 ### 4Ls Retrospective
 
@@ -145,7 +145,7 @@ Longed For
   longedFor
 ```
 
-![image](./img/4ls.png)
+![image](./assets/img/4ls.png)
 
 ### Start, Stop, Continue Retrospective
 
@@ -158,7 +158,7 @@ Continue
   continue
 ```
 
-![image](./img/ssc.png)
+![image](./assets/img/ssc.png)
 
 ### KPT Retrospective
 
@@ -171,7 +171,7 @@ Try
   try
 ```
 
-![image](./img/kpt.png)
+![image](./assets/img/kpt.png)
 
 ### MindMap
 
@@ -187,7 +187,7 @@ TextUSM
         Share your diagrams online with your colleagues.
 ```
 
-![image](./img/mmp.png)
+![image](./assets/img/mmp.png)
 
 ### Empathy Map
 
@@ -199,7 +199,7 @@ DOES
 FEELS
 ```
 
-![image](./img/emm.png)
+![image](./assets/img/emm.png)
 
 ### Table
 
@@ -227,7 +227,7 @@ Row2
     Column6
 ```
 
-![image](./img/table.png)
+![image](./assets/img/table.png)
 
 ### Site Map
 
@@ -246,7 +246,7 @@ Home
         harehare1110@gmail.com
 ```
 
-![image](./img/smp.png)
+![image](./assets/img/smp.png)
 
 ### Gantt Chart
 
@@ -257,7 +257,7 @@ Home
         2019-12-31, 2020-01-04: task2
 ```
 
-![image](./img/gct.png)
+![image](./assets/img/gct.png)
 
 ### Impact Map
 
@@ -273,7 +273,7 @@ TextUSM
         Share your diagrams online with your colleagues.
 ```
 
-![image](./img/imm.png)
+![image](./assets/img/imm.png)
 
 ### ER Diagram
 
@@ -309,7 +309,7 @@ tables
         user_id int pk
 ```
 
-![image](./img/erd.png)
+![image](./assets/img/erd.png)
 
 ### Kanban
 
@@ -325,7 +325,7 @@ DONE
     task3
 ```
 
-![image](./img/kanban.png)
+![image](./assets/img/kanban.png)
 
 ### Sequence Diagram
 
@@ -359,7 +359,7 @@ Par
             Sync Message
 ```
 
-![image](./img/sed.png)
+![image](./assets/img/sed.png)
 
 ### Keyboard Layout
 
@@ -433,7 +433,7 @@ r1
     1.25u
 ```
 
-![image](./img/kbd60.png)
+![image](./assets/img/kbd60.png)
 
 ### Configuration
 

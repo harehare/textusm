@@ -4,6 +4,7 @@ import Constants
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram as Diagram exposing (MoveState, SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
 import Models.Diagram.Settings as DiagramSettings
@@ -92,8 +93,8 @@ formView { property, moveState, settings, selectedItem, onEditSelectedItem, onEn
             Line.horizontal
                 { settings = settings
                 , position =
-                    ( 16 + modBy 4 i * (settings.size.width + 16)
-                    , (i // 4) * (settings.size.height + 16)
+                    ( 16 + modBy 4 i * (CardSize.toInt settings.size.width + 16)
+                    , (i // 4) * (CardSize.toInt settings.size.height + 16)
                     )
                 , selectedItem = selectedItem
                 , item =
@@ -116,8 +117,8 @@ formView { property, moveState, settings, selectedItem, onEditSelectedItem, onEn
             Line.vertical
                 { settings = settings
                 , position =
-                    ( 16 + modBy 4 i * (settings.size.width + 16)
-                    , (i // 4) * (settings.size.height + 16)
+                    ( 16 + modBy 4 i * (CardSize.toInt settings.size.width + 16)
+                    , (i // 4) * (CardSize.toInt settings.size.height + 16)
                     )
                 , selectedItem = selectedItem
                 , item =
@@ -155,8 +156,8 @@ formView { property, moveState, settings, selectedItem, onEditSelectedItem, onEn
                 { settings = settings
                 , property = property
                 , position =
-                    ( 16 + modBy 4 i * (settings.size.width + 16)
-                    , (i // 4) * (settings.size.height + 16)
+                    ( 16 + modBy 4 i * (CardSize.toInt settings.size.width + 16)
+                    , (i // 4) * (CardSize.toInt settings.size.height + 16)
                     )
                 , selectedItem = selectedItem
                 , item =
@@ -213,8 +214,8 @@ cardView { selectedItem, settings, property, moveState, i, item_, onEditSelected
             { settings = settings
             , property = property
             , position =
-                ( 16 + modBy 4 i * (settings.size.width + 16)
-                , (i // 4) * (settings.size.height + 16)
+                ( 16 + modBy 4 i * (CardSize.toInt settings.size.width + 16)
+                , (i // 4) * (CardSize.toInt settings.size.height + 16)
                 )
             , selectedItem = selectedItem
             , item =
@@ -241,8 +242,8 @@ cardView { selectedItem, settings, property, moveState, i, item_, onEditSelected
                             { settings = settings
                             , property = property
                             , position =
-                                ( 16 + modBy 4 i * (settings.size.width + 16)
-                                , (i + i_ + 1) * (settings.size.height + 16)
+                                ( 16 + modBy 4 i * (CardSize.toInt settings.size.width + 16)
+                                , (i + i_ + 1) * (CardSize.toInt settings.size.height + 16)
                                 )
                             , selectedItem = selectedItem
                             , item =

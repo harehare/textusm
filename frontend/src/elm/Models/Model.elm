@@ -19,7 +19,7 @@ import Models.Diagram.Item exposing (DiagramItem)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog)
-import Models.Exporter exposing (Export)
+import Models.Export.Diagram exposing (Export)
 import Models.Hotkey exposing (Hotkey)
 import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)

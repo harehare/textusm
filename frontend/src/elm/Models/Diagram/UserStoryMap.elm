@@ -14,6 +14,7 @@ import Bool.Extra as BoolEx
 import Constants
 import Dict
 import List.Extra exposing (scanl)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Models.Property as Property exposing (Property)
@@ -72,8 +73,8 @@ getItems (UserStoryMap userStoryMap) =
 
 size : DiagramSettings.Settings -> UserStoryMap -> Size
 size settings userStoryMap =
-    ( Constants.leftMargin + (settings.size.width + Constants.itemMargin * 2) * (taskCount userStoryMap + 1)
-    , (settings.size.height + Constants.itemMargin) * (storyCount userStoryMap + 2)
+    ( Constants.leftMargin + (CardSize.toInt settings.size.width + Constants.itemMargin * 2) * (taskCount userStoryMap + 1)
+    , (CardSize.toInt settings.size.height + Constants.itemMargin) * (storyCount userStoryMap + 2)
     )
 
 

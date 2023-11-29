@@ -4,6 +4,7 @@ module Models.Text exposing
     , decoder
     , edit
     , empty
+    , encoder
     , fromString
     , getLine
     , isChanged
@@ -14,6 +15,7 @@ module Models.Text exposing
     )
 
 import Json.Decode as D exposing (Decoder)
+import Json.Encode as E
 import List.Extra exposing (getAt)
 
 
@@ -38,15 +40,12 @@ change text =
 
 decoder : Decoder Text
 decoder =
-    D.map
-        (\t ->
-            if t == "" then
-                Empty
+    D.map fromString D.string
 
-            else
-                Saved t
-        )
-        D.string
+
+encoder : Text -> E.Value
+encoder text =
+    E.string <| toString text
 
 
 edit : Text -> String -> Text

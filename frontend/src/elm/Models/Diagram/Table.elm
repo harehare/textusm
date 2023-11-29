@@ -8,6 +8,7 @@ module Models.Diagram.Table exposing
     )
 
 import Constants
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
@@ -43,8 +44,8 @@ from items =
 
 size : DiagramSettings.Settings -> Items -> Size
 size settings items =
-    ( settings.size.width * ((items |> Item.head |> Maybe.withDefault Item.new |> Item.getChildren |> Item.unwrapChildren |> Item.length) + 1)
-    , settings.size.height * Item.length items + Constants.itemMargin
+    ( CardSize.toInt settings.size.width * ((items |> Item.head |> Maybe.withDefault Item.new |> Item.getChildren |> Item.unwrapChildren |> Item.length) + 1)
+    , CardSize.toInt settings.size.height * Item.length items + Constants.itemMargin
     )
 
 

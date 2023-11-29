@@ -53,6 +53,7 @@ import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
 import Models.Diagram.BackgroundImage as BackgroundImage
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ErDiagramModel
 import Models.Diagram.EmpathyMap as EmpathyMapModel
@@ -122,7 +123,7 @@ init settings =
         , windowSize = Size.zero
         , diagram =
             { size = Size.zero
-            , scale = Scale.fromFloat <| Maybe.withDefault 1.0 settings.scale
+            , scale = Maybe.withDefault Scale.default settings.scale
             , position = ( 0, 20 )
             , isFullscreen = False
             }
@@ -1357,7 +1358,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     , SvgAttr.y "8"
                     , SvgAttr.fontSize "12"
                     , SvgAttr.fontFamily <| DiagramSettings.fontStyle model.settings
-                    , SvgAttr.fill (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
+                    , SvgAttr.fill <| Color.toString (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
                     ]
                     [ Svg.text (Property.getTitle model.property |> Maybe.withDefault "") ]
 
@@ -1376,7 +1377,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     ++ String.fromFloat
                         (model.diagram.scale |> Scale.toFloat)
                     ++ ")"
-            , SvgAttr.fill model.settings.backgroundColor
+            , SvgAttr.fill <| Color.toString model.settings.backgroundColor
             , SvgAttr.style "will-change: transform;"
             ]
             [ mainSvg ]
@@ -1406,7 +1407,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                             )
 
                     ( _, h ) =
-                        Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
+                        Item.getSize item_ ( CardSize.toInt model.settings.size.width, CardSize.toInt model.settings.size.height )
 
                     pos : Position
                     pos =
@@ -1701,33 +1702,25 @@ zoomControl isFullscreen scale =
 
 zoomIn : Scale -> Model -> Return Msg Model
 zoomIn step model =
-    if Scale.toFloat model.diagram.scale <= 10.0 then
-        Return.singleton
-            { model
-                | diagram =
-                    { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
-                    , scale = Scale.add model.diagram.scale step
-                    , position = model.diagram.position
-                    , isFullscreen = model.diagram.isFullscreen
-                    }
-            }
-
-    else
-        Return.singleton model
+    Return.singleton
+        { model
+            | diagram =
+                { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
+                , scale = Scale.add model.diagram.scale step
+                , position = model.diagram.position
+                , isFullscreen = model.diagram.isFullscreen
+                }
+        }
 
 
 zoomOut : Scale -> Model -> Return Msg Model
 zoomOut step model =
-    if Scale.toFloat model.diagram.scale > 0.03 then
-        Return.singleton
-            { model
-                | diagram =
-                    { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
-                    , scale = Scale.sub model.diagram.scale step
-                    , position = model.diagram.position
-                    , isFullscreen = model.diagram.isFullscreen
-                    }
-            }
-
-    else
-        Return.singleton model
+    Return.singleton
+        { model
+            | diagram =
+                { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
+                , scale = Scale.sub model.diagram.scale step
+                , position = model.diagram.position
+                , isFullscreen = model.diagram.isFullscreen
+                }
+        }

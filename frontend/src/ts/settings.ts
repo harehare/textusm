@@ -6,7 +6,7 @@ const getSettingsKey = (diagram: string) => `${settingsKey}:${diagram}`;
 
 const getDefaultSettings = (isDarkMode: boolean) => ({
   font: 'Nunito Sans',
-  storyMap: {
+  diagramSettings: {
     font: 'Nunito Sans',
     size: {
       width: 140,
@@ -58,20 +58,39 @@ export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings =>
       ? (JSON.parse(diagramSettingsString) as DiagramSettings)
       : { color: {} };
     const settingsObject = JSON.parse(settingsString) as Settings;
-    return {
-      ...defaultSettings,
-      ...settingsObject,
-      storyMap: {
-        ...defaultSettings.storyMap,
-        ...settingsObject.storyMap,
-        ...diagramSettings,
-        color: {
-          ...defaultSettings.storyMap.color,
-          ...settingsObject.storyMap.color,
-          ...diagramSettings.color,
+
+    if (settingsObject.storyMap) {
+      return {
+        ...defaultSettings,
+        ...settingsObject,
+        diagramSettings: {
+          ...defaultSettings.diagramSettings,
+          ...settingsObject.storyMap,
+          ...diagramSettings,
+          color: {
+            ...defaultSettings.diagramSettings.color,
+            ...settingsObject.storyMap.color,
+            ...diagramSettings.color,
+          },
         },
-      },
-    };
+      };
+    }
+
+    if (settingsObject.diagramSettings)
+      return {
+        ...defaultSettings,
+        ...settingsObject,
+        diagramSettings: {
+          ...defaultSettings.diagramSettings,
+          ...settingsObject.diagramSettings,
+          ...diagramSettings,
+          color: {
+            ...defaultSettings.diagramSettings.color,
+            ...settingsObject.diagramSettings.color,
+            ...diagramSettings.color,
+          },
+        },
+      };
   }
 
   return defaultSettings;
@@ -86,7 +105,7 @@ export const saveSettings = (settings: Settings): void => {
       text: settings.text,
       title: settings.title,
       diagramId: settings.diagramId,
-      storyMap: settings.storyMap,
+      diagramSettings: settings.diagramSettings,
       diagram: settings.diagram,
       location: settings.location,
       theme: settings.theme,
@@ -94,6 +113,6 @@ export const saveSettings = (settings: Settings): void => {
   );
 
   if (settings.diagram?.diagram) {
-    localStorage.setItem(getSettingsKey(settings.diagram?.diagram), JSON.stringify(settings.storyMap));
+    localStorage.setItem(getSettingsKey(settings.diagram?.diagram), JSON.stringify(settings.diagramSettings));
   }
 };

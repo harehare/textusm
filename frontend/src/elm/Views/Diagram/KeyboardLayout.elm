@@ -176,7 +176,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                     Item.getSettings item
                         |> Maybe.map (\_ -> Views.getItemColor settings property item)
                         |> Maybe.withDefault
-                            ( Color.fromString <| Maybe.withDefault settings.color.label <| settings.color.text
+                            ( Maybe.withDefault settings.color.label <| settings.color.text
                             , Color.fromString "#FEFEFE"
                             )
 

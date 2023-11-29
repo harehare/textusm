@@ -10,10 +10,11 @@ import (
 
 type Api struct {
 	gistService service.GistService
+	settingsService service.SettingsService
 }
 
-func New(gistService service.GistService) *Api {
-	api := Api{gistService: gistService}
+func New(gistService service.GistService, settingsService service.SettingsService) *Api {
+	api := Api{gistService: gistService, settingsService: settingsService}
 	return &api
 }
 
@@ -48,7 +49,14 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Api) UsableFontList(w http.ResponseWriter, r *http.Request) {
-	err := json.NewEncoder(w).Encode(GetFontList(r.URL.Query().Get("lang")))
+	fontList := a.settingsService.FindFontList(r.Context(), r.URL.Query().Get("lang"))
+
+	if fontList.IsError() {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err := json.NewEncoder(w).Encode(fontList.OrElse([]string{}))
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

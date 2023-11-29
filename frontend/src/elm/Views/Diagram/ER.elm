@@ -24,6 +24,7 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
+import Models.Color as Color
 import Models.Diagram as Diagram
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
@@ -307,10 +308,10 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         style : Css.Style
         style =
             if isPrimaryKey then
-                Css.batch [ Css.fontWeight <| int 600, color <| hex settings.color.story.color ]
+                Css.batch [ Css.fontWeight <| int 600, color <| hex <| Color.toString settings.color.story.color ]
 
             else
-                Css.batch [ Css.fontWeight <| int 400, color <| hex settings.color.label ]
+                Css.batch [ Css.fontWeight <| int 400, color <| hex <| Color.toString settings.color.label ]
     in
     Svg.g []
         [ Svg.rect
@@ -318,7 +319,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             , SvgAttr.height <| String.fromInt Constants.tableRowHeight
             , SvgAttr.x colX
             , SvgAttr.y colY
-            , SvgAttr.fill settings.color.story.backgroundColor
+            , SvgAttr.fill <| Color.toString settings.color.story.backgroundColor
             ]
             []
         , Svg.foreignObject
@@ -335,7 +336,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                     , alignItems center
                     , justifyContent spaceBetween
                     , Css.fontSize <| rem 0.9
-                    , color <| hex settings.color.story.color
+                    , color <| hex <| Color.toString settings.color.story.color
                     , style
                     ]
                 ]
@@ -346,12 +347,12 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                     [ css [ marginRight <| px 8, displayFlex, alignItems center, Css.fontSize <| rem 0.8 ] ]
                     [ if isPrimaryKey then
                         Html.div [ css [ marginRight <| px 8 ] ]
-                            [ Icon.key settings.color.story.color 12 ]
+                            [ Icon.key (Color.toString settings.color.story.color) 12 ]
 
                       else if ListEx.find (\i -> i == Index) attrs |> MaybeEx.isJust then
                         Html.div
                             [ css [ marginRight <| px 8, marginTop <| px 5 ] ]
-                            [ Icon.search settings.color.story.color 16 ]
+                            [ Icon.search (Color.toString settings.color.story.color) 16 ]
 
                       else
                         Empty.view
@@ -433,7 +434,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size + 15
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -444,7 +445,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , SvgAttr.y <| String.fromInt <| tableY1 - 15
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -455,7 +456,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 15
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -466,7 +467,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 - 15
             , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -477,7 +478,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -488,7 +489,7 @@ relationLabelView settings table1 table2 label =
             [ SvgAttr.x <| String.fromInt <| tableX1 - 15
             , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 10
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.label
+            , SvgAttr.fill <| Color.toString settings.color.label
             , SvgAttr.fontSize "14"
             , SvgAttr.fontWeight "bold"
             ]
@@ -557,14 +558,14 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
             , SvgAttr.height <| String.fromInt Constants.tableRowHeight
             , SvgAttr.x (String.fromInt posX)
             , SvgAttr.y (String.fromInt posY)
-            , SvgAttr.fill settings.color.activity.backgroundColor
+            , SvgAttr.fill <| Color.toString settings.color.activity.backgroundColor
             ]
             []
         , Svg.text_
             [ SvgAttr.x <| String.fromInt <| posX + 8
             , SvgAttr.y <| String.fromInt <| posY + 24
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.activity.color
+            , SvgAttr.fill <| Color.toString settings.color.activity.color
             , SvgAttr.fontSize "16"
             , SvgAttr.fontWeight "bold"
             ]
@@ -602,7 +603,7 @@ tableView { settings, svgSize, pos, tableSize, table, dragStart } =
             , SvgAttr.x (String.fromInt tableX)
             , SvgAttr.y (String.fromInt tableY)
             , SvgAttr.strokeWidth "1"
-            , SvgAttr.stroke settings.color.activity.backgroundColor
+            , SvgAttr.stroke <| Color.toString settings.color.activity.backgroundColor
             ]
             []
             :: tableHeaderView settings tableName (getWidth tableSize) ( tableX, tableY )

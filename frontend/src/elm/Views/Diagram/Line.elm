@@ -3,6 +3,7 @@ module Views.Diagram.Line exposing (horizontal, vertical)
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
@@ -47,7 +48,7 @@ horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
             Svg.g
                 [ Events.onClickStopPropagation <|
                     onSelect <|
-                        Just { item = item, position = Tuple.mapSecond (\y -> y - settings.size.width + offsetHeight + 72) position, displayAllMenu = False }
+                        Just { item = item, position = Tuple.mapSecond (\y -> y - CardSize.toInt settings.size.width + offsetHeight + 72) position, displayAllMenu = False }
                 ]
                 [ Svg.line
                     [ SvgAttr.x1 <| String.fromInt posX
@@ -63,7 +64,7 @@ horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
 
         width : Int
         width =
-            settings.size.width + offsetWidth
+            CardSize.toInt settings.size.width + offsetWidth
     in
     case selectedItem of
         Just item_ ->
@@ -86,7 +87,7 @@ horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
 
                     selectedItemSize : Position
                     selectedItemSize =
-                        ( settings.size.width, settings.size.height - 1 )
+                        ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height - 1 )
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
@@ -146,7 +147,7 @@ vertical { settings, position, selectedItem, item, onSelect, dragStart } =
 
         height : Int
         height =
-            settings.size.height + offsetHeight
+            CardSize.toInt settings.size.height + offsetHeight
 
         ( _, offsetHeight ) =
             Item.getOffsetSize item
@@ -194,7 +195,7 @@ vertical { settings, position, selectedItem, item, onSelect, dragStart } =
 
                     selectedItemSize : Size
                     selectedItemSize =
-                        ( settings.size.width, settings.size.height - 1 )
+                        ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height - 1 )
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
@@ -241,4 +242,4 @@ getLineColor : DiagramSettings.Settings -> Item -> Color
 getLineColor settings item =
     item
         |> Item.getBackgroundColor
-        |> Maybe.withDefault (Color.fromString settings.color.line)
+        |> Maybe.withDefault settings.color.line

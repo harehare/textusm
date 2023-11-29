@@ -1,6 +1,7 @@
 module Views.Diagram.Path exposing (Position, Size, docs, view)
 
 import ElmBook.Chapter as Chapter exposing (Chapter)
+import Models.Color as Color exposing (Color)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
@@ -13,7 +14,7 @@ type alias Size =
     ( Float, Float )
 
 
-view : String -> ( Position, Size ) -> ( Position, Size ) -> Svg msg
+view : Color -> ( Position, Size ) -> ( Position, Size ) -> Svg msg
 view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
     if fromX == toX && fromY < toY then
         draw
@@ -80,11 +81,11 @@ cornerSize =
     8.0
 
 
-draw : String -> List Path -> Svg msg
+draw : Color -> List Path -> Svg msg
 draw colour pathList =
     Svg.path
         [ SvgAttr.strokeWidth "3"
-        , SvgAttr.stroke colour
+        , SvgAttr.stroke <| Color.toString colour
         , SvgAttr.d <| String.join " " pathList
         , SvgAttr.fill "transparent"
         ]
@@ -167,6 +168,6 @@ docs =
                 , SvgAttr.height "100%"
                 , SvgAttr.viewBox "0 0 2048 2048"
                 ]
-                [ view "#000000" ( ( 0, 0 ), ( 100, 100 ) ) ( ( 100, 100 ), ( 10, 10 ) ) ]
+                [ view (Color.fromString "#000000") ( ( 0, 0 ), ( 100, 100 ) ) ( ( 100, 100 ), ( 10, 10 ) ) ]
                 |> Svg.toUnstyled
             )

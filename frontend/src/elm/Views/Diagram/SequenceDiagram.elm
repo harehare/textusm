@@ -6,6 +6,7 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -48,7 +49,7 @@ view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSele
                         (\item y ->
                             y + List.length (SequenceDiagram.sequenceItemMessages item) * Constants.messageMargin
                         )
-                        (settings.size.height + Constants.messageMargin)
+                        (CardSize.toInt settings.size.height + Constants.messageMargin)
                         items
             in
             Svg.g []
@@ -88,7 +89,7 @@ fragmentAndMessageView : DiagramSettings.Settings -> Property -> Int -> Int -> L
 fragmentAndMessageView settings property level y messages fragmentText fragment =
     let
         ( ( fromX, fromY ), ( toX, toY ) ) =
-            fragmentRect ( settings.size.width, settings.size.height ) y level messages
+            fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
     in
     Svg.g []
         [ mesageViewList settings property level y messages
@@ -159,7 +160,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             , SvgAttr.y <| String.fromInt fromY
             , SvgAttr.width <| String.fromInt fragmentWidth
             , SvgAttr.height <| String.fromInt fragmentHeight
-            , SvgAttr.stroke settings.color.activity.backgroundColor
+            , SvgAttr.stroke <| Color.toString settings.color.activity.backgroundColor
             , SvgAttr.strokeWidth "2"
             , SvgAttr.fill backgroundColor
             ]
@@ -169,7 +170,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             , SvgAttr.y <| String.fromInt fromY
             , SvgAttr.width <| String.fromInt <| max 44 (String.length label * 7 + 16)
             , SvgAttr.height "20"
-            , SvgAttr.fill settings.color.activity.backgroundColor
+            , SvgAttr.fill <| Color.toString settings.color.activity.backgroundColor
             , SvgAttr.strokeWidth "2"
             ]
             []
@@ -177,7 +178,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
             [ SvgAttr.x <| String.fromInt <| fromX + 8
             , SvgAttr.y <| String.fromInt <| fromY + 14
             , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
-            , SvgAttr.fill settings.color.task.color
+            , SvgAttr.fill <| Color.toString settings.color.task.color
             , SvgAttr.fontSize Constants.fontSize
             , SvgAttr.fontWeight "bold"
             ]
@@ -190,7 +191,7 @@ fragmentTextView settings property ( fromX, fromY ) fragmentText =
     let
         offset : Int
         offset =
-            settings.size.width
+            CardSize.toInt settings.size.width
                 // 2
                 + 16
     in
@@ -226,7 +227,7 @@ lineView settings ( fromX, fromY ) ( toX, toY ) =
         , SvgAttr.y1 <| String.fromInt fromY
         , SvgAttr.x2 <| String.fromInt toX
         , SvgAttr.y2 <| String.fromInt toY
-        , SvgAttr.stroke settings.color.line
+        , SvgAttr.stroke <| Color.toString settings.color.line
         , SvgAttr.strokeWidth "2"
         ]
         []
@@ -246,7 +247,7 @@ markerView settings =
             ]
             [ Svg.polygon
                 [ SvgAttr.points "0,0 0,10 10,5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -262,7 +263,7 @@ markerView settings =
             [ Svg.polyline
                 [ SvgAttr.points "0,0 10,5 0,10"
                 , SvgAttr.fill "none"
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "2"
                 ]
                 []
@@ -280,7 +281,7 @@ markerView settings =
                 [ SvgAttr.cx "10"
                 , SvgAttr.cy "5"
                 , SvgAttr.r "5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -296,7 +297,7 @@ markerView settings =
             [ Svg.polyline
                 [ SvgAttr.points "0,0 10,5 0,10"
                 , SvgAttr.fill "none"
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "2"
                 ]
                 []
@@ -304,7 +305,7 @@ markerView settings =
                 [ SvgAttr.cx "12"
                 , SvgAttr.cy "5"
                 , SvgAttr.r "5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -324,10 +325,10 @@ mesageViewList settings property level y messages =
                 case message of
                     Message messageType (Participant _ order1) (Participant _ order2) ->
                         if order1 == order2 then
-                            selfMessageView settings property ( messageX settings.size.width order1, messageY ) messageType
+                            selfMessageView settings property ( messageX (CardSize.toInt settings.size.width) order1, messageY ) messageType
 
                         else
-                            messageView settings property ( messageX settings.size.width order1, messageY ) ( messageX settings.size.width order2, messageY ) messageType
+                            messageView settings property ( messageX (CardSize.toInt settings.size.width) order1, messageY ) ( messageX (CardSize.toInt settings.size.width) order2, messageY ) messageType
 
                     SubMessage subItem ->
                         sequenceItemView settings property (level + 1) messageY subItem
@@ -381,7 +382,7 @@ messageView settings property ( fromX, fromY ) ( toX, toY ) messageType =
             , SvgAttr.y1 <| String.fromInt fromY
             , SvgAttr.x2 <| String.fromInt <| toX - toOffset
             , SvgAttr.y2 <| String.fromInt toY
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "2"
             , if isDot then
                 SvgAttr.strokeDasharray "3"
@@ -393,7 +394,7 @@ messageView settings property ( fromX, fromY ) ( toX, toY ) messageType =
             ]
             []
         , if isReverse then
-            textView settings property ( fromX + 8 - settings.size.width - Constants.participantMargin, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
+            textView settings property ( fromX + 8 - CardSize.toInt settings.size.width - Constants.participantMargin, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
 
           else
             textView settings property ( fromX + 8 + fromOffset, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
@@ -422,15 +423,15 @@ participantView { settings, property, selectedItem, position, participant, messa
     let
         fromY : Int
         fromY =
-            Position.getY position + settings.size.height
+            Position.getY position + CardSize.toInt settings.size.height
 
         lineX : Int
         lineX =
-            Position.getX position + settings.size.width // 2
+            Position.getX position + CardSize.toInt settings.size.width // 2
 
         toY : Int
         toY =
-            fromY + messageHeight + settings.size.height + Constants.messageMargin
+            fromY + messageHeight + CardSize.toInt settings.size.height + Constants.messageMargin
 
         (Participant item _) =
             participant
@@ -466,7 +467,7 @@ participantView { settings, property, selectedItem, position, participant, messa
 
 participantX : DiagramSettings.Settings -> Int -> Int
 participantX settings order =
-    (settings.size.width + Constants.participantMargin) * order + 8
+    (CardSize.toInt settings.size.width + Constants.participantMargin) * order + 8
 
 
 selfMessageView : DiagramSettings.Settings -> Property -> Position -> MessageType -> Svg msg
@@ -486,7 +487,7 @@ selfMessageView settings property ( posX, posY ) messageType =
             [ SvgAttr.points messagePoints
             , SvgAttr.markerEnd "url(#sync)"
             , SvgAttr.fill "none"
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "2"
             ]
             []
@@ -504,7 +505,7 @@ sequenceItemView settings property level y item =
                     y + SequenceDiagram.messagesCount ifMessages * Constants.messageMargin - Constants.messageMargin + 16
 
                 ( ( fromX, fromY ), ( toX, toY ) ) =
-                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+                    fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
 
                 messages : List Message
                 messages =
@@ -518,7 +519,7 @@ sequenceItemView settings property level y item =
                     , SvgAttr.y1 <| String.fromInt elseY
                     , SvgAttr.x2 <| String.fromInt <| toX
                     , SvgAttr.y2 <| String.fromInt elseY
-                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.stroke <| Color.toString settings.color.line
                     , SvgAttr.strokeWidth "2"
                     , SvgAttr.strokeDasharray "3"
                     ]
@@ -533,7 +534,7 @@ sequenceItemView settings property level y item =
         Fragment (Par parMessages) ->
             let
                 ( ( fromX, fromY ), ( toX, toY ) ) =
-                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+                    fragmentRect ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height ) y level messages
 
                 lines : List (Svg msg)
                 lines =
@@ -547,7 +548,7 @@ sequenceItemView settings property level y item =
                                     , SvgAttr.y1 <| String.fromInt messageY
                                     , SvgAttr.x2 <| String.fromInt <| toX
                                     , SvgAttr.y2 <| String.fromInt messageY
-                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.stroke <| Color.toString settings.color.line
                                     , SvgAttr.strokeWidth "2"
                                     , SvgAttr.strokeDasharray "3"
                                     ]

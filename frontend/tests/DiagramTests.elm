@@ -4,7 +4,10 @@ import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
 import Expect
 import Html.Styled
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Diagram.CardSize as CardSize
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Item as Item
@@ -631,28 +634,28 @@ defaultSettings : DiagramSettings.Settings
 defaultSettings =
     { font = "apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
     , size =
-        { width = 140
-        , height = 65
+        { width = CardSize.fromInt 140
+        , height = CardSize.fromInt 65
         }
-    , backgroundColor = "#F5F5F6"
+    , backgroundColor = Color.fromString "#F5F5F6"
     , zoomControl = Just True
-    , scale = Just 1.0
+    , scale = Just Scale.default
     , color =
         { activity =
-            { color = "#FFFFFF"
-            , backgroundColor = "#266B9A"
+            { color = Color.fromString "#FFFFFF"
+            , backgroundColor = Color.fromString "#266B9A"
             }
         , task =
-            { color = "#FFFFFF"
-            , backgroundColor = "#3E9BCD"
+            { color = Color.fromString "#FFFFFF"
+            , backgroundColor = Color.fromString "#3E9BCD"
             }
         , story =
-            { color = "#000000"
-            , backgroundColor = "#FFFFFF"
+            { color = Color.fromString "#000000"
+            , backgroundColor = Color.fromString "#FFFFFF"
             }
-        , line = "#434343"
-        , label = "#8C9FAE"
-        , text = Just "#111111"
+        , line = Color.fromString "#434343"
+        , label = Color.fromString "#8C9FAE"
+        , text = Just <| Color.fromString "#111111"
         }
     , toolbar = Just True
     }

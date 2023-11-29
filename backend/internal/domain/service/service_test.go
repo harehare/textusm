@@ -35,7 +35,7 @@ func (m *MockItemRepository) FindByID(ctx context.Context, userID string, itemID
 	return ret.Get(0).(mo.Result[*diagramitem.DiagramItem])
 }
 
-func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) mo.Result[[]*diagramitem.DiagramItem] {
+func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
 	ret := m.Called(ctx, userID, offset, limit, isPublic)
 	return ret.Get(0).(mo.Result[[]*diagramitem.DiagramItem])
 }
@@ -85,7 +85,7 @@ func TestFindDiagrams(t *testing.T) {
 	i := diagramitem.New().WithID("id").WithPlainText(baseText).Build().OrEmpty()
 	items := []*diagramitem.DiagramItem{i}
 
-	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
+	mockItemRepo.On("Find", ctx, "userID", 0, 10, false, false).Return(items, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 	fields := make(map[string]struct{})

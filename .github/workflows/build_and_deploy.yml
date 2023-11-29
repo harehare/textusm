@@ -98,6 +98,25 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        if: ${{ inputs.noop != 'true' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-node@v3
+        if: ${{ inputs.noop != 'true' }}
+        with:
+          node-version-file: ".tool-versions"
+      - name: Install Dependencies for tools
+        if: ${{ inputs.noop != 'true' }}
+        working-directory: ./tools/fontlist
+        run: npm ci
+      - name: Upload font list
+        if: ${{ inputs.noop != 'true' }}
+        run: node ./tools/fontlist/upload.js
+        env:
+          DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
       - name: Deploy backend to render.com
         if: ${{ inputs.noop != 'true' }}
         run: curl --silent --show-error --fail $RENDER_DEPLOY_HOOK_URL > /dev/null

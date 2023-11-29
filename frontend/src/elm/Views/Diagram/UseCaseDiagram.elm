@@ -165,7 +165,7 @@ actorView settings property fontSize name ( x, y ) =
             [ SvgAttr.cx <| String.fromInt (x + actorBaseSize)
             , SvgAttr.cy <| String.fromInt (y + actorBaseSize)
             , SvgAttr.r "15"
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -176,7 +176,7 @@ actorView settings property fontSize name ( x, y ) =
             , SvgAttr.y1 <| String.fromInt (y + actorSize2 - 6)
             , SvgAttr.x2 <| String.fromInt (x + actorBaseSize)
             , SvgAttr.y2 <| String.fromInt (y + actorSize4)
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -187,7 +187,7 @@ actorView settings property fontSize name ( x, y ) =
             , SvgAttr.y1 <| String.fromInt (y + actorSize2 + actorHalfSize)
             , SvgAttr.x2 <| String.fromInt (x + actorSize3 - actorHalfSize)
             , SvgAttr.y2 <| String.fromInt (y + actorSize2 + actorHalfSize)
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -198,7 +198,7 @@ actorView settings property fontSize name ( x, y ) =
             , SvgAttr.y1 <| String.fromInt (y + actorSize4)
             , SvgAttr.x2 <| String.fromInt x
             , SvgAttr.y2 <| String.fromInt (y + actorSize6)
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -209,7 +209,7 @@ actorView settings property fontSize name ( x, y ) =
             , SvgAttr.y1 <| String.fromInt (y + actorSize4)
             , SvgAttr.x2 <| String.fromInt (x + actorSize2)
             , SvgAttr.y2 <| String.fromInt (y + actorSize6)
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -288,7 +288,7 @@ arrowView settings =
             ]
             [ Svg.polygon
                 [ SvgAttr.points "0,0 0,10 10,5"
-                , SvgAttr.fill settings.color.line
+                , SvgAttr.fill <| Color.toString settings.color.line
                 ]
                 []
             ]
@@ -327,7 +327,7 @@ relationLineView { settings, property, from, to, relation, reverse } =
             , SvgAttr.y1 <| String.fromInt <| fromY
             , SvgAttr.x2 <| String.fromInt <| toX
             , SvgAttr.y2 <| String.fromInt <| toY
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             , SvgAttr.strokeDasharray "15 5"
             , if reverse then
@@ -385,7 +385,7 @@ useCaseLineView { settings, from, to } =
         , SvgAttr.y1 <| String.fromInt <| Position.getY from
         , SvgAttr.x2 <| String.fromInt <| Position.getX to
         , SvgAttr.y2 <| String.fromInt <| Position.getY to + actorBaseSize
-        , SvgAttr.stroke settings.color.line
+        , SvgAttr.stroke <| Color.toString settings.color.line
         , SvgAttr.strokeWidth "1"
         ]
         []

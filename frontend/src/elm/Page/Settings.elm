@@ -35,14 +35,20 @@ import Css
         , wrap
         , zero
         )
-import Html.Styled as Html exposing (Html)
+import File exposing (File)
+import File.Download as Download
+import File.Select as Select
+import Html.Styled as Html exposing (Html, i)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
+import Json.Decode as D
+import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Type exposing (DiagramType)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Settings as Settings exposing (Settings)
@@ -55,6 +61,7 @@ import Style.Style as Style
 import Style.Text as Text
 import Task
 import Views.DropDownList as DropDownList exposing (DropDownValue)
+import Views.Icon as Icon
 import Views.Switch as Switch
 
 
@@ -79,6 +86,10 @@ type Msg
     | ToggleDropDownList String
     | DropDownClose
     | UpdateUsableFontList (Result RequestError FontList)
+    | ImportFile File
+    | Import
+    | Export
+    | LoadSettings (Result String Settings)
 
 
 loadUsableFontList :
@@ -108,7 +119,7 @@ init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontL
         , settings = settings
         , session = session
         , canUseNativeFileSystem = canUseNativeFileSystem
-        , usableFontList = usableFontList |> Maybe.withDefault [ settings.storyMap.font ]
+        , usableFontList = usableFontList |> Maybe.withDefault [ settings.diagramSettings.font ]
         , lang = lang
         , isLoading = False
         }
@@ -125,12 +136,18 @@ load { diagramType, session } =
 update : Msg -> Return.ReturnF Msg Model
 update msg =
     case msg of
+        LoadSettings (Ok settings) ->
+            Return.map <| \m -> { m | settings = settings }
+
+        LoadSettings (Err _) ->
+            Return.zero
+
         UpdateSettings getSetting value ->
-            Return.map (\m -> { m | dropDownIndex = Nothing, settings = getSetting value })
+            Return.map <| \m -> { m | dropDownIndex = Nothing, settings = getSetting value }
 
         ToggleDropDownList id ->
-            Return.map
-                (\m ->
+            Return.map <|
+                \m ->
                     { m
                         | dropDownIndex =
                             if (m.dropDownIndex |> Maybe.withDefault "") == id then
@@ -139,16 +156,41 @@ update msg =
                             else
                                 Just id
                     }
-                )
 
         DropDownClose ->
-            Return.map (\m -> { m | dropDownIndex = Nothing })
+            Return.map <| \m -> { m | dropDownIndex = Nothing }
 
         UpdateUsableFontList (Ok fontList) ->
-            Return.map (\m -> { m | usableFontList = fontList, isLoading = False })
+            Return.map <| \m -> { m | usableFontList = fontList, isLoading = False }
 
         UpdateUsableFontList (Err _) ->
-            Return.map (\m -> { m | usableFontList = [], isLoading = False })
+            Return.map <| \m -> { m | usableFontList = [], isLoading = False }
+
+        Export ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton m
+                        |> Return.command
+                            (Download.string ((m.diagramType |> DiagramType.toTypeString |> String.toLower) ++ "_settings.json")
+                                "application/json"
+                                (E.encode
+                                    2
+                                    (Settings.exportEncoder m.settings)
+                                )
+                            )
+
+        Import ->
+            Return.command <| Select.file [ "application/json" ] ImportFile
+
+        ImportFile file ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton m
+                        |> (File.toString file
+                                |> Task.map (\s -> D.decodeString (Settings.importDecoder m.settings) s |> Result.mapError D.errorToString)
+                                |> Task.perform LoadSettings
+                                |> Return.command
+                           )
 
 
 isFetchedUsableFont : Model -> Bool
@@ -165,6 +207,7 @@ view model =
         , session = model.session
         , usableFontList = model.usableFontList
         , isLoading = model.isLoading
+        , lang = model.lang
         }
 
 
@@ -273,9 +316,10 @@ view_ :
     , session : Session
     , usableFontList : FontList
     , isLoading : Bool
+    , lang : Lang
     }
     -> Html Msg
-view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading } =
+view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading, lang } =
     Html.div
         [ Attr.css
             [ Breakpoint.style
@@ -325,11 +369,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.backgroundColor.set x settings
+                                    Settings.backgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.backgroundColor
+                            (settings.diagramSettings.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -381,7 +425,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Zoom Control" ]
-                    , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
+                    , Switch.view (Maybe.withDefault True settings.diagramSettings.zoomControl)
                         (\v ->
                             UpdateSettings
                                 (\_ -> settings |> Settings.zoomControl.set (Just v))
@@ -390,7 +434,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Toolbar" ]
-                    , Switch.view (Maybe.withDefault True settings.storyMap.toolbar)
+                    , Switch.view (Maybe.withDefault True settings.diagramSettings.toolbar)
                         (\v ->
                             UpdateSettings
                                 (\_ -> Settings.toolbar.set (Just v) settings)
@@ -450,11 +494,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150) settings
+                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150 |> CardSize.fromInt) settings
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.storyMap.size.width)
+                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.width)
                         ]
                     ]
                 , conrtolView
@@ -465,11 +509,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45)
+                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45 |> CardSize.fromInt)
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt settings.storyMap.size.height)
+                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.height)
                         ]
                     ]
                 ]
@@ -485,11 +529,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityBackgroundColor.set x settings
+                                    Settings.activityBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.activity.backgroundColor
+                            (settings.diagramSettings.color.activity.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -500,11 +544,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityColor.set x settings
+                                    Settings.activityColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.activity.color
+                            (settings.diagramSettings.color.activity.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -518,11 +562,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.taskBackgroundColor.set x settings
+                                    Settings.taskBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.task.backgroundColor
+                            (settings.diagramSettings.color.task.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -533,11 +577,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.taskColor.set x
+                                    settings |> Settings.taskColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.task.color
+                            (settings.diagramSettings.color.task.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -551,11 +595,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyBackgroundColor.set x settings
+                                    Settings.storyBackgroundColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.story.backgroundColor
+                            (settings.diagramSettings.color.story.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -566,11 +610,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyColor.set x settings
+                                    Settings.storyColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.story.color
+                            (settings.diagramSettings.color.story.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -585,11 +629,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.lineColor.set x settings
+                                    Settings.lineColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.line
+                            (settings.diagramSettings.color.line |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -600,11 +644,11 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.labelColor.set x settings
+                                    Settings.labelColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            settings.storyMap.color.label
+                            (settings.diagramSettings.color.label |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -615,13 +659,33 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.textColor.set x settings
+                                    Settings.textColor.set (Color.fromString x) settings
                                 )
                             )
                             baseColorItems
-                            (settings.storyMap.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
+                            (settings.diagramSettings.color.text |> Maybe.withDefault Color.textDefalut |> Color.toString)
                         ]
                     ]
+                ]
+            ]
+        , Html.div
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 48, Css.top <| Css.px 8 ]
+            , onClick Import
+            ]
+            [ Icon.cloudUpload Color.white 24
+            , Html.span [ Attr.class "bottom-tooltip" ]
+                [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport lang ] ]
+            ]
+        , Html.div
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 8, Css.top <| Css.px 8 ]
+            , onClick Export
+            ]
+            [ Icon.cloudDownload Color.white 24
+            , Html.span
+                [ Attr.class "bottom-tooltip"
+                ]
+                [ Html.span [ Attr.class "text" ]
+                    [ Html.text <| Message.toolTipExport lang ]
                 ]
             ]
         ]

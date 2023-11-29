@@ -4,7 +4,9 @@ import Constants
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
+import Models.Color as Color
 import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
@@ -50,7 +52,7 @@ view { items, settings, property, selectedItem, onEditSelectedItem, onEndEditSel
                 [ siteView
                     { settings = settings
                     , property = property
-                    , position = ( 0, Constants.itemSpan + settings.size.height )
+                    , position = ( 0, Constants.itemSpan + CardSize.toInt settings.size.height )
                     , selectedItem = selectedItem
                     , items = rootItems
                     , onEditSelectedItem = onEditSelectedItem
@@ -81,7 +83,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         centerX : Int
         centerX =
-            settings.size.width // 2
+            CardSize.toInt settings.size.width // 2
     in
     if xx1 == xx2 then
         Svg.line
@@ -89,7 +91,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             , SvgAttr.y1 <| String.fromInt yy1
             , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
             , SvgAttr.y2 <| String.fromInt yy2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -98,19 +100,19 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
         Svg.g []
             [ Svg.line
                 [ SvgAttr.x1 <| String.fromInt <| xx1 + centerX
-                , SvgAttr.y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
+                , SvgAttr.y1 <| String.fromInt <| yy1 + CardSize.toInt settings.size.height + Constants.itemSpan // 2
                 , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
-                , SvgAttr.y2 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.y2 <| String.fromInt <| yy1 + CardSize.toInt settings.size.height + Constants.itemSpan // 2
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "1"
                 ]
                 []
             , Svg.line
                 [ SvgAttr.x1 <| String.fromInt <| xx2 + centerX
-                , SvgAttr.y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
+                , SvgAttr.y1 <| String.fromInt <| yy1 + CardSize.toInt settings.size.height + Constants.itemSpan // 2
                 , SvgAttr.x2 <| String.fromInt <| xx2 + centerX
                 , SvgAttr.y2 <| String.fromInt <| yy2
-                , SvgAttr.stroke settings.color.line
+                , SvgAttr.stroke <| Color.toString settings.color.line
                 , SvgAttr.strokeWidth "1"
                 ]
                 []
@@ -129,17 +131,17 @@ siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             [ SvgAttr.x1 <| String.fromInt <| xx1 + itemPadding
             , SvgAttr.y1 <| String.fromInt <| yy1
             , SvgAttr.x2 <| String.fromInt <| xx1 + itemPadding
-            , SvgAttr.y2 <| String.fromInt <| yy2 + settings.size.height // 2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.y2 <| String.fromInt <| yy2 + CardSize.toInt settings.size.height // 2
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
         , Svg.line
             [ SvgAttr.x1 <| String.fromInt <| xx1 + itemPadding
-            , SvgAttr.y1 <| String.fromInt <| yy2 + settings.size.height // 2
-            , SvgAttr.x2 <| String.fromInt <| xx2 + settings.size.width
-            , SvgAttr.y2 <| String.fromInt <| yy2 + settings.size.height // 2
-            , SvgAttr.stroke settings.color.line
+            , SvgAttr.y1 <| String.fromInt <| yy2 + CardSize.toInt settings.size.height // 2
+            , SvgAttr.x2 <| String.fromInt <| xx2 + CardSize.toInt settings.size.width
+            , SvgAttr.y2 <| String.fromInt <| yy2 + CardSize.toInt settings.size.height // 2
+            , SvgAttr.stroke <| Color.toString settings.color.line
             , SvgAttr.strokeWidth "1"
             ]
             []
@@ -190,7 +192,7 @@ siteTreeView { settings, property, position, selectedItem, items, onEditSelected
 
                         y : Int
                         y =
-                            Position.getY position + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
+                            Position.getY position + i * (CardSize.toInt settings.size.height + Constants.itemSpan) + childrenCount * (CardSize.toInt settings.size.height + Constants.itemSpan)
                     in
                     [ siteTreeLineView settings (Tuple.mapSecond (\y_ -> y_ - Constants.itemSpan) position) ( Position.getX position, y )
                     , Card.viewWithDefaultColor
@@ -210,7 +212,7 @@ siteTreeView { settings, property, position, selectedItem, items, onEditSelected
                         , property = property
                         , position =
                             ( x
-                            , y + (settings.size.height + Constants.itemSpan)
+                            , y + (CardSize.toInt settings.size.height + Constants.itemSpan)
                             )
                         , selectedItem = selectedItem
                         , items = children
@@ -252,7 +254,7 @@ siteView { settings, property, position, selectedItem, items, onEditSelectedItem
                     let
                         cardWidth : Int
                         cardWidth =
-                            settings.size.width + Constants.itemSpan
+                            CardSize.toInt settings.size.width + Constants.itemSpan
 
                         children : Items
                         children =
@@ -284,7 +286,7 @@ siteView { settings, property, position, selectedItem, items, onEditSelectedItem
                         , property = property
                         , position =
                             ( x
-                            , Position.getY position + settings.size.height + Constants.itemSpan
+                            , Position.getY position + CardSize.toInt settings.size.height + Constants.itemSpan
                             )
                         , selectedItem = selectedItem
                         , items = children

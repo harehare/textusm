@@ -9,6 +9,7 @@ module Models.Diagram.Kanban exposing
     )
 
 import Constants
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
@@ -45,8 +46,8 @@ getCardCount (Kanban lists) =
 
 size : DiagramSettings.Settings -> Kanban -> Size
 size settings kanban =
-    ( getListCount kanban * (settings.size.width + Constants.itemMargin * 3)
-    , getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2
+    ( getListCount kanban * (CardSize.toInt settings.size.width + Constants.itemMargin * 3)
+    , getCardCount kanban * (CardSize.toInt settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2
     )
 
 
