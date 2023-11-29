@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -96,7 +97,7 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		})
 
 		if err != nil {
-			return mo.Err[[]string](err)
+			slog.Error("Failed to cache font list", "error", err)
 		}
 	}
 
