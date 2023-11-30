@@ -33,16 +33,18 @@ jobs:
           args: --issues-exit-code=0 --timeout=2m
       - name: Get npm cache directory
         id: npm-cache-dir
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+        working-directory: frontend
       - uses: actions/cache@v3
         id: npm-cache
         with:
           path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
           restore-keys: |
+            ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
             ${{ runner.os }}-node-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+      - if: ${{ steps.npm-cache.outputs.cache-hit != 'true' }}
         name: Install Dependencies
         working-directory: frontend
         run: npm i --legacy-peer-deps

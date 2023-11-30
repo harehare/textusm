@@ -24,16 +24,23 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: ".tool-versions"
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+        working-directory: frontend
       - uses: actions/cache@v3
+        id: npm-cache
         with:
-          path: node_modules
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
           key: ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
           restore-keys: |
+            ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
             ${{ runner.os }}-node-
       - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: frontend
-        run: npm i --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
