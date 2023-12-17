@@ -104,21 +104,20 @@ view props =
             , alignItems center
             , Style.widthFull
             , ColorStyle.bgHeaderColor
-            , height <| px 48
+            , height <| px 40
             ]
         ]
         (Html.div
             [ css
                 [ displayFlex
-                , alignItems center
                 , width <| pct 100
-                , height <| px 48
+                , height <| pct 100
                 ]
             ]
             [ case props.page of
                 Page.Main ->
                     Html.div
-                        [ css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ]
+                        [ css [ width <| px 32, height <| px 32, marginTop <| px 6 ]
                         , Attributes.dataTest "header-logo"
                         ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
@@ -359,11 +358,15 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
         in
         Html.div
             [ css
-                [ Breakpoint.style [ width <| px 32 ]
+                [ Breakpoint.style
+                    [ width <| px 32
+                    , marginLeft <| px 8
+                    , marginRight <| px 8
+                    ]
                     [ Breakpoint.small
                         [ Style.button
-                        , width <| px 48
-                        , height <| px 50
+                        , width <| px 40
+                        , height <| px 40
                         ]
                     ]
                 ]
@@ -437,7 +440,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
 
     else
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 50 ]
+            [ css [ Style.button, width <| px 96, height <| px 40 ]
             , case menu of
                 Just LoginMenu ->
                     Events.stopPropagationOn "click" (D.succeed ( onCloseMenu, True ))
@@ -446,7 +449,16 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                     Events.stopPropagationOn "click" (D.succeed ( onOpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
             ]
-            [ Html.div [ css [ Text.base, Font.fontBold ] ]
+            [ Html.div
+                [ css
+                    [ Font.fontBold
+                    , Text.xs
+                    , Breakpoint.style
+                        [ Font.fontBold
+                        ]
+                        [ Breakpoint.large [ Text.base ] ]
+                    ]
+                ]
                 [ Html.text "SIGN IN" ]
             , case menu of
                 Just LoginMenu ->
@@ -486,7 +498,7 @@ viewTitle attrs children =
             , ColorStyle.textColor
             , textOverflow ellipsis
             , textAlign left
-            , padding <| px 8
+            , paddingLeft <| px 8
             ]
             :: attrs
         )

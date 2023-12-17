@@ -9,10 +9,11 @@ import Css
         , flexEnd
         , height
         , justifyContent
-        , marginTop
+        , marginBottom
         , padding
         , pointer
         , position
+        , px
         , relative
         , rem
         )
@@ -60,7 +61,7 @@ view props =
         ]
         [ diagramTypeSelect props
         , Lazy.lazy2 viewLocationButton props.session props.currentDiagram.location
-        , Html.div [ Attr.css [ padding <| rem 1, marginTop <| rem 0.5, cursor pointer ] ]
+        , Html.div [ Attr.css [ padding <| rem 1, cursor pointer ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"
@@ -111,6 +112,8 @@ diagramTypeSelect props =
             , Text.xs
             , Css.fontWeight Css.bold
             , Css.borderStyle Css.none
+
+            -- , Css.marginBottom <| px 0.25
             ]
         , Events.onChangeStyled
             (\s -> DiagramType.fromString s |> props.onChangeDiagramType)
