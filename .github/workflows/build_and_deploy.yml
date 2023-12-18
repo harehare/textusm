@@ -74,7 +74,7 @@ jobs:
           MONITOR_ENABLE: ${{ secrets.MONITOR_ENABLE }}
         run: npm run prod
       - name: Archive Production Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: frontend/dist
@@ -87,7 +87,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Download Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: frontend/dist
