@@ -40,7 +40,7 @@ jobs:
       - name: Install Dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: frontend
-        run: npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps --include=dev
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
