@@ -60,3 +60,4 @@ cypress
 certs/*
 backend/tmp/
 data
+firebase-export-*

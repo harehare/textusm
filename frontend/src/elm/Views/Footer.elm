@@ -10,6 +10,7 @@ import Css
         , height
         , justifyContent
         , marginBottom
+        , marginTop
         , padding
         , pointer
         , position
@@ -61,7 +62,7 @@ view props =
         ]
         [ diagramTypeSelect props
         , Lazy.lazy2 viewLocationButton props.session props.currentDiagram.location
-        , Html.div [ Attr.css [ padding <| rem 1, cursor pointer ] ]
+        , Html.div [ Attr.css [ padding <| rem 1, cursor pointer, marginTop <| px 6 ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"
