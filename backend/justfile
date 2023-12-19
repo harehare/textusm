@@ -39,6 +39,10 @@ embed-build:
 	go build -tags embed -o textusm-embed {{ main }}
 
 generate:
+	go get golang.org/x/tools/go/packages
+	go get golang.org/x/tools/go/ast/astutil
+	go get golang.org/x/tools/imports
+	go get github.com/urfave/cli/v2
 	go generate {{ target }}
 
 test:

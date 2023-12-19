@@ -120,6 +120,7 @@ defaultSettings theme =
         , zoomControl = Just True
         , scale = Just Scale.default
         , toolbar = Nothing
+        , lockEditing = Nothing
         }
     , text = Nothing
     , title = Nothing
@@ -347,6 +348,7 @@ diagramDecoder =
         |> optional "zoomControl" (D.map Just D.bool) Nothing
         |> optional "scale" (D.map Just Scale.decoder) Nothing
         |> optional "toolbar" (D.map Just D.bool) Nothing
+        |> optional "lockEditing" (D.map Just D.bool) Nothing
 
 
 diagramEncoder : DiagramSettings.Settings -> E.Value

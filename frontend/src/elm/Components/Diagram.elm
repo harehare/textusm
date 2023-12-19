@@ -1683,6 +1683,7 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.add 24
             ]
+        -- TODO: Add lock button
         , Html.div
             [ Attr.css
                 [ width <| px 24

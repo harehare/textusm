@@ -151,9 +151,9 @@ buildInputSettings required____ fillOptionals____ =
     let
         optionals____ =
             fillOptionals____
-                { textColor = Absent, zoomControl = Absent, scale = Absent, toolbar = Absent }
+                { textColor = Absent, zoomControl = Absent, scale = Absent, toolbar = Absent, lockEditing = Absent }
     in
-    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale, toolbar = optionals____.toolbar }
+    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale, toolbar = optionals____.toolbar, lockEditing = optionals____.lockEditing }
 
 
 type alias InputSettingsRequiredFields =
@@ -174,6 +174,7 @@ type alias InputSettingsOptionalFields =
     , zoomControl : OptionalArgument Bool
     , scale : OptionalArgument Float
     , toolbar : OptionalArgument Bool
+    , lockEditing : OptionalArgument Bool
     }
 
 
@@ -193,6 +194,7 @@ type alias InputSettings =
     , zoomControl : OptionalArgument Bool
     , scale : OptionalArgument Float
     , toolbar : OptionalArgument Bool
+    , lockEditing : OptionalArgument Bool
     }
 
 
@@ -201,7 +203,7 @@ type alias InputSettings =
 encodeInputSettings : InputSettings -> Value
 encodeInputSettings input____ =
     Encode.maybeObject
-        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ), ( "toolbar", Encode.bool |> Encode.optional input____.toolbar ) ]
+        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ), ( "toolbar", Encode.bool |> Encode.optional input____.toolbar ), ( "lockEditing", Encode.bool |> Encode.optional input____.lockEditing ) ]
 
 
 buildInputShareItem :

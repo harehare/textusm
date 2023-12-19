@@ -67,6 +67,7 @@ type alias Settings =
     , zoomControl : Maybe Bool
     , scale : Maybe Scale
     , toolbar : Maybe Bool
+    , lockEditing : Maybe Bool
     }
 
 
@@ -102,6 +103,7 @@ default =
     , zoomControl = Just True
     , scale = Just Scale.default
     , toolbar = Nothing
+    , lockEditing = Nothing
     }
 
 

@@ -71,6 +71,7 @@ type Settings {
   zoomControl: Boolean
   scale: Float
   toolbar: Boolean
+  lockEditing: Boolean
 }
 
 type Color {
@@ -137,6 +138,7 @@ input InputSettings {
   zoomControl: Boolean = false
   scale: Float = 1.0
   toolbar: Boolean = true
+  lockEditing: Boolean = false
 }
 
 input InputColor {

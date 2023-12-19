@@ -30,6 +30,7 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
+		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -37,6 +38,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
+	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -107,6 +109,7 @@ type ComplexityRoot struct {
 		Height          func(childComplexity int) int
 		LabelColor      func(childComplexity int) int
 		LineColor       func(childComplexity int) int
+		LockEditing     func(childComplexity int) int
 		Scale           func(childComplexity int) int
 		StoryColor      func(childComplexity int) int
 		TaskColor       func(childComplexity int) int
@@ -146,12 +149,16 @@ type QueryResolver interface {
 }
 
 type executableSchema struct {
+	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
+	if e.schema != nil {
+		return e.schema
+	}
 	return parsedSchema
 }
 
@@ -515,6 +522,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Settings.LineColor(childComplexity), true
 
+	case "Settings.lockEditing":
+		if e.complexity.Settings.LockEditing == nil {
+			break
+		}
+
+		return e.complexity.Settings.LockEditing(childComplexity), true
+
 	case "Settings.scale":
 		if e.complexity.Settings.Scale == nil {
 			break
@@ -698,14 +712,14 @@ func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(parsedSchema), nil
+	return introspection.WrapSchema(ec.Schema()), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
+	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -782,6 +796,7 @@ type Settings {
   zoomControl: Boolean
   scale: Float
   toolbar: Boolean
+  lockEditing: Boolean
 }
 
 type Color {
@@ -848,6 +863,7 @@ input InputSettings {
   zoomControl: Boolean = false
   scale: Float = 1.0
   toolbar: Boolean = true
+  lockEditing: Boolean = false
 }
 
 input InputColor {
@@ -941,7 +957,7 @@ func (ec *executionContext) field_Mutation_saveGist_args(ctx context.Context, ra
 	var arg0 InputGistItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputGistItem(ctx, tmp)
+		arg0, err = ec.unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputGistItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -956,7 +972,7 @@ func (ec *executionContext) field_Mutation_saveSettings_args(ctx context.Context
 	var arg0 *values.Diagram
 	if tmp, ok := rawArgs["diagram"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
-		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
+		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -965,7 +981,7 @@ func (ec *executionContext) field_Mutation_saveSettings_args(ctx context.Context
 	var arg1 InputSettings
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx, tmp)
+		arg1, err = ec.unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputSettings(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -980,7 +996,7 @@ func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArg
 	var arg0 InputItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputItem(ctx, tmp)
+		arg0, err = ec.unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1004,7 +1020,7 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 	var arg0 InputShareItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputShareItem(ctx, tmp)
+		arg0, err = ec.unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputShareItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1178,7 +1194,7 @@ func (ec *executionContext) field_Query_settings_args(ctx context.Context, rawAr
 	var arg0 *values.Diagram
 	if tmp, ok := rawArgs["diagram"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
-		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
+		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1538,7 +1554,7 @@ func (ec *executionContext) _GistItem_diagram(ctx context.Context, field graphql
 	}
 	res := resTmp.(values.Diagram)
 	fc.Result = res
-	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
+	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GistItem_diagram(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1887,7 +1903,7 @@ func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(values.Diagram)
 	fc.Result = res
-	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
+	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_diagram(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2107,7 +2123,7 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_save(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2234,7 +2250,7 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_bookmark(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2364,7 +2380,7 @@ func (ec *executionContext) _Mutation_saveGist(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveGist(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2492,7 +2508,7 @@ func (ec *executionContext) _Mutation_saveSettings(ctx context.Context, field gr
 	}
 	res := resTmp.(*settings.Settings)
 	fc.Result = res
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveSettings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2529,6 +2545,8 @@ func (ec *executionContext) fieldContext_Mutation_saveSettings(ctx context.Conte
 				return ec.fieldContext_Settings_scale(ctx, field)
 			case "toolbar":
 				return ec.fieldContext_Settings_toolbar(ctx, field)
+			case "lockEditing":
+				return ec.fieldContext_Settings_lockEditing(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Settings", field.Name)
 		},
@@ -2572,7 +2590,7 @@ func (ec *executionContext) _Query_allItems(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]union.DiagramItem)
 	fc.Result = res
-	return ec.marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚋunionᚐDiagramItemᚄ(ctx, field.Selections, res)
+	return ec.marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚋunionᚐDiagramItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_allItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2627,7 +2645,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2702,7 +2720,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2777,7 +2795,7 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_shareItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2849,7 +2867,7 @@ func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field gra
 	}
 	res := resTmp.(*share.ShareCondition)
 	fc.Result = res
-	return ec.marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋshareᚐShareCondition(ctx, field.Selections, res)
+	return ec.marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋshareᚐShareCondition(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_ShareCondition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2916,7 +2934,7 @@ func (ec *executionContext) _Query_gistItem(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_gistItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2989,7 +3007,7 @@ func (ec *executionContext) _Query_gistItems(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_gistItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3062,7 +3080,7 @@ func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*settings.Settings)
 	fc.Result = res
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_settings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3099,6 +3117,8 @@ func (ec *executionContext) fieldContext_Query_settings(ctx context.Context, fie
 				return ec.fieldContext_Settings_scale(ctx, field)
 			case "toolbar":
 				return ec.fieldContext_Settings_toolbar(ctx, field)
+			case "lockEditing":
+				return ec.fieldContext_Settings_lockEditing(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Settings", field.Name)
 		},
@@ -3450,7 +3470,7 @@ func (ec *executionContext) _Settings_activityColor(ctx context.Context, field g
 	}
 	res := resTmp.(settings.Color)
 	fc.Result = res
-	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Settings_activityColor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3500,7 +3520,7 @@ func (ec *executionContext) _Settings_taskColor(ctx context.Context, field graph
 	}
 	res := resTmp.(settings.Color)
 	fc.Result = res
-	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Settings_taskColor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3550,7 +3570,7 @@ func (ec *executionContext) _Settings_storyColor(ctx context.Context, field grap
 	}
 	res := resTmp.(settings.Color)
 	fc.Result = res
-	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Settings_storyColor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3812,6 +3832,47 @@ func (ec *executionContext) _Settings_toolbar(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_Settings_toolbar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Settings_lockEditing(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Settings_lockEditing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LockEditing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Settings_lockEditing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Settings",
 		Field:      field,
@@ -5826,8 +5887,6 @@ func (ec *executionContext) unmarshalInputInputColor(ctx context.Context, obj in
 		}
 		switch k {
 		case "foregroundColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("foregroundColor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5835,8 +5894,6 @@ func (ec *executionContext) unmarshalInputInputColor(ctx context.Context, obj in
 			}
 			it.ForegroundColor = data
 		case "backgroundColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundColor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5864,8 +5921,6 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 		}
 		switch k {
 		case "id":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
@@ -5873,8 +5928,6 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			}
 			it.ID = data
 		case "title":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5882,8 +5935,6 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			}
 			it.Title = data
 		case "thumbnail":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("thumbnail"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -5891,17 +5942,13 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			}
 			it.Thumbnail = data
 		case "diagram":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
-			data, err := ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, v)
+			data, err := ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Diagram = data
 		case "isBookmark":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isBookmark"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
@@ -5909,8 +5956,6 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			}
 			it.IsBookmark = data
 		case "url":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5938,8 +5983,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 		}
 		switch k {
 		case "id":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
@@ -5947,8 +5990,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			}
 			it.ID = data
 		case "title":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5956,8 +5997,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			}
 			it.Title = data
 		case "text":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -5965,8 +6004,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			}
 			it.Text = data
 		case "thumbnail":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("thumbnail"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -5974,17 +6011,13 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			}
 			it.Thumbnail = data
 		case "diagram":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
-			data, err := ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, v)
+			data, err := ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Diagram = data
 		case "isPublic":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isPublic"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
@@ -5992,8 +6025,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			}
 			it.IsPublic = data
 		case "isBookmark":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isBookmark"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
@@ -6022,8 +6053,11 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 	if _, present := asMap["toolbar"]; !present {
 		asMap["toolbar"] = true
 	}
+	if _, present := asMap["lockEditing"]; !present {
+		asMap["lockEditing"] = false
+	}
 
-	fieldsInOrder := [...]string{"font", "width", "height", "backgroundColor", "activityColor", "taskColor", "storyColor", "lineColor", "labelColor", "textColor", "zoomControl", "scale", "toolbar"}
+	fieldsInOrder := [...]string{"font", "width", "height", "backgroundColor", "activityColor", "taskColor", "storyColor", "lineColor", "labelColor", "textColor", "zoomControl", "scale", "toolbar", "lockEditing"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6031,8 +6065,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 		}
 		switch k {
 		case "font":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("font"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6040,8 +6072,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.Font = data
 		case "width":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("width"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
@@ -6049,8 +6079,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.Width = data
 		case "height":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("height"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
@@ -6058,8 +6086,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.Height = data
 		case "backgroundColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundColor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6067,35 +6093,27 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.BackgroundColor = data
 		case "activityColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("activityColor"))
-			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ActivityColor = data
 		case "taskColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskColor"))
-			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TaskColor = data
 		case "storyColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("storyColor"))
-			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			data, err := ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.StoryColor = data
 		case "lineColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lineColor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6103,8 +6121,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.LineColor = data
 		case "labelColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelColor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6112,8 +6128,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.LabelColor = data
 		case "textColor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("textColor"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -6121,8 +6135,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.TextColor = data
 		case "zoomControl":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("zoomControl"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
@@ -6130,8 +6142,6 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.ZoomControl = data
 		case "scale":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scale"))
 			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
 			if err != nil {
@@ -6139,14 +6149,19 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 			}
 			it.Scale = data
 		case "toolbar":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("toolbar"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Toolbar = data
+		case "lockEditing":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lockEditing"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LockEditing = data
 		}
 	}
 
@@ -6178,8 +6193,6 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 		}
 		switch k {
 		case "itemID":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
 			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
@@ -6187,8 +6200,6 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			}
 			it.ItemID = data
 		case "expSecond":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expSecond"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
@@ -6196,8 +6207,6 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			}
 			it.ExpSecond = data
 		case "password":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -6205,8 +6214,6 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			}
 			it.Password = data
 		case "allowIPList":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowIPList"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
@@ -6214,8 +6221,6 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			}
 			it.AllowIPList = data
 		case "allowEmailList":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowEmailList"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
@@ -6845,6 +6850,8 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._Settings_scale(ctx, field, obj)
 		case "toolbar":
 			out.Values[i] = ec._Settings_toolbar(ctx, field, obj)
+		case "lockEditing":
+			out.Values[i] = ec._Settings_lockEditing(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7262,16 +7269,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx context.Context, sel ast.SelectionSet, v settings.Color) graphql.Marshaler {
+func (ec *executionContext) marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐColor(ctx context.Context, sel ast.SelectionSet, v settings.Color) graphql.Marshaler {
 	return ec._Color(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (values.Diagram, error) {
+func (ec *executionContext) unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (values.Diagram, error) {
 	res, err := values.UnmarshalDiagram(v)
 	return *res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v values.Diagram) graphql.Marshaler {
+func (ec *executionContext) marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v values.Diagram) graphql.Marshaler {
 	res := values.MarshalDiagram(&v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7281,12 +7288,12 @@ func (ec *executionContext) marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋ
 	return res
 }
 
-func (ec *executionContext) unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (*values.Diagram, error) {
+func (ec *executionContext) unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (*values.Diagram, error) {
 	res, err := values.UnmarshalDiagram(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v *values.Diagram) graphql.Marshaler {
+func (ec *executionContext) marshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v *values.Diagram) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7302,7 +7309,7 @@ func (ec *executionContext) marshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusm
 	return res
 }
 
-func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚋunionᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v union.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚋunionᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v union.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7312,11 +7319,11 @@ func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextus
 	return ec._DiagramItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v gistitem.GistItem) graphql.Marshaler {
 	return ec._GistItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*gistitem.GistItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -7340,7 +7347,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -7354,7 +7361,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 	return ret
 }
 
-func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7379,27 +7386,27 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx context.Context, v interface{}) (*InputColor, error) {
+func (ec *executionContext) unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputColor(ctx context.Context, v interface{}) (*InputColor, error) {
 	res, err := ec.unmarshalInputInputColor(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputGistItem(ctx context.Context, v interface{}) (InputGistItem, error) {
+func (ec *executionContext) unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputGistItem(ctx context.Context, v interface{}) (InputGistItem, error) {
 	res, err := ec.unmarshalInputInputGistItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputItem(ctx context.Context, v interface{}) (InputItem, error) {
+func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputItem(ctx context.Context, v interface{}) (InputItem, error) {
 	res, err := ec.unmarshalInputInputItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx context.Context, v interface{}) (InputSettings, error) {
+func (ec *executionContext) unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputSettings(ctx context.Context, v interface{}) (InputSettings, error) {
 	res, err := ec.unmarshalInputInputSettings(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputShareItem(ctx context.Context, v interface{}) (InputShareItem, error) {
+func (ec *executionContext) unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚐInputShareItem(ctx context.Context, v interface{}) (InputShareItem, error) {
 	res, err := ec.unmarshalInputInputShareItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -7419,11 +7426,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v diagramitem.DiagramItem) graphql.Marshaler {
 	return ec._Item(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*diagramitem.DiagramItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -7447,7 +7454,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -7461,7 +7468,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 	return ret
 }
 
-func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7471,11 +7478,11 @@ func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋ
 	return ec._Item(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v settings.Settings) graphql.Marshaler {
+func (ec *executionContext) marshalNSettings2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v settings.Settings) graphql.Marshaler {
 	return ec._Settings(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v *settings.Settings) graphql.Marshaler {
+func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v *settings.Settings) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7794,7 +7801,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚋunionᚐDiagramItemᚄ(ctx context.Context, sel ast.SelectionSet, v []union.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚋunionᚐDiagramItemᚄ(ctx context.Context, sel ast.SelectionSet, v []union.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -7821,7 +7828,7 @@ func (ec *executionContext) marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtex
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDiagramItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚋunionᚐDiagramItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNDiagramItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋpresentationᚋgraphqlᚋunionᚐDiagramItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -7857,7 +7864,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -7896,14 +7903,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋshareᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *share.ShareCondition) graphql.Marshaler {
+func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋshareᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *share.ShareCondition) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
