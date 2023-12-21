@@ -441,6 +441,7 @@ docs =
                         , scale = Scale.fromFloat 1.0
                         , position = ( 0, 0 )
                         , isFullscreen = False
+                        , lockEditing = False
                         }
                     , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
                     , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"

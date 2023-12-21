@@ -15,6 +15,7 @@ module Models.Diagram exposing
     , diagramType
     , dragStart
     , isFullscreen
+    , lockEditing
     , moveOrZoom
     , movePosition
     , moveingItem
@@ -155,6 +156,7 @@ type Msg
     | ToggleDropDownList String
     | ToggleMiniMap
     | ToggleSearch
+    | ToggleEdit
     | ToolbarClick Item
     | ChangeText String
     | Resize Int Int
@@ -194,6 +196,7 @@ type alias Diagram =
     , scale : Scale
     , position : Position
     , isFullscreen : Bool
+    , lockEditing : Bool
     }
 
 
@@ -286,6 +289,11 @@ position =
 isFullscreen : Lens Model Bool
 isFullscreen =
     ofDiagram |> Compose.lensWithLens diagramOfIsFullscreen
+
+
+lockEditing : Lens Model Bool
+lockEditing =
+    ofDiagram |> Compose.lensWithLens diagramOfLockEditing
 
 
 scale : Lens Model Scale
@@ -405,3 +413,8 @@ diagramOfPosition =
 diagramOfIsFullscreen : Lens Diagram Bool
 diagramOfIsFullscreen =
     Lens .isFullscreen (\b a -> { a | isFullscreen = b })
+
+
+diagramOfLockEditing : Lens Diagram Bool
+diagramOfLockEditing =
+    Lens .lockEditing (\b a -> { a | lockEditing = b })

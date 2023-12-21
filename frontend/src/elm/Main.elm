@@ -808,7 +808,6 @@ update model message =
                         (\m_ ->
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
-                                    -- TODO:
                                     let
                                         scale : Float
                                         scale =
@@ -822,6 +821,7 @@ update model message =
                                             , scale = Scale.fromFloat scale
                                             , position = m_.diagram.position
                                             , isFullscreen = m_.diagram.isFullscreen
+                                            , lockEditing = m_.diagram.lockEditing
                                             }
                                     }
 
@@ -1037,12 +1037,19 @@ update model message =
 
         M.HandleVisibilityChange Hidden ->
             let
+                diagramSettings : Settings
+                diagramSettings =
+                    model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
+
                 newSettings : Settings
                 newSettings =
                     { position = Just model.window.position
                     , font = model.settingsModel.settings.font
                     , diagramId = model.currentDiagram.id
-                    , diagramSettings = DiagramSettings.ofScale.set (Just model.diagramModel.diagram.scale) newStoryMap.diagramSettings
+                    , diagramSettings =
+                        diagramSettings.diagramSettings
+                            |> DiagramSettings.ofScale.set (Just model.diagramModel.diagram.scale)
+                            |> DiagramSettings.ofLockEditing.set (Just model.diagramModel.diagram.lockEditing)
                     , text = Just model.diagramModel.text
                     , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor
@@ -1062,10 +1069,6 @@ update model message =
                             BoolEx.toMaybe model.settingsModel.usableFontList
                                 (Settings.isFetchedUsableFont model.settingsModel)
                         }
-
-                newStoryMap : Settings
-                newStoryMap =
-                    model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
             in
             Return.map (\m -> { m | settingsModel = newSettingsModel })
                 >> Effect.Settings.saveToLocal newSettings

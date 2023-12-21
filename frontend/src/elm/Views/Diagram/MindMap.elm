@@ -353,6 +353,7 @@ docs =
                         , scale = Scale.fromFloat 1.0
                         , position = ( 0, 0 )
                         , isFullscreen = False
+                        , lockEditing = False
                         }
                     , viewType = MindMap
                     , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"

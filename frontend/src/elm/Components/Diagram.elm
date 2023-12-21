@@ -33,6 +33,7 @@ import Css
         , right
         , solid
         , spaceBetween
+        , textAlign
         , top
         , width
         )
@@ -126,6 +127,7 @@ init settings =
             , scale = Maybe.withDefault Scale.default settings.scale
             , position = ( 0, 20 )
             , isFullscreen = False
+            , lockEditing = False
             }
         , moveState = Diagram.NotMove
         , movePosition = Position.zero
@@ -517,6 +519,9 @@ update model message =
             else
                 selectItem <| Just item
 
+        ToggleEdit ->
+            Return.map (\m -> Diagram.lockEditing.set (not m.diagram.lockEditing) m)
+
 
 
 -- View
@@ -642,7 +647,11 @@ view model =
           else
             Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
-            Lazy.lazy2 zoomControl model.diagram.isFullscreen (Scale.toFloat model.diagram.scale)
+            Lazy.lazy zoomControl
+                { isFullscreen = model.diagram.isFullscreen
+                , scale = Scale.toFloat model.diagram.scale
+                , lockEditing = model.diagram.lockEditing
+                }
 
           else
             Empty.view
@@ -1586,6 +1595,7 @@ updateDiagram size base text =
             , scale = base.diagram.scale
             , position = newModel.diagram.position
             , isFullscreen = newModel.diagram.isFullscreen
+            , lockEditing = newModel.diagram.lockEditing
             }
         , movePosition = Position.zero
         , text = Text.edit base.text text
@@ -1593,8 +1603,8 @@ updateDiagram size base text =
     }
 
 
-zoomControl : Bool -> Float -> Html Msg
-zoomControl isFullscreen scale =
+zoomControl : { isFullscreen : Bool, scale : Float, lockEditing : Bool } -> Html Msg
+zoomControl { isFullscreen, scale, lockEditing } =
     let
         s : Int
         s =
@@ -1683,7 +1693,21 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.add 24
             ]
-        -- TODO: Add lock button
+        , Html.div
+            [ Attr.css
+                [ width <| px 24
+                , height <| px 16
+                , cursor pointer
+                , textAlign center
+                ]
+            , onClick ToggleEdit
+            ]
+            [ if lockEditing then
+                Icon.lock Color.disabledIconColor 16
+
+              else
+                Icon.lockOpen Color.disabledIconColor 16
+            ]
         , Html.div
             [ Attr.css
                 [ width <| px 24
@@ -1710,6 +1734,7 @@ zoomIn step model =
                 , scale = Scale.add model.diagram.scale step
                 , position = model.diagram.position
                 , isFullscreen = model.diagram.isFullscreen
+                , lockEditing = model.diagram.lockEditing
                 }
         }
 
@@ -1723,5 +1748,6 @@ zoomOut step model =
                 , scale = Scale.sub model.diagram.scale step
                 , position = model.diagram.position
                 , isFullscreen = model.diagram.isFullscreen
+                , lockEditing = model.diagram.lockEditing
                 }
         }

@@ -115,6 +115,14 @@ save msg { diagramType, session, settings } =
 
                     Nothing ->
                         OptionalArgument.Absent
+
+            , lockEditing =
+                case settings.diagramSettings.lockEditing of
+                    Just l ->
+                        OptionalArgument.Present l
+
+                    Nothing ->
+                        OptionalArgument.Absent
             }
             |> Task.attempt msg
             |> Return.command

@@ -22,6 +22,7 @@ module Models.Diagram.Settings exposing
     , ofHeight
     , ofLabelColor
     , ofLineColor
+    , ofLockEditing
     , ofScale
     , ofStoryBackgroundColor
     , ofStoryColor
@@ -34,6 +35,7 @@ module Models.Diagram.Settings exposing
     )
 
 import Css exposing (fontFamilies)
+import Graphql.Object.Settings exposing (lockEditing)
 import Models.Color as Color exposing (Color)
 import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Scale as Scale exposing (Scale)
@@ -231,6 +233,11 @@ ofLineColor =
 ofScale : Lens Settings (Maybe Scale)
 ofScale =
     Lens .scale (\b a -> { a | scale = b })
+
+
+ofLockEditing : Lens Settings (Maybe Bool)
+ofLockEditing =
+    Lens .lockEditing (\b a -> { a | lockEditing = b })
 
 
 ofStoryBackgroundColor : Lens Settings Color
