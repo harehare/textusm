@@ -143,12 +143,12 @@ activityColor =
 
 backgroundColor : Lens Settings Color
 backgroundColor =
-    Compose.lensWithLens DiagramSettings.ofBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.backgroundColor ofDiagramSettings
 
 
 font : Lens Settings String
 font =
-    Compose.lensWithLens DiagramSettings.ofFont ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.font ofDiagramSettings
 
 
 fontSize : Optional Settings Int
@@ -203,7 +203,7 @@ textColor =
 
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
-    Compose.lensWithLens DiagramSettings.ofToolbar ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.toolbar ofDiagramSettings
 
 
 width : Lens Settings CardSize
@@ -218,7 +218,7 @@ wordWrap =
 
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
-    Compose.lensWithLens DiagramSettings.ofZoomControl ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.zoomControl ofDiagramSettings
 
 
 decoder : D.Decoder Settings
@@ -361,6 +361,7 @@ diagramEncoder settings =
         , ( "zoomControl", maybe E.bool settings.zoomControl )
         , ( "scale", maybe Scale.encoder settings.scale )
         , ( "toolbar", maybe E.bool settings.toolbar )
+        , ( "lockEditing", maybe E.bool settings.lockEditing )
         ]
 
 

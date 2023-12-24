@@ -35,7 +35,7 @@ import Models.Diagram as DiagramModel
 import Models.Diagram.Id as DiagramId
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale
+import Models.Diagram.Scale as Scale exposing (Scale)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
@@ -229,7 +229,6 @@ changeRouteTo route =
                                 m.diagramModel
                                     |> DiagramModel.showZoomControl.set False
                                     |> DiagramModel.diagramType.set diagram
-                                    |> DiagramModel.scale.set (Scale.fromFloat 1.0)
                                     |> DiagramModel.windowSize.set
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.windowSize) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.windowSize) height
@@ -809,20 +808,21 @@ update model message =
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
                                     let
-                                        scale : Float
+                                        scale : Maybe Scale
                                         scale =
                                             toFloat w
                                                 / toFloat (Size.getWidth m_.diagram.size)
+                                                |> Scale.fromFloat
+                                                |> Just
                                     in
                                     { m_
                                         | windowSize = ( w, h )
                                         , diagram =
                                             { size = ( w, h )
-                                            , scale = Scale.fromFloat scale
                                             , position = m_.diagram.position
                                             , isFullscreen = m_.diagram.isFullscreen
-                                            , lockEditing = m_.diagram.lockEditing
                                             }
+                                        , settings = m_.settings |> DiagramSettings.scale.set scale
                                     }
 
                                 _ ->
@@ -1048,8 +1048,8 @@ update model message =
                     , diagramId = model.currentDiagram.id
                     , diagramSettings =
                         diagramSettings.diagramSettings
-                            |> DiagramSettings.ofScale.set (Just model.diagramModel.diagram.scale)
-                            |> DiagramSettings.ofLockEditing.set (Just model.diagramModel.diagram.lockEditing)
+                            |> DiagramSettings.scale.set model.diagramModel.settings.scale
+                            |> DiagramSettings.lockEditing.set model.diagramModel.settings.lockEditing
                     , text = Just model.diagramModel.text
                     , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor

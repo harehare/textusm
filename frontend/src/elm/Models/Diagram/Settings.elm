@@ -3,7 +3,9 @@ module Models.Diagram.Settings exposing
     , ColorSettings
     , Settings
     , Size
+    , backgroundColor
     , default
+    , font
     , fontFamiliy
     , fontStyle
     , getBackgroundColor
@@ -15,27 +17,24 @@ module Models.Diagram.Settings exposing
     , getCardForegroundColor3
     , getLineColor
     , getTextColor
+    , lockEditing
     , ofActivityBackgroundColor
     , ofActivityColor
-    , ofBackgroundColor
-    , ofFont
     , ofHeight
     , ofLabelColor
     , ofLineColor
-    , ofLockEditing
-    , ofScale
     , ofStoryBackgroundColor
     , ofStoryColor
     , ofTaskBackgroundColor
     , ofTaskColor
     , ofTextColor
-    , ofToolbar
     , ofWidth
-    , ofZoomControl
+    , scale
+    , toolbar
+    , zoomControl
     )
 
 import Css exposing (fontFamilies)
-import Graphql.Object.Settings exposing (lockEditing)
 import Models.Color as Color exposing (Color)
 import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Scale as Scale exposing (Scale)
@@ -203,13 +202,13 @@ ofActivityColor =
         |> Compose.lensWithLens colorOfColor
 
 
-ofBackgroundColor : Lens Settings Color
-ofBackgroundColor =
+backgroundColor : Lens Settings Color
+backgroundColor =
     Lens .backgroundColor (\b a -> { a | backgroundColor = b })
 
 
-ofFont : Lens Settings String
-ofFont =
+font : Lens Settings String
+font =
     Lens .font (\b a -> { a | font = b })
 
 
@@ -230,13 +229,13 @@ ofLineColor =
         |> Compose.lensWithLens colorSettingsOfLine
 
 
-ofScale : Lens Settings (Maybe Scale)
-ofScale =
+scale : Lens Settings (Maybe Scale)
+scale =
     Lens .scale (\b a -> { a | scale = b })
 
 
-ofLockEditing : Lens Settings (Maybe Bool)
-ofLockEditing =
+lockEditing : Lens Settings (Maybe Bool)
+lockEditing =
     Lens .lockEditing (\b a -> { a | lockEditing = b })
 
 
@@ -274,8 +273,8 @@ ofTextColor =
         |> Compose.lensWithOptional colorSettingsOfText
 
 
-ofToolbar : Lens Settings (Maybe Bool)
-ofToolbar =
+toolbar : Lens Settings (Maybe Bool)
+toolbar =
     Lens .toolbar (\b a -> { a | toolbar = b })
 
 
@@ -284,8 +283,8 @@ ofWidth =
     Compose.lensWithLens sizeOfWidth ofSize
 
 
-ofZoomControl : Lens Settings (Maybe Bool)
-ofZoomControl =
+zoomControl : Lens Settings (Maybe Bool)
+zoomControl =
     Lens .zoomControl (\b a -> { a | zoomControl = b })
 
 

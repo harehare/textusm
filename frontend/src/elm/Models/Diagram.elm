@@ -15,12 +15,10 @@ module Models.Diagram exposing
     , diagramType
     , dragStart
     , isFullscreen
-    , lockEditing
     , moveOrZoom
     , movePosition
     , moveingItem
     , position
-    , scale
     , settings
     , showZoomControl
     , size
@@ -193,10 +191,8 @@ type alias SelectedItemInfo =
 
 type alias Diagram =
     { size : Size
-    , scale : Scale
     , position : Position
     , isFullscreen : Bool
-    , lockEditing : Bool
     }
 
 
@@ -289,16 +285,6 @@ position =
 isFullscreen : Lens Model Bool
 isFullscreen =
     ofDiagram |> Compose.lensWithLens diagramOfIsFullscreen
-
-
-lockEditing : Lens Model Bool
-lockEditing =
-    ofDiagram |> Compose.lensWithLens diagramOfLockEditing
-
-
-scale : Lens Model Scale
-scale =
-    ofDiagram |> Compose.lensWithLens diagramOfScale
 
 
 movePosition : Lens Model Position
@@ -400,11 +386,6 @@ ofDiagram =
     Lens .diagram (\b a -> { a | diagram = b })
 
 
-diagramOfScale : Lens Diagram Scale
-diagramOfScale =
-    Lens .scale (\b a -> { a | scale = b })
-
-
 diagramOfPosition : Lens Diagram Position
 diagramOfPosition =
     Lens .position (\b a -> { a | position = b })
@@ -413,8 +394,3 @@ diagramOfPosition =
 diagramOfIsFullscreen : Lens Diagram Bool
 diagramOfIsFullscreen =
     Lens .isFullscreen (\b a -> { a | isFullscreen = b })
-
-
-diagramOfLockEditing : Lens Diagram Bool
-diagramOfLockEditing =
-    Lens .lockEditing (\b a -> { a | lockEditing = b })

@@ -82,6 +82,7 @@ export type DiagramSettings = {
   zoomControl: boolean;
   scale: number;
   toolbar: boolean;
+  lockEditing: boolean;
 };
 
 type Size = {
