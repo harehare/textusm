@@ -38,7 +38,7 @@ import Css
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
-import Html.Styled as Html exposing (Html, i)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
 import Json.Decode as D
@@ -669,7 +669,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                 ]
             ]
         , Html.div
-            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 48, Css.top <| Css.px 8 ]
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| px 48, Css.top <| px 8 ]
             , onClick Import
             ]
             [ Icon.cloudUpload Color.white 24
@@ -677,7 +677,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                 [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport lang ] ]
             ]
         , Html.div
-            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 8, Css.top <| Css.px 8 ]
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| px 8, Css.top <| px 8 ]
             , onClick Export
             ]
             [ Icon.cloudDownload Color.white 24

@@ -133,12 +133,12 @@ defaultSettings theme =
 
 activityBackgroundColor : Lens Settings Color
 activityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityBackgroundColor ofDiagramSettings
 
 
 activityColor : Lens Settings Color
 activityColor =
-    Compose.lensWithLens DiagramSettings.ofActivityColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityColor ofDiagramSettings
 
 
 backgroundColor : Lens Settings Color
@@ -158,17 +158,17 @@ fontSize =
 
 height : Lens Settings CardSize
 height =
-    Compose.lensWithLens DiagramSettings.ofHeight ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.height ofDiagramSettings
 
 
 labelColor : Lens Settings Color
 labelColor =
-    Compose.lensWithLens DiagramSettings.ofLabelColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.labelColor ofDiagramSettings
 
 
 lineColor : Lens Settings Color
 lineColor =
-    Compose.lensWithLens DiagramSettings.ofLineColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.lineColor ofDiagramSettings
 
 
 showLineNumber : Optional Settings Bool
@@ -178,27 +178,27 @@ showLineNumber =
 
 storyBackgroundColor : Lens Settings Color
 storyBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyBackgroundColor ofDiagramSettings
 
 
 storyColor : Lens Settings Color
 storyColor =
-    Compose.lensWithLens DiagramSettings.ofStoryColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyColor ofDiagramSettings
 
 
 taskBackgroundColor : Lens Settings Color
 taskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskBackgroundColor ofDiagramSettings
 
 
 taskColor : Lens Settings Color
 taskColor =
-    Compose.lensWithLens DiagramSettings.ofTaskColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskColor ofDiagramSettings
 
 
 textColor : Optional Settings Color
 textColor =
-    Compose.lensWithOptional DiagramSettings.ofTextColor ofDiagramSettings
+    Compose.lensWithOptional DiagramSettings.textColor ofDiagramSettings
 
 
 toolbar : Lens Settings (Maybe Bool)
@@ -208,7 +208,7 @@ toolbar =
 
 width : Lens Settings CardSize
 width =
-    Compose.lensWithLens DiagramSettings.ofWidth ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.width ofDiagramSettings
 
 
 wordWrap : Optional Settings Bool

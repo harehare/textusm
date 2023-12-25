@@ -2,7 +2,6 @@ module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
 
 import Constants
 import Events
-import Graphql.Object.Settings exposing (lockEditing)
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.CardSize as CardSize
@@ -150,9 +149,11 @@ canvasBase { settings, property, isTitleBottom, size, position, selectedItem, it
         ( svgWidth, svgHeight ) =
             size |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
 
+        lockEditing : Bool
         lockEditing =
             settings.lockEditing |> Maybe.withDefault False
 
+        view_ : Svg msg
         view_ =
             Svg.g
                 [ if lockEditing then
@@ -355,7 +356,7 @@ text { settings, property, svgWidth, position, selectedItem, items, onEditSelect
     let
         newSettings : DiagramSettings.Settings
         newSettings =
-            settings |> DiagramSettings.ofWidth.set (CardSize.fromInt <| svgWidth - Constants.itemMargin * 2)
+            settings |> DiagramSettings.width.set (CardSize.fromInt <| svgWidth - Constants.itemMargin * 2)
 
         ( posX, posY ) =
             position

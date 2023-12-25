@@ -1,4 +1,4 @@
-module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
+module Route exposing (CopyDiagramId, IsRemote, Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
 import Bool.Extra as BoolEx
 import Browser.Navigation as Nav

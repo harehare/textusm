@@ -166,6 +166,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                 marginTop =
                     (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * KeyboardLayout.outerSize
 
+                fontSize : Float
                 fontSize =
                     Item.getFontSize item
                         |> Maybe.withDefault FontSize.s

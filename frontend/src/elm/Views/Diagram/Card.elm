@@ -86,6 +86,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
                     (\c -> c |> Maybe.withDefault defaultColor.defaultForeColor)
                     (\c -> c |> Maybe.withDefault defaultColor.defaultBackColor)
 
+        lockEditing : Bool
         lockEditing =
             settings.lockEditing |> Maybe.withDefault False
 
