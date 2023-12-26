@@ -115,7 +115,6 @@ save msg { diagramType, session, settings } =
 
                     Nothing ->
                         OptionalArgument.Absent
-
             , lockEditing =
                 case settings.diagramSettings.lockEditing of
                     Just l ->
