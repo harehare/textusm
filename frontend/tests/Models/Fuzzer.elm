@@ -288,6 +288,7 @@ diagramSettingsFuzzer =
         |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
         |> Fuzz.andMap (Fuzz.maybe scaleFuzzer)
         |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
+        |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
 
 
 settingsFuzzer : Fuzzer Settings
