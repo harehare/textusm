@@ -88,3 +88,8 @@ scale =
 toolbar : SelectionSet (Maybe Bool) Graphql.Object.Settings
 toolbar =
     Object.selectionForField "(Maybe Bool)" "toolbar" [] (Decode.bool |> Decode.nullable)
+
+
+lockEditing : SelectionSet (Maybe Bool) Graphql.Object.Settings
+lockEditing =
+    Object.selectionForField "(Maybe Bool)" "lockEditing" [] (Decode.bool |> Decode.nullable)

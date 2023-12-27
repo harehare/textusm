@@ -35,7 +35,7 @@ import Models.Diagram as DiagramModel
 import Models.Diagram.Id as DiagramId
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale
+import Models.Diagram.Scale as Scale exposing (Scale)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
@@ -229,7 +229,6 @@ changeRouteTo route =
                                 m.diagramModel
                                     |> DiagramModel.showZoomControl.set False
                                     |> DiagramModel.diagramType.set diagram
-                                    |> DiagramModel.scale.set (Scale.fromFloat 1.0)
                                     |> DiagramModel.windowSize.set
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.windowSize) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.windowSize) height
@@ -808,21 +807,22 @@ update model message =
                         (\m_ ->
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
-                                    -- TODO:
                                     let
-                                        scale : Float
+                                        scale : Maybe Scale
                                         scale =
                                             toFloat w
                                                 / toFloat (Size.getWidth m_.diagram.size)
+                                                |> Scale.fromFloat
+                                                |> Just
                                     in
                                     { m_
                                         | windowSize = ( w, h )
                                         , diagram =
                                             { size = ( w, h )
-                                            , scale = Scale.fromFloat scale
                                             , position = m_.diagram.position
                                             , isFullscreen = m_.diagram.isFullscreen
                                             }
+                                        , settings = m_.settings |> DiagramSettings.scale.set scale
                                     }
 
                                 _ ->
@@ -1037,12 +1037,19 @@ update model message =
 
         M.HandleVisibilityChange Hidden ->
             let
+                diagramSettings : Settings
+                diagramSettings =
+                    model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
+
                 newSettings : Settings
                 newSettings =
                     { position = Just model.window.position
                     , font = model.settingsModel.settings.font
                     , diagramId = model.currentDiagram.id
-                    , diagramSettings = DiagramSettings.ofScale.set (Just model.diagramModel.diagram.scale) newStoryMap.diagramSettings
+                    , diagramSettings =
+                        diagramSettings.diagramSettings
+                            |> DiagramSettings.scale.set model.diagramModel.settings.scale
+                            |> DiagramSettings.lockEditing.set model.diagramModel.settings.lockEditing
                     , text = Just model.diagramModel.text
                     , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor
@@ -1062,10 +1069,6 @@ update model message =
                             BoolEx.toMaybe model.settingsModel.usableFontList
                                 (Settings.isFetchedUsableFont model.settingsModel)
                         }
-
-                newStoryMap : Settings
-                newStoryMap =
-                    model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
             in
             Return.map (\m -> { m | settingsModel = newSettingsModel })
                 >> Effect.Settings.saveToLocal newSettings

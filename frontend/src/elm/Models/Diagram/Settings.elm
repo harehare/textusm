@@ -3,7 +3,11 @@ module Models.Diagram.Settings exposing
     , ColorSettings
     , Settings
     , Size
+    , activityBackgroundColor
+    , activityColor
+    , backgroundColor
     , default
+    , font
     , fontFamiliy
     , fontStyle
     , getBackgroundColor
@@ -15,22 +19,19 @@ module Models.Diagram.Settings exposing
     , getCardForegroundColor3
     , getLineColor
     , getTextColor
-    , ofActivityBackgroundColor
-    , ofActivityColor
-    , ofBackgroundColor
-    , ofFont
-    , ofHeight
-    , ofLabelColor
-    , ofLineColor
-    , ofScale
-    , ofStoryBackgroundColor
-    , ofStoryColor
-    , ofTaskBackgroundColor
-    , ofTaskColor
-    , ofTextColor
-    , ofToolbar
-    , ofWidth
-    , ofZoomControl
+    , lockEditing
+    , height
+    , labelColor
+    , lineColor
+    , storyBackgroundColor
+    , storyColor
+    , taskBackgroundColor
+    , taskColor
+    , textColor
+    , width
+    , scale
+    , toolbar
+    , zoomControl
     )
 
 import Css exposing (fontFamilies)
@@ -67,6 +68,7 @@ type alias Settings =
     , zoomControl : Maybe Bool
     , scale : Maybe Scale
     , toolbar : Maybe Bool
+    , lockEditing : Maybe Bool
     }
 
 
@@ -102,6 +104,7 @@ default =
     , zoomControl = Just True
     , scale = Just Scale.default
     , toolbar = Nothing
+    , lockEditing = Nothing
     }
 
 
@@ -185,98 +188,103 @@ getTextColor settings property =
             )
 
 
-ofActivityBackgroundColor : Lens Settings Color
-ofActivityBackgroundColor =
+activityBackgroundColor : Lens Settings Color
+activityBackgroundColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfActivity
         |> Compose.lensWithLens colorOfBackgroundColor
 
 
-ofActivityColor : Lens Settings Color
-ofActivityColor =
+activityColor : Lens Settings Color
+activityColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfActivity
         |> Compose.lensWithLens colorOfColor
 
 
-ofBackgroundColor : Lens Settings Color
-ofBackgroundColor =
+backgroundColor : Lens Settings Color
+backgroundColor =
     Lens .backgroundColor (\b a -> { a | backgroundColor = b })
 
 
-ofFont : Lens Settings String
-ofFont =
+font : Lens Settings String
+font =
     Lens .font (\b a -> { a | font = b })
 
 
-ofHeight : Lens Settings CardSize
-ofHeight =
+height : Lens Settings CardSize
+height =
     Compose.lensWithLens sizeOfHeight ofSize
 
 
-ofLabelColor : Lens Settings Color
-ofLabelColor =
+labelColor : Lens Settings Color
+labelColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfLabel
 
 
-ofLineColor : Lens Settings Color
-ofLineColor =
+lineColor : Lens Settings Color
+lineColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfLine
 
 
-ofScale : Lens Settings (Maybe Scale)
-ofScale =
+scale : Lens Settings (Maybe Scale)
+scale =
     Lens .scale (\b a -> { a | scale = b })
 
 
-ofStoryBackgroundColor : Lens Settings Color
-ofStoryBackgroundColor =
+lockEditing : Lens Settings (Maybe Bool)
+lockEditing =
+    Lens .lockEditing (\b a -> { a | lockEditing = b })
+
+
+storyBackgroundColor : Lens Settings Color
+storyBackgroundColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfStory
         |> Compose.lensWithLens colorOfBackgroundColor
 
 
-ofStoryColor : Lens Settings Color
-ofStoryColor =
+storyColor : Lens Settings Color
+storyColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfStory
         |> Compose.lensWithLens colorOfColor
 
 
-ofTaskBackgroundColor : Lens Settings Color
-ofTaskBackgroundColor =
+taskBackgroundColor : Lens Settings Color
+taskBackgroundColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfTask
         |> Compose.lensWithLens colorOfBackgroundColor
 
 
-ofTaskColor : Lens Settings Color
-ofTaskColor =
+taskColor : Lens Settings Color
+taskColor =
     ofColor
         |> Compose.lensWithLens colorSettingsOfTask
         |> Compose.lensWithLens colorOfColor
 
 
-ofTextColor : Optional Settings Color
-ofTextColor =
+textColor : Optional Settings Color
+textColor =
     ofColor
         |> Compose.lensWithOptional colorSettingsOfText
 
 
-ofToolbar : Lens Settings (Maybe Bool)
-ofToolbar =
+toolbar : Lens Settings (Maybe Bool)
+toolbar =
     Lens .toolbar (\b a -> { a | toolbar = b })
 
 
-ofWidth : Lens Settings CardSize
-ofWidth =
+width : Lens Settings CardSize
+width =
     Compose.lensWithLens sizeOfWidth ofSize
 
 
-ofZoomControl : Lens Settings (Maybe Bool)
-ofZoomControl =
+zoomControl : Lens Settings (Maybe Bool)
+zoomControl =
     Lens .zoomControl (\b a -> { a | zoomControl = b })
 
 

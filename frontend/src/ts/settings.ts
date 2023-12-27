@@ -33,6 +33,7 @@ const getDefaultSettings = (isDarkMode: boolean) => ({
     zoomControl: true,
     scale: 1,
     toolbar: true,
+    lockEditing: false,
   },
   position: -10,
   text: '',
@@ -97,20 +98,7 @@ export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings =>
 };
 
 export const saveSettings = (settings: Settings): void => {
-  localStorage.setItem(
-    settingsKey,
-    JSON.stringify({
-      font: settings.font,
-      position: settings.position,
-      text: settings.text,
-      title: settings.title,
-      diagramId: settings.diagramId,
-      diagramSettings: settings.diagramSettings,
-      diagram: settings.diagram,
-      location: settings.location,
-      theme: settings.theme,
-    })
-  );
+  localStorage.setItem(settingsKey, JSON.stringify(settings));
 
   if (settings.diagram?.diagram) {
     localStorage.setItem(getSettingsKey(settings.diagram?.diagram), JSON.stringify(settings.diagramSettings));

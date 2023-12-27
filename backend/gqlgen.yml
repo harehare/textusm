@@ -1,13 +1,13 @@
 schema:
   - graphql/*.graphql
 exec:
-  filename: pkg/presentation/graphql/generated.go
+  filename: internal/presentation/graphql/generated.go
   package: graphql
 model:
-  filename: pkg/presentation/graphql/models.go
+  filename: internal/presentation/graphql/models.go
   package: graphql
 resolver:
-  filename: pkg/presentation/graphql/resolver.go
+  filename: internal/presentation/graphql/resolver.go
   package: graphql
 autobind: []
 models:

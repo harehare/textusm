@@ -50,8 +50,10 @@ viewWithDefaultColor { settings, property, position, selectedItem, item, canMove
         , selectedItem = selectedItem
         , item = item
         , canMove = canMove
-        , defaultForeColor = foreColor
-        , defaultBackColor = backColor
+        , defaultColor =
+            { defaultForeColor = foreColor
+            , defaultBackColor = backColor
+            }
         , onEditSelectedItem = onEditSelectedItem
         , onEndEditSelectedItem = onEndEditSelectedItem
         , onSelect = onSelect
@@ -66,21 +68,27 @@ view :
     , selectedItem : SelectedItem
     , item : Item
     , canMove : Bool
-    , defaultForeColor : Color
-    , defaultBackColor : Color
+    , defaultColor :
+        { defaultForeColor : Color
+        , defaultBackColor : Color
+        }
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
     , dragStart : Views.DragStart msg
     }
     -> Svg msg
-view { settings, property, position, selectedItem, item, canMove, defaultForeColor, defaultBackColor, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+view { settings, property, position, selectedItem, item, canMove, defaultColor, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         ( foreColor, backColor ) =
             ( Item.getForegroundColor item, Item.getBackgroundColor item )
                 |> Tuple.mapBoth
-                    (\c -> c |> Maybe.withDefault defaultForeColor)
-                    (\c -> c |> Maybe.withDefault defaultBackColor)
+                    (\c -> c |> Maybe.withDefault defaultColor.defaultForeColor)
+                    (\c -> c |> Maybe.withDefault defaultColor.defaultBackColor)
+
+        lockEditing : Bool
+        lockEditing =
+            settings.lockEditing |> Maybe.withDefault False
 
         view_ : Svg msg
         view_ =
@@ -103,9 +111,13 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             Svg.g
                 [ SvgAttr.class "card"
                 , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
-                , Events.onClickStopPropagation <|
-                    onSelect <|
-                        Just { item = item, position = position, displayAllMenu = True }
+                , if lockEditing then
+                    SvgAttr.style ""
+
+                  else
+                    Events.onClickStopPropagation <|
+                        onSelect <|
+                            Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
@@ -131,87 +143,91 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                     }
                 ]
     in
-    case selectedItem of
-        Just item_ ->
-            if Item.eq item_ item then
-                let
-                    selectedItemOffsetSize : Size
-                    selectedItemOffsetSize =
-                        Item.getOffsetSize item_
+    if lockEditing then
+        view_
 
-                    selectedItemOffsetPosition : Position
-                    selectedItemOffsetPosition =
-                        Item.getOffset item_
+    else
+        case selectedItem of
+            Just item_ ->
+                if Item.eq item_ item then
+                    let
+                        selectedItemOffsetSize : Size
+                        selectedItemOffsetSize =
+                            Item.getOffsetSize item_
 
-                    selectedItemPosition : Position
-                    selectedItemPosition =
-                        position
-                            |> Tuple.mapBoth
-                                (\x -> x + Position.getX selectedItemOffsetPosition)
-                                (\y -> y + Position.getY selectedItemOffsetPosition)
+                        selectedItemOffsetPosition : Position
+                        selectedItemOffsetPosition =
+                            Item.getOffset item_
 
-                    selectedItemSize : Size
-                    selectedItemSize =
-                        ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height - 1 )
-                            |> Tuple.mapBoth
-                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
-                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+                        selectedItemPosition : Position
+                        selectedItemPosition =
+                            position
+                                |> Tuple.mapBoth
+                                    (\x -> x + Position.getX selectedItemOffsetPosition)
+                                    (\y -> y + Position.getY selectedItemOffsetPosition)
 
-                    ( x_, y_ ) =
-                        selectedItemPosition
-                in
-                Svg.g
-                    [ if canMove then
-                        dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+                        selectedItemSize : Size
+                        selectedItemSize =
+                            ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height - 1 )
+                                |> Tuple.mapBoth
+                                    (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                    (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
 
-                      else
-                        SvgAttr.style ""
-                    ]
-                    [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 16
-                        , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
-                        , SvgAttr.x (String.fromInt <| x_ - 8)
-                        , SvgAttr.y (String.fromInt <| y_ - 8)
-                        , SvgAttr.rx "1"
-                        , SvgAttr.ry "1"
-                        , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke "rgba(38, 107, 154, 0.6)"
-                        , SvgAttr.strokeWidth "2"
+                        ( x_, y_ ) =
+                            selectedItemPosition
+                    in
+                    Svg.g
+                        [ if canMove then
+                            dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+
+                          else
+                            SvgAttr.style ""
                         ]
-                        []
-                    , Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 4
-                        , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 4
-                        , SvgAttr.x (String.fromInt <| x_ - 2)
-                        , SvgAttr.y (String.fromInt <| y_ - 2)
-                        , SvgAttr.rx "1"
-                        , SvgAttr.ry "1"
-                        , SvgAttr.fill <| Color.toString backColor
-                        , SvgAttr.style "filter:url(#shadow)"
+                        [ Svg.rect
+                            [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 16
+                            , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
+                            , SvgAttr.x (String.fromInt <| x_ - 8)
+                            , SvgAttr.y (String.fromInt <| y_ - 8)
+                            , SvgAttr.rx "1"
+                            , SvgAttr.ry "1"
+                            , SvgAttr.fill "transparent"
+                            , SvgAttr.stroke "rgba(38, 107, 154, 0.6)"
+                            , SvgAttr.strokeWidth "2"
+                            ]
+                            []
+                        , Svg.rect
+                            [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 4
+                            , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 4
+                            , SvgAttr.x (String.fromInt <| x_ - 2)
+                            , SvgAttr.y (String.fromInt <| y_ - 2)
+                            , SvgAttr.rx "1"
+                            , SvgAttr.ry "1"
+                            , SvgAttr.fill <| Color.toString backColor
+                            , SvgAttr.style "filter:url(#shadow)"
+                            ]
+                            []
+                        , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
+                        , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ), dragStart = dragStart }
+                        , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                        , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                        , Views.inputView
+                            { settings = settings
+                            , fontSize = Item.getFontSizeWithProperty item property
+                            , position = selectedItemPosition
+                            , size = selectedItemSize
+                            , color = foreColor
+                            , item = item_
+                            , onEditSelectedItem = onEditSelectedItem
+                            , onEndEditSelectedItem = onEndEditSelectedItem
+                            , onSelect = onSelect
+                            }
                         ]
-                        []
-                    , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
-                    , Views.inputView
-                        { settings = settings
-                        , fontSize = Item.getFontSizeWithProperty item property
-                        , position = selectedItemPosition
-                        , size = selectedItemSize
-                        , color = foreColor
-                        , item = item_
-                        , onEditSelectedItem = onEditSelectedItem
-                        , onEndEditSelectedItem = onEndEditSelectedItem
-                        , onSelect = onSelect
-                        }
-                    ]
 
-            else
+                else
+                    view_
+
+            Nothing ->
                 view_
-
-        Nothing ->
-            view_
 
 
 text :

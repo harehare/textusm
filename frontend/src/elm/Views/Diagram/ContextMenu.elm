@@ -182,7 +182,7 @@ view width display props =
     Svg.foreignObject
         [ SvgAttr.class "context-menu"
         , Attributes.dataTest "context-menu"
-        , SvgAttr.x <| String.fromInt <| Position.getX props.position
+        , SvgAttr.x <| String.fromInt <| (Position.getX props.position - 8)
         , SvgAttr.y <| String.fromInt <| (Position.getY props.position + 8)
         , SvgAttr.width "320"
         , SvgAttr.height "285"

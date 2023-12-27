@@ -1,6 +1,5 @@
 module Style.Style exposing
-    ( borderContent
-    , breakWord
+    ( breakWord
     , button
     , dialogBackdrop
     , emptyContent
@@ -33,7 +32,6 @@ module Style.Style exposing
     , mtXs
     , objectFitCover
     , padding3
-    , paddingMd
     , paddingRightSm
     , paddingSm
     , paddingTopSm
@@ -118,11 +116,6 @@ import Css.Transitions exposing (easeInOut, transform3, transformOrigin, transit
 import Style.Color as Color
 import Style.Font as Font
 import Style.Text as Text
-
-
-borderContent : Css.Style
-borderContent =
-    border3 (px 1) solid (rgba 71 75 82 0.5)
 
 
 breakWord : Css.Style
@@ -340,11 +333,6 @@ objectFitCover =
 padding3 : Css.Style
 padding3 =
     padding <| rem 0.75
-
-
-paddingMd : Css.Style
-paddingMd =
-    padding <| px 16
 
 
 paddingRightSm : Css.Style

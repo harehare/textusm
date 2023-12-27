@@ -7,7 +7,9 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
+import Models.Color as Color
 import Models.Diagram as DiagramModel
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as Search
@@ -96,7 +98,6 @@ init flags =
             , windowSize = ( 1024, 1024 )
             , diagram =
                 { size = Size.zero
-                , scale = Scale.fromFloat 1.0
                 , position = ( 0, 0 )
                 , isFullscreen = False
                 }
@@ -110,30 +111,31 @@ init flags =
             , settings =
                 { font = flags.fontName
                 , size =
-                    { width = flags.cardWidth
-                    , height = flags.cardHeight
+                    { width = CardSize.fromInt flags.cardWidth
+                    , height = CardSize.fromInt flags.cardHeight
                     }
-                , backgroundColor = flags.backgroundColor
-                , zoomControl = Just False
-                , scale = Just 1.0
+                , backgroundColor = Color.fromString flags.backgroundColor
+                , zoomControl = Nothing
+                , scale = Just Scale.default
                 , color =
                     { activity =
-                        { color = flags.activityColor
-                        , backgroundColor = flags.activityBackgroundColor
+                        { color = Color.fromString flags.activityColor
+                        , backgroundColor = Color.fromString flags.activityBackgroundColor
                         }
                     , task =
-                        { color = flags.taskColor
-                        , backgroundColor = flags.taskBackgroundColor
+                        { color = Color.fromString flags.taskColor
+                        , backgroundColor = Color.fromString flags.taskBackgroundColor
                         }
                     , story =
-                        { color = flags.storyColor
-                        , backgroundColor = flags.storyBackgroundColor
+                        { color = Color.fromString flags.storyColor
+                        , backgroundColor = Color.fromString flags.storyBackgroundColor
                         }
-                    , line = flags.lineColor
-                    , label = flags.labelColor
-                    , text = Just flags.textColor
+                    , line = Color.fromString flags.lineColor
+                    , label = Color.fromString flags.labelColor
+                    , text = Just <| Color.fromString flags.textColor
                     }
-                , toolbar = Just False
+                , toolbar = Nothing
+                , lockEditing = Nothing
                 }
             , touchDistance = Nothing
             , text = Text.empty

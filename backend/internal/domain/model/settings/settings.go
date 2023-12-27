@@ -14,6 +14,7 @@ type Settings struct {
 	ZoomControl     *bool    `json:"zoomControl"`
 	Scale           *float64 `json:"scale"`
 	Toolbar         *bool    `json:"toolbar"`
+	LockEditing     *bool    `json:"lockEditing"`
 }
 
 type Color struct {

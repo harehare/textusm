@@ -19,7 +19,6 @@ module Models.Diagram exposing
     , movePosition
     , moveingItem
     , position
-    , scale
     , settings
     , showZoomControl
     , size
@@ -155,6 +154,7 @@ type Msg
     | ToggleDropDownList String
     | ToggleMiniMap
     | ToggleSearch
+    | ToggleEdit
     | ToolbarClick Item
     | ChangeText String
     | Resize Int Int
@@ -191,7 +191,6 @@ type alias SelectedItemInfo =
 
 type alias Diagram =
     { size : Size
-    , scale : Scale
     , position : Position
     , isFullscreen : Bool
     }
@@ -286,11 +285,6 @@ position =
 isFullscreen : Lens Model Bool
 isFullscreen =
     ofDiagram |> Compose.lensWithLens diagramOfIsFullscreen
-
-
-scale : Lens Model Scale
-scale =
-    ofDiagram |> Compose.lensWithLens diagramOfScale
 
 
 movePosition : Lens Model Position
@@ -390,11 +384,6 @@ updatedText model text_ =
 ofDiagram : Lens Model Diagram
 ofDiagram =
     Lens .diagram (\b a -> { a | diagram = b })
-
-
-diagramOfScale : Lens Diagram Scale
-diagramOfScale =
-    Lens .scale (\b a -> { a | scale = b })
 
 
 diagramOfPosition : Lens Diagram Position

@@ -120,6 +120,7 @@ defaultSettings theme =
         , zoomControl = Just True
         , scale = Just Scale.default
         , toolbar = Nothing
+        , lockEditing = Nothing
         }
     , text = Nothing
     , title = Nothing
@@ -132,22 +133,22 @@ defaultSettings theme =
 
 activityBackgroundColor : Lens Settings Color
 activityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityBackgroundColor ofDiagramSettings
 
 
 activityColor : Lens Settings Color
 activityColor =
-    Compose.lensWithLens DiagramSettings.ofActivityColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityColor ofDiagramSettings
 
 
 backgroundColor : Lens Settings Color
 backgroundColor =
-    Compose.lensWithLens DiagramSettings.ofBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.backgroundColor ofDiagramSettings
 
 
 font : Lens Settings String
 font =
-    Compose.lensWithLens DiagramSettings.ofFont ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.font ofDiagramSettings
 
 
 fontSize : Optional Settings Int
@@ -157,17 +158,17 @@ fontSize =
 
 height : Lens Settings CardSize
 height =
-    Compose.lensWithLens DiagramSettings.ofHeight ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.height ofDiagramSettings
 
 
 labelColor : Lens Settings Color
 labelColor =
-    Compose.lensWithLens DiagramSettings.ofLabelColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.labelColor ofDiagramSettings
 
 
 lineColor : Lens Settings Color
 lineColor =
-    Compose.lensWithLens DiagramSettings.ofLineColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.lineColor ofDiagramSettings
 
 
 showLineNumber : Optional Settings Bool
@@ -177,37 +178,37 @@ showLineNumber =
 
 storyBackgroundColor : Lens Settings Color
 storyBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyBackgroundColor ofDiagramSettings
 
 
 storyColor : Lens Settings Color
 storyColor =
-    Compose.lensWithLens DiagramSettings.ofStoryColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyColor ofDiagramSettings
 
 
 taskBackgroundColor : Lens Settings Color
 taskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskBackgroundColor ofDiagramSettings
 
 
 taskColor : Lens Settings Color
 taskColor =
-    Compose.lensWithLens DiagramSettings.ofTaskColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskColor ofDiagramSettings
 
 
 textColor : Optional Settings Color
 textColor =
-    Compose.lensWithOptional DiagramSettings.ofTextColor ofDiagramSettings
+    Compose.lensWithOptional DiagramSettings.textColor ofDiagramSettings
 
 
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
-    Compose.lensWithLens DiagramSettings.ofToolbar ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.toolbar ofDiagramSettings
 
 
 width : Lens Settings CardSize
 width =
-    Compose.lensWithLens DiagramSettings.ofWidth ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.width ofDiagramSettings
 
 
 wordWrap : Optional Settings Bool
@@ -217,7 +218,7 @@ wordWrap =
 
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
-    Compose.lensWithLens DiagramSettings.ofZoomControl ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.zoomControl ofDiagramSettings
 
 
 decoder : D.Decoder Settings
@@ -347,6 +348,7 @@ diagramDecoder =
         |> optional "zoomControl" (D.map Just D.bool) Nothing
         |> optional "scale" (D.map Just Scale.decoder) Nothing
         |> optional "toolbar" (D.map Just D.bool) Nothing
+        |> optional "lockEditing" (D.map Just D.bool) Nothing
 
 
 diagramEncoder : DiagramSettings.Settings -> E.Value
@@ -359,6 +361,7 @@ diagramEncoder settings =
         , ( "zoomControl", maybe E.bool settings.zoomControl )
         , ( "scale", maybe Scale.encoder settings.scale )
         , ( "toolbar", maybe E.bool settings.toolbar )
+        , ( "lockEditing", maybe E.bool settings.lockEditing )
         ]
 
 

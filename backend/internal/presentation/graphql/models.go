@@ -44,6 +44,7 @@ type InputSettings struct {
 	ZoomControl     *bool       `json:"zoomControl,omitempty"`
 	Scale           *float64    `json:"scale,omitempty"`
 	Toolbar         *bool       `json:"toolbar,omitempty"`
+	LockEditing     *bool       `json:"lockEditing,omitempty"`
 }
 
 type InputShareItem struct {

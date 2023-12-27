@@ -106,6 +106,7 @@ settingsSelection =
         |> with Graphql.Object.Settings.zoomControl
         |> with (SelectionSet.map (Maybe.map Scale.fromFloat) Graphql.Object.Settings.scale)
         |> with Graphql.Object.Settings.toolbar
+        |> with Graphql.Object.Settings.lockEditing
 
 
 colorSelection : SelectionSet DiagramSettings.ColorSetting Graphql.Object.Color

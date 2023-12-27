@@ -244,7 +244,7 @@ inputBase { settings, fontSize, position, size, color, item, fontWeight, onEditS
                     [ outline none
                     ]
                 ]
-            , Attr.value <| " " ++ String.trimLeft (Item.getMultiLineText item)
+            , Attr.value <| String.trimLeft (Item.getMultiLineText item)
             , onInput onEditSelectedItem
             , onBlur <| onSelect Nothing
             , Events.onEnter <| onEndEditSelectedItem item

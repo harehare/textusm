@@ -3,7 +3,7 @@ module Views.Diagram.Table exposing (docs, view)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
-import Models.Diagram.CardSize as CardSize exposing (CardSize)
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Table as Table exposing (Header(..), Row(..), Table(..))

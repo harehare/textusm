@@ -9,7 +9,6 @@ import Css
         , flexEnd
         , height
         , justifyContent
-        , marginBottom
         , marginTop
         , padding
         , pointer

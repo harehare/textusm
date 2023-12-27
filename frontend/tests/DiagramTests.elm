@@ -658,4 +658,5 @@ defaultSettings =
         , text = Just <| Color.fromString "#111111"
         }
     , toolbar = Just True
+    , lockEditing = Nothing
     }

@@ -332,7 +332,7 @@ tabs session list isOnline =
             [ Breakpoint.style [ display none ]
                 [ Breakpoint.large
                     [ TextStyle.base
-                    , Css.displayFlex
+                    , displayFlex
                     , ColorStyle.textDark
                     , ColorStyle.bgMain
                     , overflowY scroll
@@ -790,7 +790,7 @@ fetchAllItems session pageNo =
                 case items of
                     Just items_ ->
                         fetchAllItems session (pageNo + 1)
-                            |> Task.map (\items__ -> items_ ++ items__)
+                            |> Task.map (\i -> items_ ++ i)
 
                     Nothing ->
                         Task.succeed []
@@ -958,7 +958,6 @@ update model message =
                                     |> Maybe.map
                                         (\accessToken ->
                                             Request.deleteGist (Session.getIdToken model.session) accessToken diagramId
-                                                |> Task.map identity
                                                 |> Task.attempt Removed
                                                 |> Return.command
                                         )
@@ -966,7 +965,6 @@ update model message =
 
                             ( _, Just diagramId ) ->
                                 Request.delete (Session.getIdToken model.session) diagramId False
-                                    |> Task.map identity
                                     |> Task.attempt Removed
                                     |> Return.command
 

@@ -6,6 +6,7 @@ import Constants
 import Css
     exposing
         ( absolute
+        , after
         , alignItems
         , backgroundColor
         , border3
@@ -33,6 +34,7 @@ import Css
         , right
         , solid
         , spaceBetween
+        , textAlign
         , top
         , width
         )
@@ -47,7 +49,7 @@ import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
-import List.Extra exposing (getAt, setAt)
+import List.Extra as ListEx exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
@@ -123,7 +125,6 @@ init settings =
         , windowSize = Size.zero
         , diagram =
             { size = Size.zero
-            , scale = Maybe.withDefault Scale.default settings.scale
             , position = ( 0, 20 )
             , isFullscreen = False
             }
@@ -186,7 +187,7 @@ update model message =
                 >> clearPosition
 
         EditSelectedItem text ->
-            Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
+            Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (String.trimLeft text)) m.selectedItem }
 
         EndEditSelectedItem item ->
             model.selectedItem
@@ -197,25 +198,42 @@ update model message =
                             lines =
                                 Text.lines model.text
 
-                            text : String
-                            text =
-                                setAt (Item.getLineNo item)
-                                    (item
-                                        |> Item.withSettings
-                                            (Item.getSettings selectedItem)
-                                        |> Item.toLineString
-                                        |> String.dropLeft 1
-                                    )
-                                    lines
-                                    |> String.join "\n"
+                            beforeText =
+                                Item.new
+                                    |> (ListEx.getAt (Item.getLineNo item) lines
+                                            |> Maybe.map String.trim
+                                            |> Maybe.withDefault ""
+                                            |> Item.withText
+                                       )
+                                    |> Item.getTextOnly
+
+                            afterText =
+                                Item.getTextOnly selectedItem
                         in
-                        setText text
-                            >> clearSelectedItem
+                        if beforeText == afterText then
+                            clearSelectedItem
+
+                        else
+                            let
+                                text : String
+                                text =
+                                    setAt (Item.getLineNo item)
+                                        (item
+                                            |> Item.withSettings (Item.getSettings selectedItem)
+                                            |> Item.toLineString
+                                        )
+                                        lines
+                                        |> String.join "\n"
+                            in
+                            setText text >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
 
         FitToWindow ->
             let
+                ( windowWidth, windowHeight ) =
+                    model.windowSize
+
                 ( canvasWidth, canvasHeight ) =
                     Diagram.size model
 
@@ -225,15 +243,14 @@ update model message =
                 position : Position
                 position =
                     ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
-
-                ( windowWidth, windowHeight ) =
-                    model.windowSize
             in
             Return.map
                 (\m ->
-                    m
-                        |> Diagram.scale.set (Scale.fromFloat <| min widthRatio heightRatio)
-                        |> Diagram.position.set position
+                    let
+                        newModel =
+                            m |> Diagram.position.set position
+                    in
+                    { newModel | settings = m.settings |> DiagramSettings.scale.set (Just <| Scale.fromFloat <| min widthRatio heightRatio) }
                 )
 
         ColorChanged Diagram.ColorSelectMenu color ->
@@ -517,6 +534,21 @@ update model message =
             else
                 selectItem <| Just item
 
+        ToggleEdit ->
+            Return.map
+                (\m ->
+                    { m
+                        | settings =
+                            m.settings
+                                |> DiagramSettings.lockEditing.set
+                                    (m.settings.lockEditing
+                                        |> Maybe.withDefault False
+                                        |> not
+                                        |> Just
+                                    )
+                    }
+                )
+
 
 
 -- View
@@ -642,7 +674,11 @@ view model =
           else
             Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
-            Lazy.lazy2 zoomControl model.diagram.isFullscreen (Scale.toFloat model.diagram.scale)
+            Lazy.lazy zoomControl
+                { isFullscreen = model.diagram.isFullscreen
+                , scale = model.settings.scale |> Maybe.withDefault Scale.default |> Scale.toFloat
+                , lockEditing = model.settings.lockEditing |> Maybe.withDefault False
+                }
 
           else
             Empty.view
@@ -651,7 +687,7 @@ view model =
             , diagramType = model.diagramType
             , moveState = model.moveState
             , position = centerPosition
-            , scale = Scale.toFloat model.diagram.scale
+            , scale = model.settings.scale |> Maybe.withDefault Scale.default |> Scale.toFloat
             , showMiniMap = model.showMiniMap
             , svgSize = ( svgWidth, svgHeight )
             , viewport = model.windowSize
@@ -942,8 +978,8 @@ move isWheelEvent ( x, y ) m =
         Diagram.BoardMove ->
             m
                 |> Diagram.position.set
-                    ( Position.getX m.diagram.position + round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.diagram.scale)
-                    , Position.getY m.diagram.position + round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.diagram.scale)
+                    ( Position.getX m.diagram.position + round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                    , Position.getY m.diagram.position + round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                     )
                 |> Diagram.movePosition.set ( x, y )
                 |> Return.singleton
@@ -952,8 +988,8 @@ move isWheelEvent ( x, y ) m =
             if isWheelEvent then
                 m
                     |> Diagram.position.set
-                        ( Position.getX m.diagram.position - round (toFloat x * Scale.toFloat m.diagram.scale)
-                        , Position.getY m.diagram.position - round (toFloat y * Scale.toFloat m.diagram.scale)
+                        ( Position.getX m.diagram.position - round (toFloat x * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                        , Position.getY m.diagram.position - round (toFloat y * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                         )
                     |> Diagram.movePosition.set ( x, y )
                     |> Return.singleton
@@ -974,8 +1010,8 @@ move isWheelEvent ( x, y ) m =
                                 (position
                                     |> Maybe.map
                                         (\p ->
-                                            ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
-                                            , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                                            ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                                            , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                                             )
                                         )
                                     |> Maybe.withDefault ( x - Position.getX m.movePosition, y - Position.getY m.movePosition )
@@ -997,8 +1033,8 @@ move isWheelEvent ( x, y ) m =
 
                         newPosition : Position
                         newPosition =
-                            ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
-                            , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                            ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                            , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                             )
 
                         offset : Position
@@ -1024,58 +1060,58 @@ move isWheelEvent ( x, y ) m =
                 ( newSize, newPosition ) =
                     case direction of
                         Diagram.TopLeft ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.diagram.scale)
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.diagram.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
-                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
                             )
 
                         Diagram.TopRight ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.diagram.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
                             , ( Position.getX offsetPosition
-                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
                             )
 
                         Diagram.BottomLeft ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.diagram.scale)
-                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               , Position.getY offsetPosition
                               )
                             )
 
                         Diagram.BottomRight ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
-                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
+                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
                             , offsetPosition
                             )
 
                         Diagram.Top ->
                             ( ( 0
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.diagram.scale)
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               )
-                            , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale) )
+                            , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default)) )
                             )
 
                         Diagram.Bottom ->
-                            ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.diagram.scale) ), offsetPosition )
+                            ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default)) ), offsetPosition )
 
                         Diagram.Left ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.diagram.scale), 0 )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default)), 0 )
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default))
                               , Position.getY offsetPosition
                               )
                             )
 
                         Diagram.Right ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.diagram.scale), 0 ), offsetPosition )
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default)), 0 ), offsetPosition )
 
                 offsetPosition : Position
                 offsetPosition =
@@ -1096,8 +1132,8 @@ move isWheelEvent ( x, y ) m =
         Diagram.MiniMapMove ->
             m
                 |> Diagram.position.set
-                    ( Position.getX m.diagram.position - round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.diagram.scale * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
-                    , Position.getY m.diagram.position - round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.diagram.scale * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
+                    ( Position.getX m.diagram.position - round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default) * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
+                    , Position.getY m.diagram.position - round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat (m.settings.scale |> Maybe.withDefault Scale.default) * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
                     )
                 |> Diagram.movePosition.set ( x, y )
                 |> Return.singleton
@@ -1372,10 +1408,10 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     ++ String.fromInt (Position.getY centerPosition)
                     ++ ") scale("
                     ++ String.fromFloat
-                        (model.diagram.scale |> Scale.toFloat)
+                        ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
                     ++ ","
                     ++ String.fromFloat
-                        (model.diagram.scale |> Scale.toFloat)
+                        ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
                     ++ ")"
             , SvgAttr.fill <| Color.toString model.settings.backgroundColor
             , SvgAttr.style "will-change: transform;"
@@ -1387,23 +1423,23 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     contextMenuPosition : ( Int, Int )
                     contextMenuPosition =
                         if Item.isVerticalLine item_ then
-                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.diagram.scale
-                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat model.diagram.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
+                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
 
                         else if Item.isHorizontalLine item_ then
-                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.diagram.scale
-                            , floor <| toFloat (Position.getY pos + h + 8) * Scale.toFloat model.diagram.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
+                            , floor <| toFloat (Position.getY pos + h + 8) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
 
                         else if Item.isCanvas item_ then
-                            ( floor <| toFloat (Position.getX position) * Scale.toFloat model.diagram.scale
-                            , floor <| toFloat (Position.getY position) * Scale.toFloat model.diagram.scale
+                            ( floor <| toFloat (Position.getX position) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
+                            , floor <| toFloat (Position.getY position) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
 
                         else
-                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.diagram.scale
-                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat model.diagram.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
+                            , floor <| toFloat (Position.getY pos + h) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
 
                     ( _, h ) =
@@ -1583,7 +1619,6 @@ updateDiagram size base text =
         | windowSize = size
         , diagram =
             { size = ( svgWidth, svgHeight )
-            , scale = base.diagram.scale
             , position = newModel.diagram.position
             , isFullscreen = newModel.diagram.isFullscreen
             }
@@ -1593,8 +1628,8 @@ updateDiagram size base text =
     }
 
 
-zoomControl : Bool -> Float -> Html Msg
-zoomControl isFullscreen scale =
+zoomControl : { isFullscreen : Bool, scale : Float, lockEditing : Bool } -> Html Msg
+zoomControl { isFullscreen, scale, lockEditing } =
     let
         s : Int
         s =
@@ -1686,6 +1721,21 @@ zoomControl isFullscreen scale =
         , Html.div
             [ Attr.css
                 [ width <| px 24
+                , height <| px 16
+                , cursor pointer
+                , textAlign center
+                ]
+            , onClick ToggleEdit
+            ]
+            [ if lockEditing then
+                Icon.lock Color.disabledIconColor 16
+
+              else
+                Icon.lockOpen Color.disabledIconColor 16
+            ]
+        , Html.div
+            [ Attr.css
+                [ width <| px 24
                 , height <| px 24
                 , cursor pointer
                 ]
@@ -1706,10 +1756,10 @@ zoomIn step model =
         { model
             | diagram =
                 { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
-                , scale = Scale.add model.diagram.scale step
                 , position = model.diagram.position
                 , isFullscreen = model.diagram.isFullscreen
                 }
+            , settings = model.settings |> DiagramSettings.scale.set (model.settings.scale |> Maybe.map (Scale.add step))
         }
 
 
@@ -1719,8 +1769,8 @@ zoomOut step model =
         { model
             | diagram =
                 { size = ( Size.getWidth model.diagram.size, Size.getHeight model.diagram.size )
-                , scale = Scale.sub model.diagram.scale step
                 , position = model.diagram.position
                 , isFullscreen = model.diagram.isFullscreen
                 }
+            , settings = model.settings |> DiagramSettings.scale.set (model.settings.scale |> Maybe.map (\s -> Scale.sub s step))
         }

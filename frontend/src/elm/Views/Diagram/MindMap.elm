@@ -7,7 +7,6 @@ import Models.Color exposing (Color)
 import Models.Diagram as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
 import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
-import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType
 import Models.Item as Item exposing (Item, Items)
@@ -350,7 +349,6 @@ docs =
                     , moveState = Diagram.NotMove
                     , diagram =
                         { size = ( 100, 100 )
-                        , scale = Scale.fromFloat 1.0
                         , position = ( 0, 0 )
                         , isFullscreen = False
                         }

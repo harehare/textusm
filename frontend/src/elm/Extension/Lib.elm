@@ -7,9 +7,10 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
+import Models.Color as Color exposing (Color)
 import Models.Diagram as DiagramModel
+import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
-import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as Search
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType
@@ -38,7 +39,7 @@ type alias InitData =
 type alias Model =
     { diagramModel : DiagramModel.Model
     , text : String
-    , backgroundColor : String
+    , backgroundColor : Color
     }
 
 
@@ -63,8 +64,7 @@ init flags =
             , data = DiagramData.Empty
             , windowSize = ( flags.width, flags.height )
             , diagram =
-                { size = ( flags.settings.size.width, flags.settings.size.height )
-                , scale = Scale.fromFloat flags.scale
+                { size = ( CardSize.toInt flags.settings.size.width, CardSize.toInt flags.settings.size.height )
                 , position = ( 0, 0 )
                 , isFullscreen = False
                 }
@@ -126,7 +126,7 @@ update (UpdateDiagram subMsg) model =
 view : Model -> Html Msg
 view model =
     div
-        [ style "background-color" model.backgroundColor
+        [ style "background-color" <| Color.toString model.backgroundColor
         ]
         [ div
             [ style "display" "flex"

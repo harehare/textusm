@@ -27,7 +27,6 @@ import Css
         , none
         , outline
         , overflow
-        , padding
         , padding4
         , paddingLeft
         , pct
