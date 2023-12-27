@@ -6,6 +6,7 @@ import Constants
 import Css
     exposing
         ( absolute
+        , after
         , alignItems
         , backgroundColor
         , border3
@@ -48,7 +49,7 @@ import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
-import List.Extra exposing (getAt, setAt)
+import List.Extra as ListEx exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
@@ -186,7 +187,7 @@ update model message =
                 >> clearPosition
 
         EditSelectedItem text ->
-            Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
+            Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (String.trimLeft text)) m.selectedItem }
 
         EndEditSelectedItem item ->
             model.selectedItem
@@ -197,20 +198,34 @@ update model message =
                             lines =
                                 Text.lines model.text
 
-                            text : String
-                            text =
-                                setAt (Item.getLineNo item)
-                                    (item
-                                        |> Item.withSettings
-                                            (Item.getSettings selectedItem)
-                                        |> Item.toLineString
-                                        |> String.dropLeft 1
-                                    )
-                                    lines
-                                    |> String.join "\n"
+                            beforeText =
+                                Item.new
+                                    |> (ListEx.getAt (Item.getLineNo item) lines
+                                            |> Maybe.map String.trim
+                                            |> Maybe.withDefault ""
+                                            |> Item.withText
+                                       )
+                                    |> Item.getTextOnly
+
+                            afterText =
+                                Item.getTextOnly selectedItem
                         in
-                        setText text
-                            >> clearSelectedItem
+                        if beforeText == afterText then
+                            clearSelectedItem
+
+                        else
+                            let
+                                text : String
+                                text =
+                                    setAt (Item.getLineNo item)
+                                        (item
+                                            |> Item.withSettings (Item.getSettings selectedItem)
+                                            |> Item.toLineString
+                                        )
+                                        lines
+                                        |> String.join "\n"
+                            in
+                            setText text >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
 
@@ -1424,7 +1439,7 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
 
                         else
                             ( floor <| toFloat (Position.getX pos) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
-                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
+                            , floor <| toFloat (Position.getY pos + h) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
 
                     ( _, h ) =

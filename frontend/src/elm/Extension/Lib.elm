@@ -7,7 +7,7 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
-import Models.Color exposing (Color)
+import Models.Color as Color exposing (Color)
 import Models.Diagram as DiagramModel
 import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Data as DiagramData
@@ -126,7 +126,7 @@ update (UpdateDiagram subMsg) model =
 view : Model -> Html Msg
 view model =
     div
-        [ style "background-color" model.backgroundColor
+        [ style "background-color" <| Color.toString model.backgroundColor
         ]
         [ div
             [ style "display" "flex"
