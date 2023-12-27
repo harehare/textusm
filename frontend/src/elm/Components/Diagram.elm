@@ -6,7 +6,6 @@ import Constants
 import Css
     exposing
         ( absolute
-        , after
         , alignItems
         , backgroundColor
         , border3
@@ -79,6 +78,7 @@ import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
+import Models.Item.Value as ItemValue
 import Models.Position as Position exposing (Position)
 import Models.Property as Property
 import Models.Size as Size exposing (Size)
@@ -280,15 +280,7 @@ update model message =
                                                 (Text.lines model.text)
                                                 |> String.join "\n"
                                             )
-                                        >> selectItem
-                                            (Just
-                                                (item
-                                                    |> Item.withSettings
-                                                        (Item.getSettings item
-                                                            |> Maybe.map (ItemSettings.withForegroundColor (Just color))
-                                                        )
-                                                )
-                                            )
+                                        >> clearSelectedItem
                                 )
                             |> Maybe.withDefault Return.zero
                     )
@@ -321,15 +313,7 @@ update model message =
                                                 (Text.lines model.text)
                                                 |> String.join "\n"
                                             )
-                                        >> selectItem
-                                            (Just
-                                                (item
-                                                    |> Item.withSettings
-                                                        (Item.getSettings item
-                                                            |> Maybe.map (ItemSettings.withBackgroundColor (Just color))
-                                                        )
-                                                )
-                                            )
+                                        >> clearSelectedItem
                                 )
                             |> Maybe.withDefault Return.zero
                     )
@@ -343,26 +327,30 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            ( text, settings, comment ) =
-                                Item.split currentText
-
                             currentText : String
                             currentText =
                                 Text.getLine (Item.getLineNo item) model.text
+
+                            ( text, settings, comment ) =
+                                Item.split currentText
 
                             lines : List String
                             lines =
                                 Text.lines model.text
 
+                            value =
+                                ItemValue.fromString text
+
                             updateLine : String
                             updateLine =
                                 item
-                                    |> Item.withText (text |> FontStyle.apply style)
+                                    |> Item.withText (ItemValue.update value (ItemValue.toTrimedString value |> FontStyle.apply style) |> ItemValue.toFullString)
                                     |> Item.withSettings (Just settings)
                                     |> Item.withComments comment
                                     |> Item.toLineString
                         in
                         setText (setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
+                            >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
 
@@ -417,15 +405,7 @@ update model message =
                         in
                         closeDropDown
                             >> setText updateText
-                            >> selectItem
-                                (Just
-                                    (item
-                                        |> Item.withSettings
-                                            (Item.getSettings item
-                                                |> Maybe.map (ItemSettings.withFontSize size)
-                                            )
-                                    )
-                                )
+                            >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
 

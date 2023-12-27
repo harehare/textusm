@@ -9,6 +9,7 @@ module Models.Item.Value exposing
     , isMarkdown
     , toFullString
     , toString
+    , toTrimedString
     , update
     )
 
@@ -131,7 +132,16 @@ update : Value -> String -> Value
 update value text =
     case value of
         Markdown indent _ ->
-            Markdown indent <| Text.fromString text
+            let
+                rawText : String
+                rawText =
+                    if String.startsWith "md:" text then
+                        String.dropLeft 3 text
+
+                    else
+                        text
+            in
+            Markdown indent <| Text.fromString rawText
 
         Image indent _ ->
             case Url.fromString text of
@@ -216,6 +226,25 @@ toFullString value =
 
         PlainText indent text ->
             space indent ++ Text.toString text
+
+
+toTrimedString : Value -> String
+toTrimedString value =
+    case value of
+        Markdown _ text ->
+            markdownPrefix ++ Text.toString text
+
+        Image _ text ->
+            imagePrefix ++ Url.toString text
+
+        ImageData _ text ->
+            imageDataPrefix ++ DataUrl.toString text
+
+        Comment _ text ->
+            commentPrefix ++ Text.toString text
+
+        PlainText _ text ->
+            Text.toString text
 
 
 toString : Value -> String
