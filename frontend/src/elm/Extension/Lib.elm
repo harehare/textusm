@@ -7,6 +7,7 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
+import Json.Encode
 import Models.Color as Color exposing (Color)
 import Models.Diagram as DiagramModel
 import Models.Diagram.CardSize as CardSize
@@ -29,7 +30,7 @@ type alias InitData =
     { text : String
     , width : Int
     , height : Int
-    , settings : DiagramSettings.Settings
+    , settings : Json.Encode.Value
     , showZoomControl : Bool
     , diagramType : String
     , scale : Float
@@ -59,12 +60,18 @@ main =
 
 init : InitData -> ( Model, Cmd Msg )
 init flags =
+    let
+        settings =
+            D.decodeValue DiagramSettings.decoder flags.settings
+                |> Result.toMaybe
+                |> Maybe.withDefault DiagramSettings.default
+    in
     ( { diagramModel =
             { items = Item.empty
             , data = DiagramData.Empty
             , windowSize = ( flags.width, flags.height )
             , diagram =
-                { size = ( CardSize.toInt flags.settings.size.width, CardSize.toInt flags.settings.size.height )
+                { size = ( CardSize.toInt settings.size.width, CardSize.toInt settings.size.height )
                 , position = ( 0, 0 )
                 , isFullscreen = False
                 }
@@ -76,7 +83,7 @@ init flags =
             , diagramType = DiagramType.fromTypeString flags.diagramType
             , text = Text.empty
             , selectedItem = Nothing
-            , settings = flags.settings
+            , settings = settings
             , touchDistance = Nothing
             , dragStatus = DiagramModel.NoDrag
             , dropDownIndex = Nothing
@@ -84,7 +91,7 @@ init flags =
             , search = Search.close
             }
       , text = flags.text
-      , backgroundColor = flags.settings.backgroundColor
+      , backgroundColor = settings.backgroundColor
       }
     , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.ChangeText flags.text)))
     )

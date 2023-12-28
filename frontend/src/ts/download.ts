@@ -12,6 +12,8 @@ export const initDownload = (app: ElmApp): void => {
     svg.setAttribute('height', height.toString());
 
     if (element) {
+      element.querySelector('#pattern')?.remove();
+      element.querySelector('#pattern-rect')?.remove();
       svg.setAttribute('style', element.getAttribute('style') ?? '');
       svg.innerHTML = element.innerHTML;
     }

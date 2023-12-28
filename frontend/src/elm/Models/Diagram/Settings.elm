@@ -6,7 +6,9 @@ module Models.Diagram.Settings exposing
     , activityBackgroundColor
     , activityColor
     , backgroundColor
+    , decoder
     , default
+    , encoder
     , font
     , fontFamiliy
     , fontStyle
@@ -19,22 +21,26 @@ module Models.Diagram.Settings exposing
     , getCardForegroundColor3
     , getLineColor
     , getTextColor
-    , lockEditing
     , height
     , labelColor
     , lineColor
+    , lockEditing
+    , scale
     , storyBackgroundColor
     , storyColor
     , taskBackgroundColor
     , taskColor
     , textColor
-    , width
-    , scale
     , toolbar
+    , width
     , zoomControl
     )
 
 import Css exposing (fontFamilies)
+import Json.Decode as D
+import Json.Decode.Pipeline exposing (optional, required)
+import Json.Encode as E
+import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color exposing (Color)
 import Models.Diagram.CardSize as CardSize exposing (CardSize)
 import Models.Diagram.Scale as Scale exposing (Scale)
@@ -346,3 +352,83 @@ sizeOfHeight =
 sizeOfWidth : Lens Size CardSize
 sizeOfWidth =
     Lens .width (\b a -> { a | width = b })
+
+
+decoder : D.Decoder Settings
+decoder =
+    D.succeed Settings
+        |> required "font" D.string
+        |> required "size" sizeDecoder
+        |> required "color" colorSettingsDecoder
+        |> required "backgroundColor" Color.decoder
+        |> optional "zoomControl" (D.map Just D.bool) Nothing
+        |> optional "scale" (D.map Just Scale.decoder) Nothing
+        |> optional "toolbar" (D.map Just D.bool) Nothing
+        |> optional "lockEditing" (D.map Just D.bool) Nothing
+
+
+encoder : Settings -> E.Value
+encoder settings =
+    E.object
+        [ ( "font", E.string settings.font )
+        , ( "size", sizeEncoder settings.size )
+        , ( "color", colorSettingsEncoder settings.color )
+        , ( "backgroundColor", Color.encoder settings.backgroundColor )
+        , ( "zoomControl", maybe E.bool settings.zoomControl )
+        , ( "scale", maybe Scale.encoder settings.scale )
+        , ( "toolbar", maybe E.bool settings.toolbar )
+        , ( "lockEditing", maybe E.bool settings.lockEditing )
+        ]
+
+
+sizeDecoder : D.Decoder Size
+sizeDecoder =
+    D.succeed Size
+        |> required "width" CardSize.decoder
+        |> required "height" CardSize.decoder
+
+
+sizeEncoder : Size -> E.Value
+sizeEncoder size =
+    E.object
+        [ ( "width", CardSize.encoder size.width )
+        , ( "height", CardSize.encoder size.height )
+        ]
+
+
+colorSettingsDecoder : D.Decoder ColorSettings
+colorSettingsDecoder =
+    D.succeed ColorSettings
+        |> required "activity" colorDecoder
+        |> required "task" colorDecoder
+        |> required "story" colorDecoder
+        |> required "line" Color.decoder
+        |> required "label" Color.decoder
+        |> optional "text" (D.map Just Color.decoder) Nothing
+
+
+colorSettingsEncoder : ColorSettings -> E.Value
+colorSettingsEncoder colorSettings =
+    E.object
+        [ ( "activity", colorEncoder colorSettings.activity )
+        , ( "task", colorEncoder colorSettings.task )
+        , ( "story", colorEncoder colorSettings.story )
+        , ( "line", Color.encoder colorSettings.line )
+        , ( "label", Color.encoder colorSettings.label )
+        , ( "text", maybe Color.encoder colorSettings.text )
+        ]
+
+
+colorDecoder : D.Decoder ColorSetting
+colorDecoder =
+    D.succeed ColorSetting
+        |> required "color" Color.decoder
+        |> required "backgroundColor" Color.decoder
+
+
+colorEncoder : ColorSetting -> E.Value
+colorEncoder color =
+    E.object
+        [ ( "color", Color.encoder color.color )
+        , ( "backgroundColor", Color.encoder color.backgroundColor )
+        ]
