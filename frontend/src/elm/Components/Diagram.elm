@@ -1368,34 +1368,40 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
 
             _ ->
                 Svg.g [] []
-        , Svg.pattern
-            [ SvgAttr.id "pattern"
-            , SvgAttr.x "0"
-            , SvgAttr.y "0"
-            , SvgAttr.width "24"
-            , SvgAttr.height "24"
-            , SvgAttr.patternUnits "userSpaceOnUse"
-            , SvgAttr.patternTransform "translate(-1,-1)"
-            ]
-            [ Svg.circle [ SvgAttr.cx "1", SvgAttr.cy "1", SvgAttr.r "1", SvgAttr.fill "#e2e5e9" ] []
-            ]
-        , Svg.rect
-            [ SvgAttr.id "pattern-rect"
-            , SvgAttr.x "-4"
-            , SvgAttr.y "-4"
-            , SvgAttr.width "100%"
-            , SvgAttr.height "100%"
-            , SvgAttr.fill "url(#pattern)"
-            , SvgAttr.transform <|
-                "scale("
-                    ++ String.fromFloat
-                        ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
-                    ++ ","
-                    ++ String.fromFloat
-                        ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
-                    ++ ")"
-            ]
-            []
+        , if model.settings.showGrid |> Maybe.withDefault False then
+            Svg.g []
+                [ Svg.pattern
+                    [ SvgAttr.id "pattern"
+                    , SvgAttr.x "0"
+                    , SvgAttr.y "0"
+                    , SvgAttr.width "24"
+                    , SvgAttr.height "24"
+                    , SvgAttr.patternUnits "userSpaceOnUse"
+                    , SvgAttr.patternTransform "translate(-1,-1)"
+                    ]
+                    [ Svg.circle [ SvgAttr.cx "1", SvgAttr.cy "1", SvgAttr.r "1", SvgAttr.fill "#e2e5e9" ] []
+                    ]
+                , Svg.rect
+                    [ SvgAttr.id "pattern-rect"
+                    , SvgAttr.x "-4"
+                    , SvgAttr.y "-4"
+                    , SvgAttr.width "100%"
+                    , SvgAttr.height "100%"
+                    , SvgAttr.fill "url(#pattern)"
+                    , SvgAttr.transform <|
+                        "scale("
+                            ++ String.fromFloat
+                                ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
+                            ++ ","
+                            ++ String.fromFloat
+                                ((model.settings.scale |> Maybe.withDefault Scale.default) |> Scale.toFloat)
+                            ++ ")"
+                    ]
+                    []
+                ]
+
+          else
+            Svg.text ""
         , Svg.g
             [ SvgAttr.transform <|
                 "translate("

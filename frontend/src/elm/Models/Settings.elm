@@ -121,6 +121,7 @@ defaultSettings theme =
         , scale = Just Scale.default
         , toolbar = Nothing
         , lockEditing = Nothing
+        , showGrid = Nothing
         }
     , text = Nothing
     , title = Nothing
@@ -227,7 +228,7 @@ decoder =
         |> optional "position" (D.map Just D.int) Nothing
         |> required "font" D.string
         |> optional "diagramId" (D.map Just DiagramId.decoder) Nothing
-        |> custom (D.oneOf [ D.field "storyMap" diagramDecoder, D.field "diagramSettings" diagramDecoder ])
+        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
         |> optional "text" (D.map Just Text.decoder) Nothing
         |> optional "title" (D.map Just Title.decoder) Nothing
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
@@ -242,7 +243,7 @@ encoder settings =
         [ ( "position", maybe E.int settings.position )
         , ( "font", E.string settings.font )
         , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
-        , ( "diagramSettings", diagramEncoder settings.diagramSettings )
+        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
         , ( "text", maybe Text.encoder settings.text )
         , ( "title", maybe Title.encoder settings.title )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
@@ -258,7 +259,7 @@ legacyEncoder settings =
         [ ( "position", maybe E.int settings.position )
         , ( "font", E.string settings.font )
         , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
-        , ( "storyMap", diagramEncoder settings.diagramSettings )
+        , ( "storyMap", DiagramSettings.encoder settings.diagramSettings )
         , ( "text", maybe Text.encoder settings.text )
         , ( "title", maybe Title.encoder settings.title )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
@@ -273,7 +274,7 @@ exportEncoder settings =
     E.object
         [ ( "position", maybe E.int settings.position )
         , ( "font", E.string settings.font )
-        , ( "diagramSettings", diagramEncoder settings.diagramSettings )
+        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
         , ( "location", maybe DiagramLocation.encoder settings.location )
         , ( "theme", maybe Theme.encoder settings.theme )
@@ -286,7 +287,7 @@ importDecoder settings =
         |> optional "position" (D.map Just D.int) Nothing
         |> required "font" D.string
         |> hardcoded settings.diagramId
-        |> custom (D.oneOf [ D.field "storyMap" diagramDecoder, D.field "diagramSettings" diagramDecoder ])
+        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
         |> hardcoded settings.text
         |> hardcoded settings.title
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
@@ -298,71 +299,6 @@ importDecoder settings =
 ofDiagramSettings : Lens Settings DiagramSettings.Settings
 ofDiagramSettings =
     Lens .diagramSettings (\b a -> { a | diagramSettings = b })
-
-
-colorDecoder : D.Decoder DiagramSettings.ColorSetting
-colorDecoder =
-    D.succeed DiagramSettings.ColorSetting
-        |> required "color" Color.decoder
-        |> required "backgroundColor" Color.decoder
-
-
-colorEncoder : DiagramSettings.ColorSetting -> E.Value
-colorEncoder color =
-    E.object
-        [ ( "color", Color.encoder color.color )
-        , ( "backgroundColor", Color.encoder color.backgroundColor )
-        ]
-
-
-colorSettingsDecoder : D.Decoder DiagramSettings.ColorSettings
-colorSettingsDecoder =
-    D.succeed DiagramSettings.ColorSettings
-        |> required "activity" colorDecoder
-        |> required "task" colorDecoder
-        |> required "story" colorDecoder
-        |> required "line" Color.decoder
-        |> required "label" Color.decoder
-        |> optional "text" (D.map Just Color.decoder) Nothing
-
-
-colorSettingsEncoder : DiagramSettings.ColorSettings -> E.Value
-colorSettingsEncoder colorSettings =
-    E.object
-        [ ( "activity", colorEncoder colorSettings.activity )
-        , ( "task", colorEncoder colorSettings.task )
-        , ( "story", colorEncoder colorSettings.story )
-        , ( "line", Color.encoder colorSettings.line )
-        , ( "label", Color.encoder colorSettings.label )
-        , ( "text", maybe Color.encoder colorSettings.text )
-        ]
-
-
-diagramDecoder : D.Decoder DiagramSettings.Settings
-diagramDecoder =
-    D.succeed DiagramSettings.Settings
-        |> required "font" D.string
-        |> required "size" sizeDecoder
-        |> required "color" colorSettingsDecoder
-        |> required "backgroundColor" Color.decoder
-        |> optional "zoomControl" (D.map Just D.bool) Nothing
-        |> optional "scale" (D.map Just Scale.decoder) Nothing
-        |> optional "toolbar" (D.map Just D.bool) Nothing
-        |> optional "lockEditing" (D.map Just D.bool) Nothing
-
-
-diagramEncoder : DiagramSettings.Settings -> E.Value
-diagramEncoder settings =
-    E.object
-        [ ( "font", E.string settings.font )
-        , ( "size", sizeEncoder settings.size )
-        , ( "color", colorSettingsEncoder settings.color )
-        , ( "backgroundColor", Color.encoder settings.backgroundColor )
-        , ( "zoomControl", maybe E.bool settings.zoomControl )
-        , ( "scale", maybe Scale.encoder settings.scale )
-        , ( "toolbar", maybe E.bool settings.toolbar )
-        , ( "lockEditing", maybe E.bool settings.lockEditing )
-        ]
 
 
 editorOfFontSize : Lens EditorSettings Int
@@ -399,19 +335,4 @@ editorSettingsEncoder editorSettings =
         [ ( "fontSize", E.int editorSettings.fontSize )
         , ( "wordWrap", E.bool editorSettings.wordWrap )
         , ( "showLineNumber", E.bool editorSettings.showLineNumber )
-        ]
-
-
-sizeDecoder : D.Decoder DiagramSettings.Size
-sizeDecoder =
-    D.succeed DiagramSettings.Size
-        |> required "width" CardSize.decoder
-        |> required "height" CardSize.decoder
-
-
-sizeEncoder : DiagramSettings.Size -> E.Value
-sizeEncoder size =
-    E.object
-        [ ( "width", CardSize.encoder size.width )
-        , ( "height", CardSize.encoder size.height )
         ]

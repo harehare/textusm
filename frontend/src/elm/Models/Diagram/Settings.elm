@@ -26,6 +26,7 @@ module Models.Diagram.Settings exposing
     , lineColor
     , lockEditing
     , scale
+    , showGrid
     , storyBackgroundColor
     , storyColor
     , taskBackgroundColor
@@ -75,6 +76,7 @@ type alias Settings =
     , scale : Maybe Scale
     , toolbar : Maybe Bool
     , lockEditing : Maybe Bool
+    , showGrid : Maybe Bool
     }
 
 
@@ -111,6 +113,7 @@ default =
     , scale = Just Scale.default
     , toolbar = Nothing
     , lockEditing = Nothing
+    , showGrid = Nothing
     }
 
 
@@ -245,6 +248,11 @@ lockEditing =
     Lens .lockEditing (\b a -> { a | lockEditing = b })
 
 
+showGrid : Lens Settings (Maybe Bool)
+showGrid =
+    Lens .showGrid (\b a -> { a | showGrid = b })
+
+
 storyBackgroundColor : Lens Settings Color
 storyBackgroundColor =
     ofColor
@@ -365,6 +373,7 @@ decoder =
         |> optional "scale" (D.map Just Scale.decoder) Nothing
         |> optional "toolbar" (D.map Just D.bool) Nothing
         |> optional "lockEditing" (D.map Just D.bool) Nothing
+        |> optional "showGrid" (D.map Just D.bool) Nothing
 
 
 encoder : Settings -> E.Value
@@ -378,6 +387,7 @@ encoder settings =
         , ( "scale", maybe Scale.encoder settings.scale )
         , ( "toolbar", maybe E.bool settings.toolbar )
         , ( "lockEditing", maybe E.bool settings.lockEditing )
+        , ( "showGrid", maybe E.bool settings.showGrid )
         ]
 
 
