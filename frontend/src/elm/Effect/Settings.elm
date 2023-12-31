@@ -122,6 +122,13 @@ save msg { diagramType, session, settings } =
 
                     Nothing ->
                         OptionalArgument.Absent
+            , showGrid =
+                case settings.diagramSettings.showGrid of
+                    Just s ->
+                        OptionalArgument.Present s
+
+                    Nothing ->
+                        OptionalArgument.Absent
             }
             |> Task.attempt msg
             |> Return.command

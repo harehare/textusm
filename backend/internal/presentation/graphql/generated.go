@@ -111,6 +111,7 @@ type ComplexityRoot struct {
 		LineColor       func(childComplexity int) int
 		LockEditing     func(childComplexity int) int
 		Scale           func(childComplexity int) int
+		ShowGrid        func(childComplexity int) int
 		StoryColor      func(childComplexity int) int
 		TaskColor       func(childComplexity int) int
 		TextColor       func(childComplexity int) int
@@ -536,6 +537,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Settings.Scale(childComplexity), true
 
+	case "Settings.showGrid":
+		if e.complexity.Settings.ShowGrid == nil {
+			break
+		}
+
+		return e.complexity.Settings.ShowGrid(childComplexity), true
+
 	case "Settings.storyColor":
 		if e.complexity.Settings.StoryColor == nil {
 			break
@@ -797,6 +805,7 @@ type Settings {
   scale: Float
   toolbar: Boolean
   lockEditing: Boolean
+  showGrid: Boolean
 }
 
 type Color {
@@ -864,6 +873,7 @@ input InputSettings {
   scale: Float = 1.0
   toolbar: Boolean = true
   lockEditing: Boolean = false
+  showGrid: Boolean = false
 }
 
 input InputColor {
@@ -2547,6 +2557,8 @@ func (ec *executionContext) fieldContext_Mutation_saveSettings(ctx context.Conte
 				return ec.fieldContext_Settings_toolbar(ctx, field)
 			case "lockEditing":
 				return ec.fieldContext_Settings_lockEditing(ctx, field)
+			case "showGrid":
+				return ec.fieldContext_Settings_showGrid(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Settings", field.Name)
 		},
@@ -3119,6 +3131,8 @@ func (ec *executionContext) fieldContext_Query_settings(ctx context.Context, fie
 				return ec.fieldContext_Settings_toolbar(ctx, field)
 			case "lockEditing":
 				return ec.fieldContext_Settings_lockEditing(ctx, field)
+			case "showGrid":
+				return ec.fieldContext_Settings_showGrid(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Settings", field.Name)
 		},
@@ -3873,6 +3887,47 @@ func (ec *executionContext) _Settings_lockEditing(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_Settings_lockEditing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Settings_showGrid(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Settings_showGrid(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShowGrid, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Settings_showGrid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Settings",
 		Field:      field,
@@ -6056,8 +6111,11 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 	if _, present := asMap["lockEditing"]; !present {
 		asMap["lockEditing"] = false
 	}
+	if _, present := asMap["showGrid"]; !present {
+		asMap["showGrid"] = false
+	}
 
-	fieldsInOrder := [...]string{"font", "width", "height", "backgroundColor", "activityColor", "taskColor", "storyColor", "lineColor", "labelColor", "textColor", "zoomControl", "scale", "toolbar", "lockEditing"}
+	fieldsInOrder := [...]string{"font", "width", "height", "backgroundColor", "activityColor", "taskColor", "storyColor", "lineColor", "labelColor", "textColor", "zoomControl", "scale", "toolbar", "lockEditing", "showGrid"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6162,6 +6220,13 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 				return it, err
 			}
 			it.LockEditing = data
+		case "showGrid":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("showGrid"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShowGrid = data
 		}
 	}
 
@@ -6852,6 +6917,8 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._Settings_toolbar(ctx, field, obj)
 		case "lockEditing":
 			out.Values[i] = ec._Settings_lockEditing(ctx, field, obj)
+		case "showGrid":
+			out.Values[i] = ec._Settings_showGrid(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

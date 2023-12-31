@@ -45,6 +45,7 @@ type InputSettings struct {
 	Scale           *float64    `json:"scale,omitempty"`
 	Toolbar         *bool       `json:"toolbar,omitempty"`
 	LockEditing     *bool       `json:"lockEditing,omitempty"`
+	ShowGrid        *bool       `json:"showGrid,omitempty"`
 }
 
 type InputShareItem struct {

@@ -72,6 +72,7 @@ type Settings {
   scale: Float
   toolbar: Boolean
   lockEditing: Boolean
+  showGrid: Boolean
 }
 
 type Color {
@@ -139,6 +140,7 @@ input InputSettings {
   scale: Float = 1.0
   toolbar: Boolean = true
   lockEditing: Boolean = false
+  showGrid: Boolean = false
 }
 
 input InputColor {

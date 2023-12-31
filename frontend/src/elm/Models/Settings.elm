@@ -17,6 +17,7 @@ module Models.Settings exposing
     , legacyEncoder
     , lineColor
     , ofDiagramSettings
+    , showGrid
     , showLineNumber
     , storyBackgroundColor
     , storyColor
@@ -205,6 +206,11 @@ textColor =
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
     Compose.lensWithLens DiagramSettings.toolbar ofDiagramSettings
+
+
+showGrid : Lens Settings (Maybe Bool)
+showGrid =
+    Compose.lensWithLens DiagramSettings.showGrid ofDiagramSettings
 
 
 width : Lens Settings CardSize

@@ -93,3 +93,8 @@ toolbar =
 lockEditing : SelectionSet (Maybe Bool) Graphql.Object.Settings
 lockEditing =
     Object.selectionForField "(Maybe Bool)" "lockEditing" [] (Decode.bool |> Decode.nullable)
+
+
+showGrid : SelectionSet (Maybe Bool) Graphql.Object.Settings
+showGrid =
+    Object.selectionForField "(Maybe Bool)" "showGrid" [] (Decode.bool |> Decode.nullable)

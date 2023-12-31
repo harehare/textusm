@@ -15,6 +15,7 @@ type Settings struct {
 	Scale           *float64 `json:"scale"`
 	Toolbar         *bool    `json:"toolbar"`
 	LockEditing     *bool    `json:"lockEditing"`
+	ShowGrid        *bool    `json:"showGrid"`
 }
 
 type Color struct {

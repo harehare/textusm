@@ -441,6 +441,15 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                                 ""
                         )
                     ]
+                , conrtolRowView
+                    [ nameView [ Html.text "Grid" ]
+                    , Switch.view (Maybe.withDefault False settings.diagramSettings.showGrid)
+                        (\v ->
+                            UpdateSettings
+                                (\_ -> Settings.showGrid.set (Just v) settings)
+                                ""
+                        )
+                    ]
                 ]
             ]
         , columnView

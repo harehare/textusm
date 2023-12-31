@@ -107,7 +107,7 @@ settingsSelection =
         |> with (SelectionSet.map (Maybe.map Scale.fromFloat) Graphql.Object.Settings.scale)
         |> with Graphql.Object.Settings.toolbar
         |> with Graphql.Object.Settings.lockEditing
-        |> hardcoded Nothing
+        |> with Graphql.Object.Settings.showGrid
 
 
 colorSelection : SelectionSet DiagramSettings.ColorSetting Graphql.Object.Color
