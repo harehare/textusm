@@ -659,4 +659,5 @@ defaultSettings =
         }
     , toolbar = Just True
     , lockEditing = Nothing
+    , showGrid = Nothing
     }
