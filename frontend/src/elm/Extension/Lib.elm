@@ -65,6 +65,7 @@ init flags =
             D.decodeValue DiagramSettings.decoder flags.settings
                 |> Result.toMaybe
                 |> Maybe.withDefault DiagramSettings.default
+                |> DiagramSettings.toolbar.set (Just False)
     in
     ( { diagramModel =
             { items = Item.empty

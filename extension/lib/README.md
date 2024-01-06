@@ -461,7 +461,8 @@ r1
     line: "#434343",
     label: "#8C9FAE",
     text: "#111111"
-  }
+  },
+  showGrid: true
 }
 ```
 
