@@ -57,6 +57,8 @@ type alias InitData =
     , diagramType : String
     , cardWidth : Int
     , cardHeight : Int
+    , toolbar : Bool
+    , showGrid : Bool
     }
 
 
@@ -115,7 +117,7 @@ init flags =
                     , height = CardSize.fromInt flags.cardHeight
                     }
                 , backgroundColor = Color.fromString flags.backgroundColor
-                , zoomControl = Nothing
+                , zoomControl = Just flags.toolbar
                 , scale = Just Scale.default
                 , color =
                     { activity =
@@ -134,8 +136,9 @@ init flags =
                     , label = Color.fromString flags.labelColor
                     , text = Just <| Color.fromString flags.textColor
                     }
-                , toolbar = Nothing
+                , toolbar = Just flags.toolbar
                 , lockEditing = Nothing
+                , showGrid = Just flags.showGrid
                 }
             , touchDistance = Nothing
             , text = Text.empty

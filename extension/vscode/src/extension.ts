@@ -568,6 +568,10 @@ class DiagramPanel {
     const cardHeight = vscode.workspace
       .getConfiguration()
       .get("textusm.card.height");
+    const toolbar = vscode.workspace.getConfiguration().get("textusm.toolbar");
+    const showGrid = vscode.workspace
+      .getConfiguration()
+      .get("textusm.showGrid");
 
     const nonce = uuidv4();
 
@@ -617,6 +621,8 @@ class DiagramPanel {
               diagramType: "${diagramType}",
               cardWidth: ${cardWidth},
               cardHeight: ${cardHeight},
+              toolbar: ${toolbar},
+              showGrid: ${showGrid},
           }
         });
 

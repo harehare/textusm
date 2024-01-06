@@ -100,7 +100,7 @@
   "browserslist": [
     "defaults"
   ],
-  "packageManager": "npm@9.8.0",
+  "packageManager": "npm@10.2.5",
   "xo": {
     "semi": false,
     "semicolon": true,
