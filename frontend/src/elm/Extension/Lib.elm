@@ -64,6 +64,7 @@ init flags =
         settings =
             D.decodeValue DiagramSettings.decoder flags.settings
                 |> Result.toMaybe
+                |> Maybe.map (\s -> s |> DiagramSettings.zoomControl.set s.toolbar)
                 |> Maybe.withDefault DiagramSettings.default
                 |> DiagramSettings.toolbar.set (Just False)
     in

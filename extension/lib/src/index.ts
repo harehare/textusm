@@ -8,6 +8,7 @@ interface Config {
   zoomControl?: boolean;
   scale?: number;
   toolbar?: boolean;
+  showGrid?: boolean;
 }
 
 interface ColorConfig {
@@ -57,6 +58,7 @@ const defaultConfig: Config = {
   zoomControl: false,
   scale: 1.0,
   toolbar: false,
+  showGrid: false,
 };
 
 function render(

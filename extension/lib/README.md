@@ -62,7 +62,10 @@ textusm.render(
     diagramType: "UserStoryMap",
   },
   // user story map configuration
-  {}
+  {
+    toolbar: true,
+    showGrid: true,
+  }
 );
 ```
 
@@ -462,7 +465,8 @@ r1
     label: "#8C9FAE",
     text: "#111111"
   },
-  showGrid: true
+  toolbar: true,
+  grid: true
 }
 ```
 
