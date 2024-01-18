@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go/firestore v1.14.0
 	cloud.google.com/go/storage v1.36.0
 	firebase.google.com/go/v4 v4.13.0
-	github.com/99designs/gqlgen v0.17.42
+	github.com/99designs/gqlgen v0.17.43
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/cors v1.2.1
@@ -14,7 +14,7 @@ require (
 	github.com/samber/mo v1.11.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.4
-	github.com/vektah/gqlparser/v2 v2.5.10
+	github.com/vektah/gqlparser/v2 v2.5.11
 	golang.org/x/crypto v0.18.0
 	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
 	golang.org/x/sync v0.6.0
