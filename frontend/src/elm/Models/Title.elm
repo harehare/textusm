@@ -7,7 +7,6 @@ module Models.Title exposing
     , isEdit
     , isUntitled
     , isView
-    , map
     , toString
     , untitled
     , view
@@ -88,19 +87,6 @@ isView title =
 
         _ ->
             False
-
-
-map : (String -> Title) -> Title -> Title
-map f title =
-    case title of
-        UnTitled ->
-            title
-
-        Edit title_ ->
-            f title_
-
-        View title_ ->
-            f title_
 
 
 toString : Title -> String

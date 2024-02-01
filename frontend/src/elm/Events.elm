@@ -60,12 +60,12 @@ onTouchStart =
 
 onClickStopPropagation : msg -> Attribute msg
 onClickStopPropagation msg =
-    StyledEvents.stopPropagationOn "click" (D.map alwaysStopPropagationStyled (D.succeed msg))
+    StyledEvents.stopPropagationOn "click" (D.succeed (alwaysStopPropagationStyled msg))
 
 
 onClickPreventDefaultOn : msg -> Attribute msg
 onClickPreventDefaultOn msg =
-    StyledEvents.preventDefaultOn "click" (D.map alwaysPreventDefaultOnStyled (D.succeed msg))
+    StyledEvents.preventDefaultOn "click" (D.succeed (alwaysPreventDefaultOnStyled msg))
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )

@@ -152,7 +152,7 @@ changeRouteTo route =
                                 else
                                     Effect.Diagram.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
                                )
-                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                            |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
 
         Route.Edit diagramType _ _ ->
@@ -182,7 +182,7 @@ changeRouteTo route =
                                 else
                                     Effect.Diagram.loadFromLocal id_ >> Effect.changeRouteInit M.Init
                                )
-                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                            |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
 
         Route.EditLocalFile _ id_ ->
@@ -568,7 +568,7 @@ showWarningMessage msg =
                         |> Task.perform identity
                         |> Return.command
                    )
-                >> closeNotification
+                |> closeNotification
 
 
 loadDiagram : DiagramItem -> Return.ReturnF Msg Model
@@ -589,14 +589,14 @@ loadDiagram diagram =
             in
             Return.singleton newDiagramModel
                 |> Diagram.update m.diagramModel (DiagramModel.ChangeText <| Text.toString diagram.text)
-                >> Return.mapBoth M.UpdateDiagram
+                |> Return.mapBoth M.UpdateDiagram
                     (\m_ ->
                         { m
                             | diagramModel = m_
                             , currentDiagram = diagram
                         }
                     )
-                >> stopProgress
+                |> stopProgress
 
 
 setDiagramSettings : DiagramSettings.Settings -> Return.ReturnF Msg Model

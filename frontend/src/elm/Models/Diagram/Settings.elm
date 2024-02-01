@@ -139,55 +139,55 @@ fontStyle settings =
     "'" ++ settings.font ++ "', sans-serif"
 
 
-getBackgroundColor : Settings -> Property -> Color.Color
+getBackgroundColor : Settings -> Property -> Color
 getBackgroundColor settings property =
     Property.getBackgroundColor property
         |> Maybe.withDefault settings.backgroundColor
 
 
-getCardBackgroundColor1 : Settings -> Property -> Color.Color
+getCardBackgroundColor1 : Settings -> Property -> Color
 getCardBackgroundColor1 settings property =
     Property.getCardBackgroundColor1 property
         |> Maybe.withDefault settings.color.activity.backgroundColor
 
 
-getCardBackgroundColor2 : Settings -> Property -> Color.Color
+getCardBackgroundColor2 : Settings -> Property -> Color
 getCardBackgroundColor2 settings property =
     Property.getCardBackgroundColor2 property
         |> Maybe.withDefault settings.color.task.backgroundColor
 
 
-getCardBackgroundColor3 : Settings -> Property -> Color.Color
+getCardBackgroundColor3 : Settings -> Property -> Color
 getCardBackgroundColor3 settings property =
     Property.getCardBackgroundColor3 property
         |> Maybe.withDefault settings.color.story.backgroundColor
 
 
-getCardForegroundColor1 : Settings -> Property -> Color.Color
+getCardForegroundColor1 : Settings -> Property -> Color
 getCardForegroundColor1 settings property =
     Property.getCardForegroundColor1 property
         |> Maybe.withDefault settings.color.activity.color
 
 
-getCardForegroundColor2 : Settings -> Property -> Color.Color
+getCardForegroundColor2 : Settings -> Property -> Color
 getCardForegroundColor2 settings property =
     Property.getCardForegroundColor2 property
         |> Maybe.withDefault settings.color.task.color
 
 
-getCardForegroundColor3 : Settings -> Property -> Color.Color
+getCardForegroundColor3 : Settings -> Property -> Color
 getCardForegroundColor3 settings property =
     Property.getCardForegroundColor3 property
         |> Maybe.withDefault settings.color.story.color
 
 
-getLineColor : Settings -> Property -> Color.Color
+getLineColor : Settings -> Property -> Color
 getLineColor settings property =
     Property.getLineColor property
         |> Maybe.withDefault settings.color.line
 
 
-getTextColor : Settings -> Property -> Color.Color
+getTextColor : Settings -> Property -> Color
 getTextColor settings property =
     Property.getTextColor property
         |> Maybe.withDefault

@@ -27,6 +27,7 @@ import NoSinglePatternCase
 import NoUselessSubscriptions
 import NoMissingSubscriptionsCall
 import NoRecursiveUpdate
+import NoUnusedPorts
 import Review.Rule exposing (Rule)
 import Simplify
 import UseCamelCase
@@ -69,4 +70,5 @@ config =
     , NoUselessSubscriptions.rule
     , NoMissingSubscriptionsCall.rule
     , NoRecursiveUpdate.rule
+    , NoUnusedPorts.rule
     ]

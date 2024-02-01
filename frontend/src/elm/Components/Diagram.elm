@@ -48,7 +48,7 @@ import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
-import List.Extra as ListEx exposing (getAt, setAt)
+import List.Extra as ListEx
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
@@ -198,6 +198,7 @@ update model message =
                             lines =
                                 Text.lines model.text
 
+                            beforeText : String
                             beforeText =
                                 Item.new
                                     |> (ListEx.getAt (Item.getLineNo item) lines
@@ -207,6 +208,7 @@ update model message =
                                        )
                                     |> Item.getTextOnly
 
+                            afterText : String
                             afterText =
                                 Item.getTextOnly selectedItem
                         in
@@ -217,7 +219,7 @@ update model message =
                             let
                                 text : String
                                 text =
-                                    setAt (Item.getLineNo item)
+                                    ListEx.setAt (Item.getLineNo item)
                                         (item
                                             |> Item.withSettings (Item.getSettings selectedItem)
                                             |> Item.toLineString
@@ -247,6 +249,7 @@ update model message =
             Return.map
                 (\m ->
                     let
+                        newModel : Model
                         newModel =
                             m |> Diagram.position.set position
                     in
@@ -270,7 +273,7 @@ update model message =
                                 (\menu ->
                                     Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
                                         >> setText
-                                            (setAt (Item.getLineNo item)
+                                            (ListEx.setAt (Item.getLineNo item)
                                                 (item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
@@ -299,7 +302,7 @@ update model message =
                                 (\menu ->
                                     Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
                                         >> setText
-                                            (setAt (Item.getLineNo item)
+                                            (ListEx.setAt (Item.getLineNo item)
                                                 (item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
@@ -330,6 +333,7 @@ update model message =
                             lines =
                                 Text.lines model.text
 
+                            value : ItemValue.Value
                             value =
                                 ItemValue.fromString text
 
@@ -341,7 +345,7 @@ update model message =
                                     |> Item.withComments comment
                                     |> Item.toLineString
                         in
-                        setText (setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
+                        setText (ListEx.setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
                             >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
@@ -388,7 +392,7 @@ update model message =
 
                             updateText : String
                             updateText =
-                                setAt (Item.getLineNo item) text lines
+                                ListEx.setAt (Item.getLineNo item) text lines
                                     |> String.join "\n"
                         in
                         closeDropDown
@@ -547,26 +551,18 @@ view model =
         svgHeight : Int
         svgHeight =
             if model.diagram.isFullscreen then
-                Basics.toFloat
-                    (Basics.max (Size.getHeight model.diagram.size) (Size.getHeight model.windowSize))
-                    |> round
+                Basics.max (Size.getHeight model.diagram.size) (Size.getHeight model.windowSize)
 
             else
-                Basics.toFloat
-                    (Size.getHeight model.windowSize)
-                    |> round
+                Size.getHeight model.windowSize
 
         svgWidth : Int
         svgWidth =
             if model.diagram.isFullscreen then
-                Basics.toFloat
-                    (Basics.max (Size.getWidth model.diagram.size) (Size.getWidth model.windowSize))
-                    |> round
+                Basics.max (Size.getWidth model.diagram.size) (Size.getWidth model.windowSize)
 
             else
-                Basics.toFloat
-                    (Size.getWidth model.windowSize)
-                    |> round
+                Size.getWidth model.windowSize
     in
     Html.div
         [ Attr.id "usm-area"
@@ -1124,13 +1120,13 @@ onMultiTouchMove distance changedTouches =
     let
         p1 : ( Float, Float )
         p1 =
-            getAt 0 changedTouches
+            ListEx.getAt 0 changedTouches
                 |> Maybe.map .pagePos
                 |> Maybe.withDefault ( 0.0, 0.0 )
 
         p2 : ( Float, Float )
         p2 =
-            getAt 1 changedTouches
+            ListEx.getAt 1 changedTouches
                 |> Maybe.map .pagePos
                 |> Maybe.withDefault ( 0.0, 0.0 )
     in
@@ -1200,13 +1196,13 @@ onTouchDragStart item =
                             let
                                 p1 : ( Float, Float )
                                 p1 =
-                                    getAt 0 event.changedTouches
+                                    ListEx.getAt 0 event.changedTouches
                                         |> Maybe.map .pagePos
                                         |> Maybe.withDefault ( 0.0, 0.0 )
 
                                 p2 : ( Float, Float )
                                 p2 =
-                                    getAt 1 event.changedTouches
+                                    ListEx.getAt 1 event.changedTouches
                                         |> Maybe.map .pagePos
                                         |> Maybe.withDefault ( 0.0, 0.0 )
                             in
@@ -1252,7 +1248,7 @@ setFocus id =
 setLine : Int -> List String -> String -> Return.ReturnF Msg Model
 setLine lineNo lines line =
     setText
-        (setAt lineNo line lines
+        (ListEx.setAt lineNo line lines
             |> String.join "\n"
         )
 

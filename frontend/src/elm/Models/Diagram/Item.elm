@@ -1,6 +1,5 @@
 module Models.Diagram.Item exposing
     ( DiagramItem
-    , copy
     , decoder
     , diagram
     , empty
@@ -52,21 +51,6 @@ type alias DiagramItem =
     , location : Maybe Location
     , createdAt : Posix
     , updatedAt : Posix
-    }
-
-
-copy : DiagramItem -> DiagramItem
-copy diagram_ =
-    { id = Nothing
-    , text = diagram_.text
-    , diagram = diagram_.diagram
-    , title = Title.map (\t -> Title.fromString <| "Copy of " ++ t) diagram_.title
-    , thumbnail = diagram_.thumbnail
-    , isPublic = False
-    , isBookmark = False
-    , location = Nothing
-    , createdAt = Time.millisToPosix 0
-    , updatedAt = Time.millisToPosix 0
     }
 
 

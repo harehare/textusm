@@ -7,7 +7,7 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
-import Json.Encode
+import Json.Encode as E
 import Models.Color as Color exposing (Color)
 import Models.Diagram as DiagramModel
 import Models.Diagram.CardSize as CardSize
@@ -30,7 +30,7 @@ type alias InitData =
     { text : String
     , width : Int
     , height : Int
-    , settings : Json.Encode.Value
+    , settings : E.Value
     , showZoomControl : Bool
     , diagramType : String
     , scale : Float
@@ -61,6 +61,7 @@ main =
 init : InitData -> ( Model, Cmd Msg )
 init flags =
     let
+        settings: DiagramSettings.Settings
         settings =
             D.decodeValue DiagramSettings.decoder flags.settings
                 |> Result.toMaybe

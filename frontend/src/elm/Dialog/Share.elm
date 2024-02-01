@@ -245,14 +245,13 @@ init { diagram, diagramId, session, title } =
                         shareReqTask =
                             Task.andThen
                                 (\s ->
-                                    Task.andThen
+                                    Task.map
                                         (\now ->
-                                            Task.succeed
-                                                { allowIPList = []
-                                                , token = s
-                                                , expireTime = Time.posixToMillis now + 300 * 1000
-                                                , allowEmail = []
-                                                }
+                                            { allowIPList = []
+                                            , token = s
+                                            , expireTime = Time.posixToMillis now + 300 * 1000
+                                            , allowEmail = []
+                                            }
                                         )
                                         Time.now
                                 )

@@ -1,15 +1,11 @@
 module Effect.Diagram exposing
-    ( closeLocalFile
-    , load
+    ( load
     , loadFromLocal
     , loadFromLocalForCopy
     , loadFromPublic
     , loadFromShare
     , loadFromShareWithoutPassword
-    , loadSettings
     , save
-    , saveDiagramSettings
-    , saveSettingsToLocal
     , saveToLocal
     , saveToLocalFileSystem
     , saveToRemote
@@ -17,30 +13,19 @@ module Effect.Diagram exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Graphql.OptionalArgument as OptionalArgument
-import Models.Color as Color
-import Models.Diagram.CardSize as CardSize
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
+import Models.Diagram.Type as DiagramType
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
 import Models.Settings as Settings
-import Models.SettingsCache as SettingCache exposing (SettingsCache)
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Models.Text as Text
 import Models.Title as Title
 import Ports
 import Return
 import Task
-
-
-closeLocalFile : Return.ReturnF msg model
-closeLocalFile =
-    Return.command <| Ports.closeLocalFile ()
 
 
 loadFromLocal : DiagramId -> Return.ReturnF msg model
@@ -106,37 +91,6 @@ loadFromPublic msg { id, session } =
         |> Return.command
 
 
-loadSettings :
-    (Result RequestError DiagramSettings.Settings -> msg)
-    ->
-        { cache : SettingsCache
-        , diagramType : DiagramType
-        , session : Session
-        }
-    -> Return.ReturnF msg model
-loadSettings msg { cache, diagramType, session } =
-    if Session.isSignedIn session then
-        case SettingCache.get cache diagramType of
-            Just setting ->
-                Ok setting
-                    |> msg
-                    |> Task.succeed
-                    |> Task.perform identity
-                    |> Return.command
-
-            Nothing ->
-                Request.settings
-                    (Session.getIdToken session)
-                    diagramType
-                    |> Task.attempt msg
-                    |> Return.command
-
-    else
-        DiagramType.toString diagramType
-            |> Ports.loadSettingsFromLocal
-            |> Return.command
-
-
 loadFromShare :
     (Result RequestError DiagramItem -> msg)
     ->
@@ -157,92 +111,6 @@ loadFromShare msg { password, session, token } =
 loadFromShareWithoutPassword : (Result RequestError DiagramItem -> msg) -> { session : Session, token : ShareToken } -> Return.ReturnF msg model
 loadFromShareWithoutPassword msg { session, token } =
     loadFromShare msg { session = session, token = token, password = Nothing }
-
-
-saveSettingsToLocal : Settings.Settings -> Return.ReturnF msg model
-saveSettingsToLocal settings =
-    Settings.encoder settings |> Ports.saveSettingsToLocal |> Return.command
-
-
-saveDiagramSettings :
-    (Result RequestError DiagramSettings.Settings -> msg)
-    ->
-        { diagramType : DiagramType
-        , session : Session
-        , settings : Settings.Settings
-        }
-    -> Return.ReturnF msg model
-saveDiagramSettings msg { diagramType, session, settings } =
-    if Session.isSignedIn session then
-        Request.saveSettings
-            (Session.getIdToken session)
-            diagramType
-            { font = settings.diagramSettings.font
-            , width = CardSize.toInt settings.diagramSettings.size.width
-            , height = CardSize.toInt settings.diagramSettings.size.height
-            , backgroundColor = Color.toString settings.diagramSettings.backgroundColor
-            , activityColor =
-                { foregroundColor = Color.toString settings.diagramSettings.color.activity.color
-                , backgroundColor = Color.toString settings.diagramSettings.color.activity.backgroundColor
-                }
-            , taskColor =
-                { foregroundColor = Color.toString settings.diagramSettings.color.task.color
-                , backgroundColor = Color.toString settings.diagramSettings.color.task.backgroundColor
-                }
-            , storyColor =
-                { foregroundColor = Color.toString settings.diagramSettings.color.story.color
-                , backgroundColor = Color.toString settings.diagramSettings.color.story.backgroundColor
-                }
-            , lineColor = Color.toString settings.diagramSettings.color.line
-            , labelColor = Color.toString settings.diagramSettings.color.label
-            , textColor =
-                case settings.diagramSettings.color.text of
-                    Just c ->
-                        OptionalArgument.Present <| Color.toString c
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            , zoomControl =
-                case settings.diagramSettings.zoomControl of
-                    Just z ->
-                        OptionalArgument.Present z
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            , scale =
-                case settings.diagramSettings.scale of
-                    Just s ->
-                        OptionalArgument.Present <| Scale.toFloat s
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            , toolbar =
-                case settings.diagramSettings.toolbar of
-                    Just z ->
-                        OptionalArgument.Present z
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            , lockEditing =
-                case settings.diagramSettings.lockEditing of
-                    Just l ->
-                        OptionalArgument.Present l
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            , showGrid =
-                case settings.diagramSettings.showGrid of
-                    Just s ->
-                        OptionalArgument.Present s
-
-                    Nothing ->
-                        OptionalArgument.Absent
-            }
-            |> Task.attempt msg
-            |> Return.command
-
-    else
-        saveSettingsToLocal { settings | diagram = Maybe.map (\d -> { d | diagram = diagramType }) settings.diagram }
 
 
 saveToLocalFileSystem : DiagramItem -> Return.ReturnF msg model

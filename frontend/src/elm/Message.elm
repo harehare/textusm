@@ -22,7 +22,6 @@ module Message exposing
     , messageUnknown
     , messageUrlExpired
     , toLangString
-    , toolTipCopy
     , toolTipEditFile
     , toolTipExport
     , toolTipHelp
@@ -274,16 +273,6 @@ toolTipPublic lang =
 
         _ ->
             "Public"
-
-
-toolTipCopy : Lang -> String
-toolTipCopy lang =
-    case lang of
-        Ja ->
-            "コピー"
-
-        _ ->
-            "Copy"
 
 
 toolTipExport : Lang -> String
