@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES2022",
     "module": "commonjs",
     "outDir": "./dist",
     "removeComments": true,
@@ -12,7 +12,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["esnext", "dom"],
     "esModuleInterop": true
   },
   "exclude": ["node_modules", "**/*.spec.ts"]

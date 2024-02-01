@@ -191,7 +191,7 @@ const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.11.0")
+  .version("0.14.5")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -243,7 +243,7 @@ const writeResult = (output: string | null, result: string): void => {
 (async () => {
   const browser = cdp
     ? await puppeteer.connect({ browserURL: cdp })
-    : await puppeteer.launch();
+    : await puppeteer.launch({ headless: "new" });
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
   const js = fs.readFileSync(
