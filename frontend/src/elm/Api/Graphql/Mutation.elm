@@ -9,15 +9,15 @@ module Api.Graphql.Mutation exposing
     )
 
 import Api.Graphql.Selection as Selection
+import Diagram.Item exposing (DiagramItem)
+import Diagram.Settings as DiagramSettings
+import Diagram.Type as DiagramType exposing (DiagramType)
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, InputShareItem)
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.SelectionSet exposing (SelectionSet)
-import Models.Diagram.Item exposing (DiagramItem)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation

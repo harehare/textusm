@@ -7,9 +7,9 @@ module Utils.Utils exposing
     )
 
 import Constants
+import Diagram.CardSize as CardSize
+import Diagram.Settings as DiagramSettings
 import Http exposing (Error(..))
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Process
 import Task

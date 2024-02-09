@@ -13,10 +13,10 @@ module Effect.Diagram exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Type as DiagramType
+import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Location as DiagramLocation
+import Diagram.Type as DiagramType
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
 import Models.Settings as Settings

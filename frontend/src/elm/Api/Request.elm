@@ -24,16 +24,16 @@ import Api.External.Github.Request as GithubRequest exposing (AccessToken)
 import Api.Graphql.Mutation as Mutation
 import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
+import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Item exposing (DiagramItem)
+import Diagram.Settings as DiagramSettings
+import Diagram.Type exposing (DiagramType)
 import Dict
 import Env
 import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item exposing (DiagramItem)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type exposing (DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IdToken as IdToken exposing (IdToken)

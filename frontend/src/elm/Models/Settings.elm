@@ -30,17 +30,17 @@ module Models.Settings exposing
     , zoomControl
     )
 
+import Diagram.CardSize as CardSize exposing (CardSize)
+import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Location as DiagramLocation exposing (Location)
+import Diagram.Scale as Scale
+import Diagram.Settings as DiagramSettings
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color exposing (Color)
-import Models.Diagram.CardSize as CardSize exposing (CardSize)
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Settings as DiagramSettings
 import Models.Text as Text exposing (Text)
 import Models.Theme as Theme exposing (Theme)
 import Models.Title as Title exposing (Title)

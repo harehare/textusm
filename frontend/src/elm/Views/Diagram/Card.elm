@@ -2,6 +2,8 @@ module Views.Diagram.Card exposing (docs, text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, property)
+import Diagram.CardSize as CardSize
+import Diagram.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -11,8 +13,6 @@ import Html.Styled.Attributes exposing (css)
 import Markdown
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

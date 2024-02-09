@@ -1,9 +1,9 @@
 module Models.Diagram.KeyboardLayoutTests exposing (suite)
 
+import Diagram.KeyboardLayout.Model as KeyboardLayout
 import Expect
-import Models.Diagram.KeyboardLayout as KeyboardLayout
-import Models.Diagram.KeyboardLayout.Key as Key
-import Models.Diagram.KeyboardLayout.Unit as Unit
+import Diagram.KeyboardLayout.Model.Key as Key
+import Diagram.KeyboardLayout.Model.Unit as Unit
 import Models.Item as Item
 import Test exposing (Test, describe, test)
 
@@ -15,7 +15,7 @@ suite =
             [ test "key matches" <|
                 \() ->
                     let
-                        item: Item.Items
+                        item : Item.Items
                         item =
                             Item.fromList
                                 [ Item.new

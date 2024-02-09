@@ -3,6 +3,11 @@ module Extension.Lib exposing (InitData, Model, Msg, main)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
+import Diagram.CardSize as CardSize
+import Diagram.Data as DiagramData
+import Diagram.Search as Search
+import Diagram.Settings as DiagramSettings
+import Diagram.Type as DiagramType
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
@@ -10,11 +15,6 @@ import Json.Decode as D
 import Json.Encode as E
 import Models.Color as Color exposing (Color)
 import Models.Diagram as DiagramModel
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.Search as Search
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType
 import Models.Item as Item
 import Models.Property as Property
 import Models.Text as Text
@@ -61,7 +61,7 @@ main =
 init : InitData -> ( Model, Cmd Msg )
 init flags =
     let
-        settings: DiagramSettings.Settings
+        settings : DiagramSettings.Settings
         settings =
             D.decodeValue DiagramSettings.decoder flags.settings
                 |> Result.toMaybe

@@ -1,8 +1,8 @@
 module Models.Diagram.CardSizeTests exposing (suite)
 
+import Diagram.CardSize as CardSize
 import Expect
 import Fuzz
-import Models.Diagram.CardSize as CardSize
 import Test exposing (Test, fuzz)
 
 

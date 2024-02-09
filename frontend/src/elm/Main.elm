@@ -16,6 +16,12 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Css exposing (backgroundColor, calc, displayFlex, height, hidden, minus, overflow, position, px, relative, vh, width)
+import Diagram.Id as DiagramId
+import Diagram.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Location as DiagramLocation exposing (Location)
+import Diagram.Scale as Scale exposing (Scale)
+import Diagram.Settings as DiagramSettings
+import Diagram.Type as DiagramType exposing (DiagramType(..))
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
@@ -32,12 +38,6 @@ import Json.Decode as D
 import Message exposing (Message)
 import Models.Color as Color
 import Models.Diagram as DiagramModel
-import Models.Diagram.Id as DiagramId
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale exposing (Scale)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
 import Models.Export.Diagram as ExportDiagram
 import Models.Hotkey as Hotkey

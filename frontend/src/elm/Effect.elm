@@ -15,8 +15,8 @@ import Api.Http.Token as TokenApi
 import Api.Request as Request
 import Browser.Dom as Dom exposing (Viewport)
 import Browser.Navigation as Nav
+import Diagram.Item as DiagramItem exposing (DiagramItem)
 import Message exposing (Message)
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
 import Models.Window as Window exposing (Window)

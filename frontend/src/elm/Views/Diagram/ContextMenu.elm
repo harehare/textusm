@@ -36,6 +36,7 @@ import Css
         , zIndex
         , zero
         )
+import Diagram.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -43,7 +44,6 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ContextMenu(..))
-import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)

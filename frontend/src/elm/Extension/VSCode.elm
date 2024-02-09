@@ -3,17 +3,17 @@ port module Extension.VSCode exposing (InitData, Model, Msg, main)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
+import Diagram.CardSize as CardSize
+import Diagram.Data as DiagramData
+import Diagram.Scale as Scale
+import Diagram.Search as Search
+import Diagram.Type as DiagramType
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Color as Color
 import Models.Diagram as DiagramModel
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Search as Search
-import Models.Diagram.Type as DiagramType
 import Models.Item as Item
 import Models.Property as Property
 import Models.Size as Size exposing (Size)

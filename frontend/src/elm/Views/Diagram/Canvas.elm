@@ -4,8 +4,8 @@ import Constants
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Settings as DiagramSettings
+import Diagram.CardSize as CardSize
+import Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)

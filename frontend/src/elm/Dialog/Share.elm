@@ -38,6 +38,8 @@ import Css
         , translateY
         , width
         )
+import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Type as DiagramType exposing (DiagramType)
 import Env
 import Events
 import Html.Styled as Html exposing (Html)
@@ -47,8 +49,6 @@ import Html.Styled.Lazy as Lazy
 import Maybe.Extra as MaybeEx
 import Message exposing (Message)
 import Models.Color as Color
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)

@@ -38,6 +38,48 @@ import Css
         , width
         )
 import Css.Global as Global exposing (global)
+import Diagram.BackgroundImage as BackgroundImage
+import Diagram.BusinessModelCanvas.Model as BusinessModelCanvasModel
+import Diagram.BusinessModelCanvas.View as BusinessModelCanvas
+import Diagram.CardSize as CardSize
+import Diagram.Data as DiagramData
+import Diagram.ER.Model as ErDiagramModel
+import Diagram.ER.View as ER
+import Diagram.EmpathyMap.Model as EmpathyMapModel
+import Diagram.EmpathyMap.View as EmpathyMap
+import Diagram.FourLs.Model as FourLsModel
+import Diagram.FourLs.View as FourLs
+import Diagram.FreeForm.Model as FreeFormModel
+import Diagram.FreeForm.View as FreeForm
+import Diagram.GanttChart.Model as GanttChartModel
+import Diagram.GanttChart.View as GanttChart
+import Diagram.Kanban.Model as KanbanModel
+import Diagram.Kanban.View as Kanban
+import Diagram.KeyboardLayout.Model as KeyboardLayout
+import Diagram.KeyboardLayout.View as KeyboardLayout
+import Diagram.Kpt.Model as KptModel
+import Diagram.Kpt.View as Kpt
+import Diagram.MindMap.View as MindMap
+import Diagram.OpportunityCanvas.Model as OpportunityCanvasModel
+import Diagram.OpportunityCanvas.View as OpportunityCanvas
+import Diagram.Scale as Scale exposing (Scale)
+import Diagram.Search as SearchModel
+import Diagram.SequenceDiagram.Model as SequenceDiagramModel
+import Diagram.SequenceDiagram.View as SequenceDiagram
+import Diagram.Settings as DiagramSettings
+import Diagram.SiteMap.Model as SiteMap
+import Diagram.SiteMap.View as SiteMap
+import Diagram.StartStopContinue.Model as StartStopContinueModel
+import Diagram.StartStopContinue.View as StartStopContinue
+import Diagram.Table.Model as TableModel
+import Diagram.Table.View as Table
+import Diagram.Type exposing (DiagramType(..))
+import Diagram.UseCaseDiagram.Model as UseCaseDiagramModel
+import Diagram.UseCaseDiagram.View as UseCaseDiagram
+import Diagram.UserPersona.Model as UserPersonaModel
+import Diagram.UserPersona.View as UserPersona
+import Diagram.UserStoryMap.Model as UserStoryMapModel
+import Diagram.UserStoryMap.View as UserStoryMap
 import Events
 import Events.Wheel as Wheel
 import File
@@ -52,29 +94,6 @@ import List.Extra as ListEx
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
-import Models.Diagram.BackgroundImage as BackgroundImage
-import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.ER as ErDiagramModel
-import Models.Diagram.EmpathyMap as EmpathyMapModel
-import Models.Diagram.FourLs as FourLsModel
-import Models.Diagram.FreeForm as FreeFormModel
-import Models.Diagram.GanttChart as GanttChartModel
-import Models.Diagram.Kanban as KanbanModel
-import Models.Diagram.KeyboardLayout as KeyboardLayout
-import Models.Diagram.Kpt as KptModel
-import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
-import Models.Diagram.Scale as Scale exposing (Scale)
-import Models.Diagram.Search as SearchModel
-import Models.Diagram.SequenceDiagram as SequenceDiagramModel
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.StartStopContinue as StartStopContinueModel
-import Models.Diagram.Table as TableModel
-import Models.Diagram.Type exposing (DiagramType(..))
-import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
-import Models.Diagram.UserPersona as UserPersonaModel
-import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
@@ -91,28 +110,10 @@ import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Events exposing (onClick)
 import Task
 import Utils.Utils as Utils
-import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.ContextMenu as ContextMenu
-import Views.Diagram.ER as ER
-import Views.Diagram.EmpathyMap as EmpathyMap
-import Views.Diagram.FourLs as FourLs
-import Views.Diagram.FreeForm as FreeForm
-import Views.Diagram.GanttChart as GanttChart
-import Views.Diagram.Kanban as Kanban
-import Views.Diagram.KeyboardLayout as KeyboardLayout
-import Views.Diagram.Kpt as Kpt
-import Views.Diagram.MindMap as MindMap
 import Views.Diagram.MiniMap as MiniMap
-import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.Search as Search
-import Views.Diagram.SequenceDiagram as SequenceDiagram
-import Views.Diagram.SiteMap as SiteMap
-import Views.Diagram.StartStopContinue as StartStopContinue
-import Views.Diagram.Table as Table
 import Views.Diagram.Toolbar as Toolbar
-import Views.Diagram.UseCaseDiagram as UseCaseDiagram
-import Views.Diagram.UserPersona as UserPersona
-import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
 import Views.Icon as Icon
 

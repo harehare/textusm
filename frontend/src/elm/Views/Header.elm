@@ -41,6 +41,9 @@ import Css
         , whiteSpace
         , width
         )
+import Diagram.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Location as DiagramLocation
+import Diagram.Type as DiagramType exposing (DiagramType)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events as E
@@ -51,9 +54,6 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..))
 import Models.Page as Page exposing (Page)

@@ -1,9 +1,9 @@
 module Models.DiagramItemTests exposing (suite)
 
+import Diagram.Item as DiagramItem
 import Expect
 import Json.Decode as D
 import Json.Encode as E
-import Models.Diagram.Item as DiagramItem
 import Models.Fuzzer exposing (diagramItemFuzzer)
 import Test exposing (Test, fuzz)
 

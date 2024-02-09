@@ -1,8 +1,8 @@
 module Models.PropertyTests exposing (suite)
 
+import Diagram.BackgroundImage as BackgroundImage
 import Expect
 import Models.Color as Color
-import Models.Diagram.BackgroundImage as BackgroundImage
 import Models.FontSize as FontSize
 import Models.Property as Property
 import Test exposing (Test, describe, test)

@@ -35,6 +35,9 @@ import Css
         , wrap
         , zero
         )
+import Diagram.CardSize as CardSize
+import Diagram.Location as DiagramLocation
+import Diagram.Type as DiagramType exposing (DiagramType)
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -46,9 +49,6 @@ import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Settings as Settings exposing (Settings)

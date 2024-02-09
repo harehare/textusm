@@ -11,13 +11,13 @@ import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
+import Diagram.Item exposing (DiagramItem)
+import Diagram.Settings as DiagramSettings
+import Diagram.Type exposing (DiagramType)
 import Dialog.Share as Share
 import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
-import Models.Diagram.Item exposing (DiagramItem)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Export.Diagram exposing (Export)
 import Models.Hotkey exposing (Hotkey)

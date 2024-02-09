@@ -1,12 +1,12 @@
 port module Models.Export.Diagram exposing (Export(..), ExportInfo, copyable, downloadable, export)
 
+import Diagram.Data as DiagramData
+import Diagram.ER.Model as ER
+import Diagram.GanttChart.Model as GanttChart
+import Diagram.SequenceDiagram.Model as SequenceDiagram
+import Diagram.Table.Model as Table
+import Diagram.Type as DiagramType exposing (DiagramType)
 import File.Download as Download
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.ER as ER
-import Models.Diagram.GanttChart as GanttChart
-import Models.Diagram.SequenceDiagram as SequenceDiagram
-import Models.Diagram.Table as Table
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.FileType as FileType exposing (FileType)
 import Models.Item exposing (Items)
 import Models.Size as Size exposing (Size)

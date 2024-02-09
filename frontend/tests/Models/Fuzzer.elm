@@ -1,14 +1,14 @@
 module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer, itemFuzzer, itemSettingsFuzzer, settingsFuzzer)
 
+import Diagram.CardSize as CardSize exposing (CardSize)
+import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Item exposing (DiagramItem)
+import Diagram.Location as DiagramLocation exposing (Location)
+import Diagram.Scale as Scale exposing (Scale)
+import Diagram.Settings exposing (ColorSetting, ColorSettings)
+import Diagram.Type exposing (DiagramType(..))
 import Fuzz exposing (Fuzzer)
 import Models.Color as Color exposing (Color)
-import Models.Diagram.CardSize as CardSize exposing (CardSize)
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale exposing (Scale)
-import Models.Diagram.Settings exposing (ColorSetting, ColorSettings)
-import Models.Diagram.Type exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item)
 import Models.Item.Settings as ItemSettings
@@ -279,10 +279,10 @@ colorSettingsFuzzer =
         |> Fuzz.andMap (Fuzz.maybe colorFuzzer)
 
 
-diagramSettingsFuzzer : Fuzzer Models.Diagram.Settings.Settings
+diagramSettingsFuzzer : Fuzzer Diagram.Settings.Settings
 diagramSettingsFuzzer =
-    Fuzz.map Models.Diagram.Settings.Settings Fuzz.string
-        |> Fuzz.andMap (Fuzz.map Models.Diagram.Settings.Size cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
+    Fuzz.map Diagram.Settings.Settings Fuzz.string
+        |> Fuzz.andMap (Fuzz.map Diagram.Settings.Size cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
         |> Fuzz.andMap colorSettingsFuzzer
         |> Fuzz.andMap colorFuzzer
         |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)

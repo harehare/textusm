@@ -17,6 +17,9 @@ import Css
         , relative
         , rem
         )
+import Diagram.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Location as DiagramLocation exposing (Location)
+import Diagram.Type as DiagramType exposing (DiagramType)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Env
@@ -25,9 +28,6 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
 import Models.Color as Color
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Session as Session exposing (Session)
 import Style.Color as ColorStyle
 import Style.Font as Font

@@ -2,14 +2,14 @@ module DiagramTests exposing (businessModelCanvasRenderTest, changeTextTest, emp
 
 import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
+import Diagram.CardSize as CardSize
+import Diagram.Scale as Scale
+import Diagram.Settings as DiagramSettings
+import Diagram.Type as DiagramType exposing (DiagramType(..))
 import Expect
 import Html.Styled
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Item as Item
 import Models.Position as Position
 import Return

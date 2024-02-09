@@ -24,13 +24,13 @@ import Css
         , transparent
         , zero
         )
+import Diagram.Settings as DiagramSettings
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
 import Models.Diagram exposing (MoveState(..), ResizeDirection(..), SelectedItemInfo)
-import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

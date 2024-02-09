@@ -26,14 +26,14 @@ import Css
         )
 import Css.Global exposing (children, class, each, typeSelector)
 import Css.Transitions as Transitions
+import Diagram.Scale as Scale
+import Diagram.Type exposing (DiagramType(..))
 import Events
 import Events.Wheel as Wheel
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
 import Models.Diagram as DiagramModel exposing (Msg)
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Style.Style as Style
