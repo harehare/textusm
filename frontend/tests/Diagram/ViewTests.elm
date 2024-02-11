@@ -1,15 +1,16 @@
-module DiagramTests exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, erDiagramRenderTest, fourlsRenderTest, ganttChartRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, sequenceDiagramRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
+module Diagram.ViewTests exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, erDiagramRenderTest, fourlsRenderTest, ganttChartRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, sequenceDiagramRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
 
 import Browser.Dom exposing (Viewport)
-import Components.Diagram exposing (init, update, view)
-import Diagram.CardSize as CardSize
-import Diagram.Scale as Scale
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType exposing (DiagramType(..))
+import Diagram.State exposing (init, update)
+import Diagram.Types as Diagram exposing (Model, Msg(..))
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
+import Diagram.View exposing (view)
 import Expect
 import Html.Styled
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Item as Item
 import Models.Position as Position
 import Return

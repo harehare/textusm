@@ -1,6 +1,6 @@
-module Models.DiagramItemTests exposing (suite)
+module Diagram.Types.ItemTests exposing (suite)
 
-import Diagram.Item as DiagramItem
+import Diagram.Types.Item as DiagramItem
 import Expect
 import Json.Decode as D
 import Json.Encode as E

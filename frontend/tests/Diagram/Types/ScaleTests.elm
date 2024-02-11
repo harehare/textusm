@@ -1,6 +1,6 @@
-module Models.Diagram.ScaleTests exposing (suite)
+module Diagram.Types.ScaleTests exposing (suite)
 
-import Diagram.Scale as Scale
+import Diagram.Types.Scale as Scale
 import Expect
 import Fuzz
 import Test exposing (Test, fuzz)

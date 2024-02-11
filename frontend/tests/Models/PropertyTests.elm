@@ -1,6 +1,6 @@
 module Models.PropertyTests exposing (suite)
 
-import Diagram.BackgroundImage as BackgroundImage
+import Diagram.Types.BackgroundImage as BackgroundImage
 import Expect
 import Models.Color as Color
 import Models.FontSize as FontSize

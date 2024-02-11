@@ -1,9 +1,9 @@
-module Models.Diagram.KeyboardLayoutTests exposing (suite)
+module Diagram.KeyboardLayout.TypesTests exposing (suite)
 
-import Diagram.KeyboardLayout.Model as KeyboardLayout
+import Diagram.KeyboardLayout.Types as KeyboardLayout
+import Diagram.KeyboardLayout.Types.Key as Key
+import Diagram.KeyboardLayout.Types.Unit as Unit
 import Expect
-import Diagram.KeyboardLayout.Model.Key as Key
-import Diagram.KeyboardLayout.Model.Unit as Unit
 import Models.Item as Item
 import Test exposing (Test, describe, test)
 
