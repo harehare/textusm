@@ -2,14 +2,16 @@ module Diagram.Kanban.View exposing (docs, view)
 
 import Constants
 import Diagram.Kanban.Types as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Card as Card
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Color as Color
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -17,8 +19,6 @@ import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Card as Card
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 

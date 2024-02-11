@@ -1,4 +1,4 @@
-module Views.Diagram.MiniMap exposing (view)
+module Diagram.View.MiniMap exposing (view)
 
 import Constants
 import Css
@@ -26,6 +26,7 @@ import Css
         )
 import Css.Global exposing (children, class, each, typeSelector)
 import Css.Transitions as Transitions
+import Diagram.Types as DiagramModel exposing (Msg)
 import Diagram.Types.Scale as Scale
 import Diagram.Types.Type exposing (DiagramType(..))
 import Events
@@ -33,7 +34,6 @@ import Events.Wheel as Wheel
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
-import Models.Diagram as DiagramModel exposing (Msg)
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Style.Style as Style

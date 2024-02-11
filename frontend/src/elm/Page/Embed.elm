@@ -1,6 +1,5 @@
 module Page.Embed exposing (view)
 
-import Components.Diagram as Diagram
 import Css
     exposing
         ( absolute
@@ -14,6 +13,7 @@ import Css
         , right
         , solid
         )
+import Diagram.View as Diagram
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy

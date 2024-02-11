@@ -1,15 +1,15 @@
-module Views.Diagram.Text exposing (view)
+module Diagram.View.Text exposing (view)
 
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Card as Card
+import Diagram.View.Views as Views
 import Models.Color as Color
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import Svg.Styled exposing (Svg)
-import Views.Diagram.Card as Card
-import Views.Diagram.Views as Views
 
 
 view :

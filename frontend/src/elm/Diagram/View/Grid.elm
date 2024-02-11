@@ -1,11 +1,13 @@
-module Views.Diagram.Grid exposing (view)
+module Diagram.View.Grid exposing (view)
 
 import Css exposing (backgroundColor)
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Card as Card
+import Diagram.View.Views as Views
 import Events
 import Models.Color as Color
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
 import Models.Position exposing (Position)
@@ -13,8 +15,6 @@ import Models.Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Card as Card
-import Views.Diagram.Views as Views
 
 
 view :

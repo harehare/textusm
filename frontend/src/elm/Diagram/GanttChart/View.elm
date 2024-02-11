@@ -5,6 +5,7 @@ import Diagram.GanttChart.Types as GanttChart exposing (GanttChart(..), Schedule
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Views as Views
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
@@ -21,7 +22,6 @@ import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple
 import Utils.Date as DateUtils
-import Views.Diagram.Views as Views
 
 
 view :

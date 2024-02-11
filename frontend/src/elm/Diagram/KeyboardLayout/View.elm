@@ -4,8 +4,10 @@ import Css
 import Diagram.KeyboardLayout.Types as KeyboardLayout exposing (Row)
 import Diagram.KeyboardLayout.Types.Key as Key exposing (Key)
 import Diagram.KeyboardLayout.Types.Unit as Unit exposing (Unit)
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -14,7 +16,6 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
 import Models.Property as Property exposing (Property)
@@ -22,7 +23,6 @@ import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 

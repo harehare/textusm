@@ -1,4 +1,4 @@
-module Views.Diagram.Search exposing (docs, view)
+module Diagram.Search.View exposing (docs, view)
 
 import Css
     exposing

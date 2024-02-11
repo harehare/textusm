@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing
+module Diagram.View.Views exposing
     ( DragStart
     , getItemColor
     , image
@@ -24,13 +24,13 @@ import Css
         , transparent
         , zero
         )
+import Diagram.Types exposing (MoveState(..), ResizeDirection(..), SelectedItemInfo)
 import Diagram.Types.Settings as DiagramSettings
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (MoveState(..), ResizeDirection(..), SelectedItemInfo)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

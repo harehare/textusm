@@ -1,10 +1,11 @@
-module Views.Diagram.Line exposing (horizontal, vertical)
+module Diagram.View.Line exposing (horizontal, vertical)
 
+import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Views as Views
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
@@ -12,7 +13,6 @@ import Models.Size as Size exposing (Size)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Views as Views
 
 
 horizontal :

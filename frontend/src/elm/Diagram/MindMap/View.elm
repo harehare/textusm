@@ -1,14 +1,17 @@
 module Diagram.MindMap.View exposing (ViewType(..), docs, view)
 
+import Diagram.Types as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Path as Path
+import Diagram.View.TextNode as TextNode
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
 import Models.Color exposing (Color)
-import Models.Diagram as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
@@ -17,9 +20,6 @@ import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Path as Path
-import Views.Diagram.TextNode as TextNode
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 

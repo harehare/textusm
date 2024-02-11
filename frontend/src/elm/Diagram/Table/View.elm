@@ -1,13 +1,14 @@
 module Diagram.Table.View exposing (docs, view)
 
 import Diagram.Table.Types as Table exposing (Header(..), Row(..), Table(..))
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Grid as Grid
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item)
 import Models.Property as Property exposing (Property)
 import String
@@ -15,7 +16,6 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Grid as Grid
 import Views.Empty as Empty
 
 

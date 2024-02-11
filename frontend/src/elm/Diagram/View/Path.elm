@@ -1,4 +1,4 @@
-module Views.Diagram.Path exposing (Position, Size, docs, view)
+module Diagram.View.Path exposing (Position, Size, docs, view)
 
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Color as Color exposing (Color)

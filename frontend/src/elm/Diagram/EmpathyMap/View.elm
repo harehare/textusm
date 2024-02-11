@@ -2,20 +2,20 @@ module Diagram.EmpathyMap.View exposing (docs, view)
 
 import Constants
 import Diagram.EmpathyMap.Types as EmpathyMap exposing (EmpathyMapItem(..))
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Canvas as Canvas
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item, Items)
 import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Utils.Utils as Utils
-import Views.Diagram.Canvas as Canvas
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 

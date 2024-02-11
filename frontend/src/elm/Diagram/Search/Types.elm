@@ -1,4 +1,4 @@
-module Diagram.Types.Search exposing (Search, close, isSearch, search, toString, toggle)
+module Diagram.Search.Types exposing (Search, close, isSearch, search, toString, toggle)
 
 
 type Search

@@ -1,9 +1,11 @@
-module Views.Diagram.Card exposing (docs, text, viewWithDefaultColor)
+module Diagram.View.Card exposing (docs, text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, property)
+import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -12,7 +14,6 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Markdown
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
@@ -22,7 +23,6 @@ import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Views as Views
 
 
 viewWithDefaultColor :

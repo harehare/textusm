@@ -1,4 +1,4 @@
-module Effect.Diagram exposing
+module Diagram.Effect exposing
     ( load
     , loadFromLocal
     , loadFromLocalForCopy

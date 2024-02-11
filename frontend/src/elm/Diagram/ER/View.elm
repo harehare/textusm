@@ -18,9 +18,12 @@ import Css
         , spaceBetween
         )
 import Diagram.ER.Types as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
+import Diagram.Types as Diagram
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
+import Diagram.View.Path as Path
+import Diagram.View.Views as Views
 import Dict exposing (Dict)
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
@@ -29,7 +32,6 @@ import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Color as Color
-import Models.Diagram as Diagram
 import Models.Item as Item
 import Models.Position as Position exposing (Position, getX, getY)
 import Models.Size exposing (Size, getHeight, getWidth)
@@ -38,8 +40,6 @@ import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Utils.Utils as Utils
-import Views.Diagram.Path as Path
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 import Views.Icon as Icon
 

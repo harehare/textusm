@@ -11,6 +11,7 @@ import Diagram.KeyboardLayout.View as KeyboardLayout
 import Diagram.Kpt.View as Kpt
 import Diagram.MindMap.View as MindMap
 import Diagram.OpportunityCanvas.View as OpportunityCanvas
+import Diagram.Search.View as Search
 import Diagram.SequenceDiagram.View as SequenceDiagram
 import Diagram.SiteMap.View as SiteMap
 import Diagram.StartStopContinue.View as StartStopContinue
@@ -18,13 +19,12 @@ import Diagram.Table.View as Table
 import Diagram.UseCaseDiagram.View as UseCaseDiagram
 import Diagram.UserPersona.View as UserPersona
 import Diagram.UserStoryMap.View as UserStoryMap
+import Diagram.View.Card as Card
+import Diagram.View.ContextMenu as ContextMenu
+import Diagram.View.Path as Path
+import Diagram.View.Toolbar as Toolbar
 import ElmBook exposing (Book)
 import ElmBook.ComponentOptions
-import Views.Diagram.Card as Card
-import Views.Diagram.ContextMenu as ContextMenu
-import Views.Diagram.Path as Path
-import Views.Diagram.Search as Search
-import Views.Diagram.Toolbar as Toolbar
 import Views.DropDownList as DropDownList
 import Views.Footer as Footer
 import Views.Header as Header

@@ -1,4 +1,4 @@
-module Views.Diagram.Toolbar exposing
+module Diagram.View.Toolbar exposing
     ( ClickEvent
     , ToolbarButton
     , docs

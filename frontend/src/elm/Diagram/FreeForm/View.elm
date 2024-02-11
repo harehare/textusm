@@ -2,22 +2,22 @@ module Diagram.FreeForm.View exposing (docs, view)
 
 import Constants
 import Diagram.FreeForm.Types as FreeForm exposing (FreeFormItem)
+import Diagram.Types as Diagram exposing (MoveState, SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Canvas as Canvas
+import Diagram.View.Card as Card
+import Diagram.View.Line as Line
+import Diagram.View.Text as TextView
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Diagram as Diagram exposing (MoveState, SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item, Items)
 import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Canvas as Canvas
-import Views.Diagram.Card as Card
-import Views.Diagram.Line as Line
-import Views.Diagram.Text as TextView
-import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 

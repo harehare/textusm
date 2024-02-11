@@ -1,4 +1,4 @@
-module Views.Diagram.ContextMenu exposing
+module Diagram.View.ContextMenu exposing
     ( Props
     , docs
     , viewAllMenu
@@ -36,14 +36,15 @@ import Css
         , zIndex
         , zero
         )
+import Diagram.Types as Diagram exposing (ContextMenu(..))
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ContextMenu(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)
@@ -53,7 +54,6 @@ import Models.Size exposing (Width)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Views as Views
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon

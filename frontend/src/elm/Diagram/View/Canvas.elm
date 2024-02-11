@@ -1,11 +1,13 @@
-module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
+module Diagram.View.Canvas exposing (view, viewBottom, viewImage)
 
 import Constants
+import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Card as Card
+import Diagram.View.Views as Views
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)
@@ -13,8 +15,6 @@ import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Card as Card
-import Views.Diagram.Views as Views
 
 
 view :

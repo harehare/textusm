@@ -1,6 +1,7 @@
 module Diagram.UseCaseDiagram.View exposing (docs, view)
 
 import Css exposing (backgroundColor, color, hex, padding4, px, transparent, zero)
+import Diagram.Types exposing (SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
@@ -21,7 +22,6 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (SelectedItemInfo)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

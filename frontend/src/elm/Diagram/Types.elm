@@ -1,4 +1,4 @@
-module Models.Diagram exposing
+module Diagram.Types exposing
     ( ContextMenu(..)
     , ContextMenuProps
     , Diagram
@@ -40,13 +40,13 @@ import Diagram.KeyboardLayout.Types as KeyboardLayoutModel
 import Diagram.Kpt.Types as KptModel
 import Diagram.MindMap.Types as MindMapModel
 import Diagram.OpportunityCanvas.Types as OpportunityCanvasModel
+import Diagram.Search.Types exposing (Search)
 import Diagram.SequenceDiagram.Types as SequenceDiagramModel
 import Diagram.SiteMap.Types as SiteMapModel
 import Diagram.StartStopContinue.Types as StartStopContinueModel
 import Diagram.Table.Types as TableModel
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Scale exposing (Scale)
-import Diagram.Types.Search exposing (Search)
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type exposing (DiagramType(..))
 import Diagram.UseCaseDiagram.Types as UseCaseDiagramModel

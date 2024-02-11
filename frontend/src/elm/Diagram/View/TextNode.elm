@@ -1,4 +1,4 @@
-module Views.Diagram.TextNode exposing (root, view)
+module Diagram.View.TextNode exposing (root, view)
 
 import Css
     exposing
@@ -18,14 +18,15 @@ import Css
         , transparent
         , zero
         )
+import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
+import Diagram.View.Views as Views
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
@@ -35,7 +36,6 @@ import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
-import Views.Diagram.Views as Views
 
 
 view : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg, dragStart : Views.DragStart msg } -> Svg msg
