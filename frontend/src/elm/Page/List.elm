@@ -83,6 +83,7 @@ import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Diagram.Types.Location as DiagramLocation
 import Dialog.Confirm as ConfirmDialog
+import Dialog.Types as Dialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -109,7 +110,6 @@ import Style.Text as TextStyle
 import Task
 import Time exposing (Zone)
 import Types.Color as Color
-import Dialog.Types as Dialog
 import Types.Session as Session exposing (Session)
 import Types.Title as Title
 import Utils.Date as DateUtils

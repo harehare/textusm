@@ -68,10 +68,10 @@ import Style.Font as FontStyle
 import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
+import Types exposing (BrowserStatus, Menu(..))
 import Types.Color as Color
 import Types.Export.Diagram as ExportDiagram
 import Types.FileType as FileType
-import Types exposing (BrowserStatus, Menu(..))
 import Types.Settings as Settings exposing (Settings)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme

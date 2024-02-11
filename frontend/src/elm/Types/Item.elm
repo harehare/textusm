@@ -72,6 +72,7 @@ module Types.Item exposing
 import Constants exposing (indentSpace, inputPrefix)
 import List.Extra as ListEx
 import Maybe
+import Simple.Fuzzy as Fuzzy
 import Types.Color exposing (Color)
 import Types.FontSize as FontSize exposing (FontSize)
 import Types.Item.Settings as ItemSettings
@@ -79,7 +80,6 @@ import Types.Item.Value as ItemValue
 import Types.Position exposing (Position)
 import Types.Property as Property exposing (Property)
 import Types.Size as Size exposing (Size)
-import Simple.Fuzzy as Fuzzy
 
 
 type Children

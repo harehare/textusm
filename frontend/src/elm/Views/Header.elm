@@ -61,9 +61,9 @@ import Style.Font as Font
 import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as Text
+import Types exposing (Menu(..))
 import Types.Color as Color
 import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
-import Types exposing (Menu(..))
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
 import Types.Title as Title
