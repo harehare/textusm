@@ -1,7 +1,7 @@
 module Views.Diagram.Line exposing (horizontal, vertical)
 
-import Diagram.CardSize as CardSize
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Settings as DiagramSettings
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)

@@ -26,8 +26,8 @@ import Css
         )
 import Css.Global exposing (children, class, each, typeSelector)
 import Css.Transitions as Transitions
-import Diagram.Scale as Scale
-import Diagram.Type exposing (DiagramType(..))
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Type exposing (DiagramType(..))
 import Events
 import Events.Wheel as Wheel
 import Html.Styled as Html exposing (Html)

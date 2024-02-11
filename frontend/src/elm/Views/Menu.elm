@@ -47,9 +47,9 @@ import Css
         )
 import Css.Global exposing (class, descendants)
 import Css.Transitions as Transitions
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation
-import Diagram.Type exposing (DiagramType(..))
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Type exposing (DiagramType(..))
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -64,10 +64,10 @@ import Models.Color as Color
 import Models.Export.Diagram as ExportDiagram
 import Models.FileType as FileType
 import Models.Model exposing (BrowserStatus, Menu(..))
-import Models.Page as Page
 import Models.Settings as Settings exposing (Settings)
 import Models.Text as Text exposing (Text)
 import Models.Theme as Theme
+import Page.Types as Page
 import Route exposing (Route)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle

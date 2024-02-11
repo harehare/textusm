@@ -1,11 +1,11 @@
 module Diagram.KeyboardLayout.View exposing (docs, view)
 
 import Css
-import Diagram.Data as DiagramData
-import Diagram.KeyboardLayout.Model as KeyboardLayout exposing (Row)
-import Diagram.KeyboardLayout.Model.Key as Key exposing (Key)
-import Diagram.KeyboardLayout.Model.Unit as Unit exposing (Unit)
-import Diagram.Settings as DiagramSettings
+import Diagram.KeyboardLayout.Types as KeyboardLayout exposing (Row)
+import Diagram.KeyboardLayout.Types.Key as Key exposing (Key)
+import Diagram.KeyboardLayout.Types.Unit as Unit exposing (Unit)
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events

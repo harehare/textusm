@@ -1,10 +1,10 @@
 module Diagram.UseCaseDiagram.View exposing (docs, view)
 
 import Css exposing (backgroundColor, color, hex, padding4, px, transparent, zero)
-import Diagram.Data as DiagramData
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
-import Diagram.UseCaseDiagram.Model as UseCaseDiagram
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
+import Diagram.UseCaseDiagram.Types as UseCaseDiagram
     exposing
         ( Actor(..)
         , Relation

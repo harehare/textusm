@@ -1,10 +1,10 @@
 module Diagram.GanttChart.View exposing (docs, view)
 
 import Constants
-import Diagram.Data as DiagramData
-import Diagram.GanttChart.Model as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.GanttChart.Types as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr

@@ -30,12 +30,12 @@ module Models.Settings exposing
     , zoomControl
     )
 
-import Diagram.CardSize as CardSize exposing (CardSize)
-import Diagram.Id as DiagramId exposing (DiagramId)
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation exposing (Location)
-import Diagram.Scale as Scale
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.CardSize as CardSize exposing (CardSize)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation exposing (Location)
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E

@@ -41,9 +41,9 @@ import Css
         , whiteSpace
         , width
         )
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events as E
@@ -56,10 +56,10 @@ import Message exposing (Lang)
 import Models.Color as Color
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..))
-import Models.Page as Page exposing (Page)
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title
+import Page.Types as Page exposing (Page)
 import Route exposing (Route(..))
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle

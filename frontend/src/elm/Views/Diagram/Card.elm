@@ -2,8 +2,8 @@ module Views.Diagram.Card exposing (docs, text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, property)
-import Diagram.CardSize as CardSize
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events

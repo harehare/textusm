@@ -1,7 +1,7 @@
 module Models.SettingsCache exposing (SettingsCache, get, new, set)
 
-import Diagram.Settings exposing (Settings)
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Settings exposing (Settings)
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Dict exposing (Dict)
 
 

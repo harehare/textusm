@@ -1,10 +1,10 @@
 module Diagram.FourLs.View exposing (docs, view)
 
 import Constants
-import Diagram.Data as DiagramData
-import Diagram.FourLs.Model as FourLs exposing (FourLsItem(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.FourLs.Types as FourLs exposing (FourLsItem(..))
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)

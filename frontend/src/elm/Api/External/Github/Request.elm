@@ -3,7 +3,7 @@ module Api.External.Github.Request exposing (AccessToken, createGist, deleteGist
 import Api.External.Github.Gist as Gist exposing (Gist)
 import Api.External.Github.GistInput as GistInput exposing (GistInput)
 import Api.Http.Request as Request
-import Diagram.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Http exposing (Header)
 import Json.Encode as E
 import Task exposing (Task)

@@ -2,8 +2,8 @@ module Route exposing (CopyDiagramId, IsRemote, Route(..), Title, isViewFile, mo
 
 import Bool.Extra as BoolEx
 import Browser.Navigation as Nav
-import Diagram.Id as DiagramId exposing (DiagramId)
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)

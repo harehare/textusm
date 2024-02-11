@@ -35,9 +35,9 @@ import Css
         , wrap
         , zero
         )
-import Diagram.CardSize as CardSize
-import Diagram.Location as DiagramLocation
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select

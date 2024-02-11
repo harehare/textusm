@@ -21,7 +21,7 @@ import Css
         , solid
         , transparent
         )
-import Diagram.Type as DiagramType exposing (DiagramType(..))
+import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attr
 import Route

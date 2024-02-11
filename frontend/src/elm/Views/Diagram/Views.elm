@@ -24,7 +24,7 @@ import Css
         , transparent
         , zero
         )
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.Settings as DiagramSettings
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)

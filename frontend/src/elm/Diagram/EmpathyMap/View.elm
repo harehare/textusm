@@ -1,10 +1,10 @@
 module Diagram.EmpathyMap.View exposing (docs, view)
 
 import Constants
-import Diagram.Data as DiagramData
-import Diagram.EmpathyMap.Model as EmpathyMap exposing (EmpathyMapItem(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.EmpathyMap.Types as EmpathyMap exposing (EmpathyMapItem(..))
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)

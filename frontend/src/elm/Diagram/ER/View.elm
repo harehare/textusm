@@ -17,10 +17,10 @@ import Css
         , rem
         , spaceBetween
         )
-import Diagram.Data as DiagramData
-import Diagram.ER.Model as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.ER.Types as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import Dict exposing (Dict)
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html

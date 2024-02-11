@@ -12,11 +12,11 @@ module Api.Graphql.Query exposing
     )
 
 import Api.Graphql.Selection as Selection
-import Diagram.Id as DiagramId
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.ShareCondition

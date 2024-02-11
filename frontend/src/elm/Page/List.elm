@@ -79,9 +79,9 @@ import Css
         )
 import Css.Global exposing (descendants, typeSelector)
 import Css.Transitions as Transitions
-import Diagram.Id as DiagramId exposing (DiagramId)
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download

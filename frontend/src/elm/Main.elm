@@ -16,12 +16,12 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Css exposing (backgroundColor, calc, displayFlex, height, hidden, minus, overflow, position, px, relative, vh, width)
-import Diagram.Id as DiagramId
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation exposing (Location)
-import Diagram.Scale as Scale exposing (Scale)
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType exposing (DiagramType(..))
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation exposing (Location)
+import Diagram.Types.Scale as Scale exposing (Scale)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
@@ -46,7 +46,6 @@ import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProvider
 import Models.Model as M exposing (Model, Msg)
 import Models.Notification as Notification
-import Models.Page as Page exposing (Page)
 import Models.Session as Session
 import Models.Settings as Settings
     exposing
@@ -70,6 +69,7 @@ import Page.List.DiagramList as DiagramListModel
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
+import Page.Types as Page exposing (Page)
 import Ports
 import Return exposing (Return)
 import Route exposing (Route(..), toRoute)

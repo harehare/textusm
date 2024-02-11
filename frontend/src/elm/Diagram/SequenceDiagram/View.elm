@@ -1,11 +1,11 @@
 module Diagram.SequenceDiagram.View exposing (docs, view)
 
 import Constants
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.SequenceDiagram.Model as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.SequenceDiagram.Types as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx

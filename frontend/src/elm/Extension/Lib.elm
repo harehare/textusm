@@ -3,11 +3,11 @@ module Extension.Lib exposing (InitData, Model, Msg, main)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.Search as Search
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Search as Search
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)

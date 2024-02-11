@@ -1,11 +1,11 @@
 module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
 
 import Constants
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Settings as DiagramSettings
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
-import Diagram.CardSize as CardSize
-import Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)

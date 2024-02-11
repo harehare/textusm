@@ -17,9 +17,9 @@ import Css
         , relative
         , rem
         )
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation exposing (Location)
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation exposing (Location)
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Env

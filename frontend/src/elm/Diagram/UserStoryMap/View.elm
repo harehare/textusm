@@ -2,11 +2,11 @@ module Diagram.UserStoryMap.View exposing (docs, view)
 
 import Bool.Extra as BoolEx
 import Constants
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
-import Diagram.UserStoryMap.Model as UserStoryMap exposing (CountPerTasks, UserStoryMap)
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
+import Diagram.UserStoryMap.Types as UserStoryMap exposing (CountPerTasks, UserStoryMap)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html

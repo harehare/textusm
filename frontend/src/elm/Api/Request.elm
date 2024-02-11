@@ -24,10 +24,10 @@ import Api.External.Github.Request as GithubRequest exposing (AccessToken)
 import Api.Graphql.Mutation as Mutation
 import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
-import Diagram.Id as DiagramId exposing (DiagramId)
-import Diagram.Item exposing (DiagramItem)
-import Diagram.Settings as DiagramSettings
-import Diagram.Type exposing (DiagramType)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Item exposing (DiagramItem)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type exposing (DiagramType)
 import Dict
 import Env
 import Graphql.Http as Http

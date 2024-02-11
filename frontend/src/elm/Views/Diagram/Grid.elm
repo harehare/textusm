@@ -1,8 +1,8 @@
 module Views.Diagram.Grid exposing (view)
 
 import Css exposing (backgroundColor)
-import Diagram.CardSize as CardSize
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Settings as DiagramSettings
 import Events
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)

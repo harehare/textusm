@@ -9,9 +9,9 @@ module Api.Graphql.Mutation exposing
     )
 
 import Api.Graphql.Selection as Selection
-import Diagram.Item exposing (DiagramItem)
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Item exposing (DiagramItem)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, InputShareItem)
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)

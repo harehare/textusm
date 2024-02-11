@@ -38,47 +38,47 @@ import Css
         , width
         )
 import Css.Global as Global exposing (global)
-import Diagram.BackgroundImage as BackgroundImage
-import Diagram.BusinessModelCanvas.Model as BusinessModelCanvasModel
+import Diagram.BusinessModelCanvas.Types as BusinessModelCanvasModel
 import Diagram.BusinessModelCanvas.View as BusinessModelCanvas
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.ER.Model as ErDiagramModel
+import Diagram.ER.Types as ErDiagramModel
 import Diagram.ER.View as ER
-import Diagram.EmpathyMap.Model as EmpathyMapModel
+import Diagram.EmpathyMap.Types as EmpathyMapModel
 import Diagram.EmpathyMap.View as EmpathyMap
-import Diagram.FourLs.Model as FourLsModel
+import Diagram.FourLs.Types as FourLsModel
 import Diagram.FourLs.View as FourLs
-import Diagram.FreeForm.Model as FreeFormModel
+import Diagram.FreeForm.Types as FreeFormModel
 import Diagram.FreeForm.View as FreeForm
-import Diagram.GanttChart.Model as GanttChartModel
+import Diagram.GanttChart.Types as GanttChartModel
 import Diagram.GanttChart.View as GanttChart
-import Diagram.Kanban.Model as KanbanModel
+import Diagram.Kanban.Types as KanbanModel
 import Diagram.Kanban.View as Kanban
-import Diagram.KeyboardLayout.Model as KeyboardLayout
+import Diagram.KeyboardLayout.Types as KeyboardLayout
 import Diagram.KeyboardLayout.View as KeyboardLayout
-import Diagram.Kpt.Model as KptModel
+import Diagram.Kpt.Types as KptModel
 import Diagram.Kpt.View as Kpt
 import Diagram.MindMap.View as MindMap
-import Diagram.OpportunityCanvas.Model as OpportunityCanvasModel
+import Diagram.OpportunityCanvas.Types as OpportunityCanvasModel
 import Diagram.OpportunityCanvas.View as OpportunityCanvas
-import Diagram.Scale as Scale exposing (Scale)
-import Diagram.Search as SearchModel
-import Diagram.SequenceDiagram.Model as SequenceDiagramModel
+import Diagram.SequenceDiagram.Types as SequenceDiagramModel
 import Diagram.SequenceDiagram.View as SequenceDiagram
-import Diagram.Settings as DiagramSettings
-import Diagram.SiteMap.Model as SiteMap
+import Diagram.SiteMap.Types as SiteMap
 import Diagram.SiteMap.View as SiteMap
-import Diagram.StartStopContinue.Model as StartStopContinueModel
+import Diagram.StartStopContinue.Types as StartStopContinueModel
 import Diagram.StartStopContinue.View as StartStopContinue
-import Diagram.Table.Model as TableModel
+import Diagram.Table.Types as TableModel
 import Diagram.Table.View as Table
-import Diagram.Type exposing (DiagramType(..))
-import Diagram.UseCaseDiagram.Model as UseCaseDiagramModel
+import Diagram.Types.BackgroundImage as BackgroundImage
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Scale as Scale exposing (Scale)
+import Diagram.Types.Search as SearchModel
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type exposing (DiagramType(..))
+import Diagram.UseCaseDiagram.Types as UseCaseDiagramModel
 import Diagram.UseCaseDiagram.View as UseCaseDiagram
-import Diagram.UserPersona.Model as UserPersonaModel
+import Diagram.UserPersona.Types as UserPersonaModel
 import Diagram.UserPersona.View as UserPersona
-import Diagram.UserStoryMap.Model as UserStoryMapModel
+import Diagram.UserStoryMap.Types as UserStoryMapModel
 import Diagram.UserStoryMap.View as UserStoryMap
 import Events
 import Events.Wheel as Wheel

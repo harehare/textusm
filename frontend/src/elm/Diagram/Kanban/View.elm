@@ -1,11 +1,11 @@
 module Diagram.Kanban.View exposing (docs, view)
 
 import Constants
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.Kanban.Model as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.Kanban.Types as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Color as Color

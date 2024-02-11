@@ -28,7 +28,7 @@ module Models.Property exposing
     , getZoomControl
     )
 
-import Diagram.BackgroundImage as BgImage
+import Diagram.Types.BackgroundImage as BgImage
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
 import Models.FontSize as FontSize exposing (FontSize)

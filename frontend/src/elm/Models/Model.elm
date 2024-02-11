@@ -11,9 +11,9 @@ import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
-import Diagram.Item exposing (DiagramItem)
-import Diagram.Settings as DiagramSettings
-import Diagram.Type exposing (DiagramType)
+import Diagram.Types.Item exposing (DiagramItem)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type exposing (DiagramType)
 import Dialog.Share as Share
 import Json.Decode as D
 import Message exposing (Lang, Message)
@@ -23,7 +23,6 @@ import Models.Export.Diagram exposing (Export)
 import Models.Hotkey exposing (Hotkey)
 import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
-import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
@@ -33,6 +32,7 @@ import Models.Window exposing (Window)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
+import Page.Types exposing (Page)
 import Route exposing (Route)
 import Url
 

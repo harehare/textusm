@@ -38,8 +38,8 @@ import Css
         , translateY
         , width
         )
-import Diagram.Id as DiagramId exposing (DiagramId)
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Env
 import Events
 import Html.Styled as Html exposing (Html)

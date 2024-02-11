@@ -6,10 +6,10 @@ module Effect.Settings exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Diagram.CardSize as CardSize
-import Diagram.Scale as Scale
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType exposing (DiagramType)
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Graphql.OptionalArgument as OptionalArgument
 import Models.Color as Color
 import Models.Session as Session exposing (Session)

@@ -36,7 +36,7 @@ import Css
         , zIndex
         , zero
         )
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events

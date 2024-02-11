@@ -6,13 +6,13 @@ module Api.Graphql.Selection exposing
     , settingsSelection
     )
 
-import Diagram.CardSize as CardSize
-import Diagram.Id as DiagramId
-import Diagram.Item as DiagramItem exposing (DiagramItem)
-import Diagram.Location as DiagramLocation
-import Diagram.Scale as Scale
-import Diagram.Settings as DiagramSettings
-import Diagram.Type as DiagramType
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import Graphql.Object
 import Graphql.Object.Color
 import Graphql.Object.GistItem

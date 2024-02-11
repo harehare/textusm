@@ -1,6 +1,6 @@
 module Views.Diagram.Text exposing (view)
 
-import Diagram.Settings as DiagramSettings
+import Diagram.Types.Settings as DiagramSettings
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Item as Item exposing (Item)

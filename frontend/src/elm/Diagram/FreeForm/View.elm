@@ -1,10 +1,10 @@
 module Diagram.FreeForm.View exposing (docs, view)
 
 import Constants
-import Diagram.CardSize as CardSize
-import Diagram.Data as DiagramData
-import Diagram.FreeForm.Model as FreeForm exposing (FreeFormItem)
-import Diagram.Settings as DiagramSettings
+import Diagram.FreeForm.Types as FreeForm exposing (FreeFormItem)
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Models.Diagram as Diagram exposing (MoveState, SelectedItem, SelectedItemInfo)
