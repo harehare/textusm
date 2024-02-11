@@ -23,8 +23,8 @@ import Constants
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Dict exposing (Dict)
-import Models.Item as Item exposing (Item, Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Item, Items)
+import Types.Size exposing (Size)
 
 
 type alias AltMessage =

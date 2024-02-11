@@ -34,13 +34,13 @@ import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
-import Models.Duration as Duration exposing (Duration)
-import Models.Email as Email exposing (Email)
-import Models.IdToken as IdToken exposing (IdToken)
-import Models.IpAddress as IpAddress exposing (IpAddress)
-import Models.Text as Text
-import Models.Title as Title
 import Task exposing (Task)
+import Types.Duration as Duration exposing (Duration)
+import Types.Email as Email exposing (Email)
+import Types.IdToken as IdToken exposing (IdToken)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 import Url.Builder exposing (crossOrigin)
 
 

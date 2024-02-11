@@ -2,8 +2,8 @@ module Diagram.FourLs.Types exposing (FourLs, FourLsItem(..), from, size)
 
 import Constants
 import Diagram.Types.Settings as DiagramSettings
-import Models.Item as Item exposing (Item, Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Item, Items)
+import Types.Size exposing (Size)
 import Utils.Utils as Utils
 
 

@@ -30,16 +30,16 @@ import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
-import Models.Color as Color exposing (Color)
-import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item as Item exposing (Item)
-import Models.Position as Position exposing (Position)
-import Models.Property exposing (Property)
-import Models.Size as Size exposing (Size)
 import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color exposing (Color)
+import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item as Item exposing (Item)
+import Types.Position as Position exposing (Position)
+import Types.Property exposing (Property)
+import Types.Size as Size exposing (Size)
 
 
 type alias DragStart msg =

@@ -95,10 +95,6 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra as ListEx
 import Message exposing (Lang)
-import Models.Color as Color
-import Models.Dialog as Dialog
-import Models.Session as Session exposing (Session)
-import Models.Title as Title
 import Monocle.Lens exposing (Lens)
 import Ordering exposing (Ordering)
 import Page.List.DiagramList as DiagramList exposing (DiagramList)
@@ -112,6 +108,10 @@ import Style.Style as Style
 import Style.Text as TextStyle
 import Task
 import Time exposing (Zone)
+import Types.Color as Color
+import Dialog.Types as Dialog
+import Types.Session as Session exposing (Session)
+import Types.Title as Title
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty

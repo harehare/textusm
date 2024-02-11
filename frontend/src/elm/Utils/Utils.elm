@@ -10,9 +10,9 @@ import Constants
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Http exposing (Error(..))
-import Models.Item as Item exposing (Items)
 import Process
 import Task
+import Types.Item as Item exposing (Items)
 
 
 calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float

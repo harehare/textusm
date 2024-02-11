@@ -10,17 +10,17 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
-import Models.Color as Color exposing (Color)
-import Models.FontSize as FontSize
-import Models.Item as Item
-import Models.Position exposing (Position)
-import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple
+import Types.Color as Color exposing (Color)
+import Types.FontSize as FontSize
+import Types.Item as Item
+import Types.Position exposing (Position)
+import Types.Size exposing (Size)
 import Utils.Date as DateUtils
 
 

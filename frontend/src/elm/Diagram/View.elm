@@ -80,15 +80,15 @@ import Json.Decode as D
 import List
 import List.Extra as ListEx
 import Maybe
-import Models.Color as Color
-import Models.Item as Item
-import Models.Position as Position exposing (Position)
-import Models.Property as Property
-import Models.Size as Size exposing (Size)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Events exposing (onClick)
+import Types.Color as Color
+import Types.Item as Item
+import Types.Position as Position exposing (Position)
+import Types.Property as Property
+import Types.Size as Size exposing (Size)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon

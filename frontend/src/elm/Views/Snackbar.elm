@@ -30,12 +30,12 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
-import Models.Snackbar as Snackbar
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
 import Style.Text as Text
+import Types.Snackbar as Snackbar
 import Views.Empty as Empty
 
 

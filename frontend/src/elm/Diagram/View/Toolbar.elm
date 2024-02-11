@@ -36,13 +36,13 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
-import Models.Color as Color exposing (Color)
-import Models.Item as Item exposing (Item)
-import Models.Item.Settings as ItemSettings
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
+import Types.Color as Color exposing (Color)
+import Types.Item as Item exposing (Item)
+import Types.Item.Settings as ItemSettings
 
 
 type alias ClickEvent msg =

@@ -11,15 +11,15 @@ import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
-import Models.Color exposing (Color)
-import Models.Item as Item exposing (Item, Items)
-import Models.Item.Settings as ItemSettings
-import Models.Position as Position exposing (Position)
-import Models.Property as Property exposing (Property)
-import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
+import Types.Color exposing (Color)
+import Types.Item as Item exposing (Item, Items)
+import Types.Item.Settings as ItemSettings
+import Types.Position as Position exposing (Position)
+import Types.Property as Property exposing (Property)
+import Types.Size exposing (Size)
 import Views.Empty as Empty
 
 

@@ -25,10 +25,10 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import Models.Email as Email exposing (Email)
-import Models.IpAddress as IpAddress exposing (IpAddress)
-import Models.Text as Text
-import Models.Title as Title
+import Types.Email as Email exposing (Email)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 
 
 type alias ShareCondition =

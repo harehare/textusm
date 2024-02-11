@@ -44,11 +44,11 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
-import Models.Color as Color exposing (Color)
-import Models.Property as Property exposing (Property)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
+import Types.Color as Color exposing (Color)
+import Types.Property as Property exposing (Property)
 
 
 type alias ColorSetting =

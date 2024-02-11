@@ -5,14 +5,14 @@ import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Views as Views
 import Events
-import Models.Color as Color exposing (Color)
-import Models.Item as Item exposing (Item)
-import Models.Item.Settings as ItemSettings
-import Models.Position as Position exposing (Position)
-import Models.Size as Size exposing (Size)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color exposing (Color)
+import Types.Item as Item exposing (Item)
+import Types.Item.Settings as ItemSettings
+import Types.Position as Position exposing (Position)
+import Types.Size as Size exposing (Size)
 
 
 horizontal :

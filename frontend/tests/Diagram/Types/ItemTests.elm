@@ -4,8 +4,8 @@ import Diagram.Types.Item as DiagramItem
 import Expect
 import Json.Decode as D
 import Json.Encode as E
-import Models.Fuzzer exposing (diagramItemFuzzer)
 import Test exposing (Test, fuzz)
+import Types.Fuzzer exposing (diagramItemFuzzer)
 
 
 suite : Test

@@ -48,11 +48,6 @@ import Json.Decode as D
 import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
-import Models.Color as Color exposing (colors)
-import Models.FontSize as FontSize
-import Models.Session as Session exposing (Session)
-import Models.Settings as Settings exposing (Settings)
-import Models.Theme as Theme
 import Return
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
@@ -60,6 +55,11 @@ import Style.Font as FontStyle
 import Style.Style as Style
 import Style.Text as Text
 import Task
+import Types.Color as Color exposing (colors)
+import Types.FontSize as FontSize
+import Types.Session as Session exposing (Session)
+import Types.Settings as Settings exposing (Settings)
+import Types.Theme as Theme
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Icon as Icon
 import Views.Switch as Switch

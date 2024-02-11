@@ -17,11 +17,11 @@ import Constants
 import List
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
-import Models.Item as Item exposing (Item, Items)
-import Models.Size exposing (Size)
-import Models.Title as Title exposing (Title)
 import Time exposing (Month(..), Posix, Zone)
 import Time.Extra as TimeEx exposing (Interval(..))
+import Types.Item as Item exposing (Item, Items)
+import Types.Size exposing (Size)
+import Types.Title as Title exposing (Title)
 import Utils.Date as DateUtils
 
 

@@ -17,10 +17,10 @@ import Diagram.View as Diagram
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
-import Models.Color as Color
-import Models.Model exposing (Model, Msg(..))
 import Style.Color as Color
 import Style.Style as Style
+import Types exposing (Model, Msg(..))
+import Types.Color as Color
 import Views.Logo as Logo
 
 

@@ -31,14 +31,14 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
-import Models.Color as Color
-import Models.Item as Item
-import Models.Position as Position exposing (Position, getX, getY)
-import Models.Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
+import Types.Item as Item
+import Types.Position as Position exposing (Position, getX, getY)
+import Types.Size exposing (Size, getHeight, getWidth)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon

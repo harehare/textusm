@@ -22,9 +22,9 @@ import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
-import Models.Color as Color
-import Models.Text as Text
-import Models.Title as Title
+import Types.Color as Color
+import Types.Text as Text
+import Types.Title as Title
 
 
 allItemsSelection : SelectionSet DiagramItem Graphql.Union.DiagramItem

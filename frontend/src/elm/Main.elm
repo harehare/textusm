@@ -38,31 +38,6 @@ import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
-import Models.Color as Color
-import Models.Dialog as Dialog
-import Models.Export.Diagram as ExportDiagram
-import Models.Hotkey as Hotkey
-import Models.IdToken as IdToken
-import Models.Jwt as Jwt
-import Models.LoginProvider as LoginProvider
-import Models.Model as M exposing (Model, Msg)
-import Models.Notification as Notification
-import Models.Session as Session
-import Models.Settings as Settings
-    exposing
-        ( Settings
-        , defaultEditorSettings
-        , defaultSettings
-        )
-import Models.SettingsCache as SettingsCache
-import Models.ShareState as ShareState
-import Models.ShareToken as ShareToken
-import Models.Size as Size exposing (Size)
-import Models.Snackbar as SnackbarModel
-import Models.Text as Text
-import Models.Theme as Theme
-import Models.Title as Title
-import Models.Window as Window exposing (Window)
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
@@ -82,6 +57,31 @@ import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Task
+import Types.Color as Color
+import Dialog.Types as Dialog
+import Types.Export.Diagram as ExportDiagram
+import Types.Hotkey as Hotkey
+import Types.IdToken as IdToken
+import Types.Jwt as Jwt
+import Types.LoginProvider as LoginProvider
+import Types as M exposing (Model, Msg)
+import Types.Notification as Notification
+import Types.Session as Session
+import Types.Settings as Settings
+    exposing
+        ( Settings
+        , defaultEditorSettings
+        , defaultSettings
+        )
+import Types.SettingsCache as SettingsCache
+import Types.ShareState as ShareState
+import Types.ShareToken as ShareToken
+import Types.Size as Size exposing (Size)
+import Types.Snackbar as SnackbarModel
+import Types.Text as Text
+import Types.Theme as Theme
+import Types.Title as Title
+import Types.Window as Window exposing (Window)
 import Url
 import Utils.Utils as Utils
 import Views.Empty as Empty

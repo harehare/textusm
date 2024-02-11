@@ -4,8 +4,8 @@ import Diagram.KeyboardLayout.Types as KeyboardLayout
 import Diagram.KeyboardLayout.Types.Key as Key
 import Diagram.KeyboardLayout.Types.Unit as Unit
 import Expect
-import Models.Item as Item
 import Test exposing (Test, describe, test)
+import Types.Item as Item
 
 
 suite : Test

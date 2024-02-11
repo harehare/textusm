@@ -16,10 +16,10 @@ import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Dict
 import List.Extra exposing (scanl)
-import Models.Item as Item exposing (Items)
-import Models.Property as Property exposing (Property)
-import Models.Size exposing (Size)
 import State exposing (Step(..))
+import Types.Item as Item exposing (Items)
+import Types.Property as Property exposing (Property)
+import Types.Size exposing (Size)
 
 
 type alias CountPerTasks =

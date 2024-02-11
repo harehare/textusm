@@ -17,15 +17,15 @@ import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Diagram.Types.Location as DiagramLocation
 import Diagram.Types.Type as DiagramType
-import Models.LoginProvider as LoginProvider
-import Models.Session as Session exposing (Session)
-import Models.Settings as Settings
-import Models.ShareToken as ShareToken exposing (ShareToken)
-import Models.Text as Text
-import Models.Title as Title
 import Ports
 import Return
 import Task
+import Types.LoginProvider as LoginProvider
+import Types.Session as Session exposing (Session)
+import Types.Settings as Settings
+import Types.ShareToken as ShareToken exposing (ShareToken)
+import Types.Text as Text
+import Types.Title as Title
 
 
 loadFromLocal : DiagramId -> Return.ReturnF msg model

@@ -2,6 +2,7 @@ module Diagram.FourLs.View exposing (docs, view)
 
 import Constants
 import Diagram.FourLs.Types as FourLs exposing (FourLsItem(..))
+import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
@@ -9,12 +10,11 @@ import Diagram.View.Canvas as Canvas
 import Diagram.View.Views as Views
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
-import Models.Item as Item exposing (Item, Items)
-import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
+import Types.Item as Item exposing (Item, Items)
+import Types.Property as Property exposing (Property)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 

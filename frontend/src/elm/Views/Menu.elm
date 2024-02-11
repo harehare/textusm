@@ -60,13 +60,6 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
 import Message exposing (Lang)
-import Models.Color as Color
-import Models.Export.Diagram as ExportDiagram
-import Models.FileType as FileType
-import Models.Model exposing (BrowserStatus, Menu(..))
-import Models.Settings as Settings exposing (Settings)
-import Models.Text as Text exposing (Text)
-import Models.Theme as Theme
 import Page.Types as Page
 import Route exposing (Route)
 import Style.Breakpoint as Breakpoint
@@ -75,6 +68,13 @@ import Style.Font as FontStyle
 import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
+import Types.Color as Color
+import Types.Export.Diagram as ExportDiagram
+import Types.FileType as FileType
+import Types exposing (BrowserStatus, Menu(..))
+import Types.Settings as Settings exposing (Settings)
+import Types.Text as Text exposing (Text)
+import Types.Theme as Theme
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon

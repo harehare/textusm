@@ -9,9 +9,9 @@ module Diagram.FreeForm.Types exposing
 
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Models.Item as Item exposing (Item, Items)
-import Models.Item.Settings as ItemSettings
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Item, Items)
+import Types.Item.Settings as ItemSettings
+import Types.Size exposing (Size)
 
 
 type FreeForm

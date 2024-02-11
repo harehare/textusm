@@ -27,12 +27,12 @@ import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
-import Models.Color as Color
-import Models.Session as Session exposing (Session)
 import Style.Color as ColorStyle
 import Style.Font as Font
 import Style.Style as Style
 import Style.Text as Text
+import Types.Color as Color
+import Types.Session as Session exposing (Session)
 import Views.Icon as Icon
 
 

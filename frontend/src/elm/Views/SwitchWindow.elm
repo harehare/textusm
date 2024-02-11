@@ -6,11 +6,11 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
-import Models.Color as Color
-import Models.Window as Window exposing (Window)
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Style as Style
+import Types.Color as Color
+import Types.Window as Window exposing (Window)
 import Views.Empty as Empty
 import Views.Icon as Icon
 

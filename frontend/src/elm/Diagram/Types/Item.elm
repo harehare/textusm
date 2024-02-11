@@ -33,11 +33,11 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
-import Models.Session as Session exposing (Session)
-import Models.Text as Text exposing (Text)
-import Models.Title as Title exposing (Title)
 import Monocle.Lens exposing (Lens)
 import Time exposing (Posix)
+import Types.Session as Session exposing (Session)
+import Types.Text as Text exposing (Text)
+import Types.Title as Title exposing (Title)
 
 
 type alias DiagramItem =

@@ -2,8 +2,8 @@ module Diagram.Types.TypeTests exposing (suite)
 
 import Diagram.Types.Type exposing (fromString, toString)
 import Expect
-import Models.Fuzzer exposing (diagramTypeFuzzer)
 import Test exposing (Test, describe, fuzz)
+import Types.Fuzzer exposing (diagramTypeFuzzer)
 
 
 suite : Test

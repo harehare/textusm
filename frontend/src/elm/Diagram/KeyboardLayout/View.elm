@@ -15,14 +15,14 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import List.Extra as ListEx
-import Models.Color as Color
-import Models.FontSize as FontSize
-import Models.Item as Item exposing (Item)
-import Models.Property as Property exposing (Property)
 import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
+import Types.FontSize as FontSize
+import Types.Item as Item exposing (Item)
+import Types.Property as Property exposing (Property)
 import Views.Empty as Empty
 
 

@@ -13,8 +13,8 @@ module Diagram.KeyboardLayout.Types exposing
 import Diagram.KeyboardLayout.Types.Key as Key exposing (Key)
 import Diagram.KeyboardLayout.Types.Unit as Unit exposing (Unit)
 import List.Extra as ListEx
-import Models.Item as Item exposing (Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Items)
+import Types.Size exposing (Size)
 
 
 type KeyboardLayout

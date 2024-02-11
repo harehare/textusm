@@ -4,7 +4,7 @@ import Bool.Extra as BoolEx
 import Browser.Navigation as Nav
 import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
-import Models.ShareToken as ShareToken exposing (ShareToken)
+import Types.ShareToken as ShareToken exposing (ShareToken)
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, parse, s, string)

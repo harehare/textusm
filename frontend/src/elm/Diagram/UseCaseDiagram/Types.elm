@@ -16,8 +16,8 @@ module Diagram.UseCaseDiagram.Types exposing
 import Dict exposing (Dict)
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
-import Models.Item as Item exposing (Item, Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Item, Items)
+import Types.Size exposing (Size)
 
 
 type Actor

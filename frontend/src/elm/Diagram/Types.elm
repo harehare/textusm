@@ -56,17 +56,17 @@ import Events
 import Events.Wheel as Wheel
 import File exposing (File)
 import List.Extra exposing (getAt)
-import Models.Color as Color
-import Models.FontSize exposing (FontSize)
-import Models.FontStyle exposing (FontStyle)
-import Models.Item exposing (Item, Items)
-import Models.Position exposing (Position)
-import Models.Property exposing (Property)
-import Models.Size exposing (Size)
-import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Svg.Styled as Svg
+import Types.Color as Color
+import Types.FontSize exposing (FontSize)
+import Types.FontStyle exposing (FontStyle)
+import Types.Item exposing (Item, Items)
+import Types.Position exposing (Position)
+import Types.Property exposing (Property)
+import Types.Size exposing (Size)
+import Types.Text exposing (Text)
 import Utils.Utils as Utils
 
 

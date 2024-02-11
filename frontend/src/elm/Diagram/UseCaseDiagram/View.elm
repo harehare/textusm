@@ -21,15 +21,15 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
-import Models.Color as Color
-import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item as Item exposing (Item)
-import Models.Position as Position exposing (Position)
-import Models.Property as Property exposing (Property)
 import Set exposing (Set)
 import State exposing (Step(..))
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
+import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item as Item exposing (Item)
+import Types.Position as Position exposing (Position)
+import Types.Property as Property exposing (Property)
 import Views.Empty as Empty
 
 

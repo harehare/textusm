@@ -1,9 +1,9 @@
 module Diagram.View.Path exposing (Position, Size, docs, view)
 
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Color as Color exposing (Color)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color exposing (Color)
 
 
 type alias Position =

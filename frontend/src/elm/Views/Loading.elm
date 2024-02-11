@@ -4,10 +4,10 @@ import Css exposing (scale, transform)
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
-import Models.Color as Color
 import Style.Color as ColorStyle
 import Svg.Styled as Svg
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
 
 
 view : Html msg

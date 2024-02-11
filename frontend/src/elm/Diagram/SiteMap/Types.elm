@@ -3,8 +3,8 @@ module Diagram.SiteMap.Types exposing (size)
 import Constants
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Models.Item as Item exposing (Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Items)
+import Types.Size exposing (Size)
 
 
 size : DiagramSettings.Settings -> Items -> Int -> Size

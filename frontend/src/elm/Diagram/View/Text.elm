@@ -4,12 +4,12 @@ import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Card as Card
 import Diagram.View.Views as Views
-import Models.Color as Color
-import Models.Item as Item exposing (Item)
-import Models.Item.Settings as ItemSettings
-import Models.Position exposing (Position)
-import Models.Property exposing (Property)
 import Svg.Styled exposing (Svg)
+import Types.Color as Color
+import Types.Item as Item exposing (Item)
+import Types.Item.Settings as ItemSettings
+import Types.Position exposing (Position)
+import Types.Property exposing (Property)
 
 
 view :

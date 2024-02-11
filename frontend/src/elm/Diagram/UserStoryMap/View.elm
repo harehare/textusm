@@ -16,16 +16,16 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
-import Models.Color as Color
-import Models.Item as Item exposing (Item, Items)
-import Models.Position as Position exposing (Position)
-import Models.Property as Property exposing (Property)
-import Models.Size as Size
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
+import Types.Color as Color
+import Types.Item as Item exposing (Item, Items)
+import Types.Position as Position exposing (Position)
+import Types.Property as Property exposing (Property)
+import Types.Size as Size
 import Views.Empty as Empty
 
 

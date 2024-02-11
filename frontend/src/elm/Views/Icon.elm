@@ -47,9 +47,9 @@ module Views.Icon exposing
 <https://creativecommons.org/licenses/by/4.0/>
 -}
 
-import Models.Color as Color exposing (Color)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as Attr
+import Types.Color as Color exposing (Color)
 
 
 add : Int -> Svg msg

@@ -17,12 +17,12 @@ import Browser.Dom as Dom exposing (Viewport)
 import Browser.Navigation as Nav
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Message exposing (Message)
-import Models.LoginProvider as LoginProvider
-import Models.Session as Session exposing (Session)
-import Models.Window as Window exposing (Window)
 import Ports
 import Return
 import Task
+import Types.LoginProvider as LoginProvider
+import Types.Session as Session exposing (Session)
+import Types.Window as Window exposing (Window)
 
 
 changePublicState : (Result DiagramItem DiagramItem -> msg) -> { isPublic : Bool, item : DiagramItem, session : Session } -> Return.ReturnF msg model

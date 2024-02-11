@@ -7,14 +7,14 @@ import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Card as Card
 import Diagram.View.Views as Views
 import Events
-import Models.Color as Color
-import Models.FontSize as FontSize
-import Models.Item as Item exposing (Item)
-import Models.Position exposing (Position)
-import Models.Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
+import Types.FontSize as FontSize
+import Types.Item as Item exposing (Item)
+import Types.Position exposing (Position)
+import Types.Property exposing (Property)
 
 
 view :

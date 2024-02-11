@@ -15,12 +15,12 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Json.Encode as E
-import Models.Color as Color exposing (Color)
-import Models.Item as Item
-import Models.Property as Property
-import Models.Text as Text
 import Return
 import Task
+import Types.Color as Color exposing (Color)
+import Types.Item as Item
+import Types.Property as Property
+import Types.Text as Text
 
 
 

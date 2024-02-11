@@ -53,12 +53,6 @@ import Html.Styled.Events as Events
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
-import Models.Color as Color
-import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
-import Models.Model exposing (Menu(..))
-import Models.Session as Session exposing (Session)
-import Models.Text as Text exposing (Text)
-import Models.Title as Title
 import Page.Types as Page exposing (Page)
 import Route exposing (Route(..))
 import Style.Breakpoint as Breakpoint
@@ -67,6 +61,12 @@ import Style.Font as Font
 import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as Text
+import Types.Color as Color
+import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
+import Types exposing (Menu(..))
+import Types.Session as Session exposing (Session)
+import Types.Text as Text exposing (Text)
+import Types.Title as Title
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu

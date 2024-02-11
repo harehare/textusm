@@ -34,10 +34,10 @@ import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import Json.Decode as D
-import Models.Color as Color
-import Models.Window as Window exposing (Window)
 import Style.Color as Color
 import Style.Style as Style
+import Types.Color as Color
+import Types.Window as Window exposing (Window)
 import Views.Icon as Icon
 
 

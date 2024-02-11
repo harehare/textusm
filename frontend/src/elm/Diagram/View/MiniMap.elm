@@ -33,12 +33,12 @@ import Events
 import Events.Wheel as Wheel
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
-import Models.Color as Color
-import Models.Position as Position exposing (Position)
-import Models.Size as Size exposing (Size)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Types.Color as Color
+import Types.Position as Position exposing (Position)
+import Types.Size as Size exposing (Size)
 
 
 view :

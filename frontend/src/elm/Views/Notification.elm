@@ -26,12 +26,12 @@ import Css.Transitions as Transitions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
-import Models.Color as Color
-import Models.Notification as Notification
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Style as Style
 import Style.Text as Text
+import Types.Color as Color
+import Types.Notification as Notification
 import Views.Icon as Icon
 
 

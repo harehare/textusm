@@ -2,8 +2,8 @@ module Diagram.UserStoryMap.TypesTests exposing (suite)
 
 import Diagram.UserStoryMap.Types as UserStoryMap
 import Expect
-import Models.Item as Item
 import Test exposing (Test, describe, test)
+import Types.Item as Item
 
 
 suite : Test

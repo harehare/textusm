@@ -25,9 +25,9 @@ import Dict exposing (Dict)
 import Dict.Extra exposing (find)
 import List.Extra as ListEx exposing (getAt)
 import Maybe.Extra exposing (isJust)
-import Models.Item as Item exposing (Item, Items)
-import Models.Position as Position exposing (Position)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Item, Items)
+import Types.Position as Position exposing (Position)
+import Types.Size exposing (Size)
 
 
 type Attribute

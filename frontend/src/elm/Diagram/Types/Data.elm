@@ -16,7 +16,7 @@ import Diagram.Table.Types exposing (Table)
 import Diagram.UseCaseDiagram.Types exposing (UseCaseDiagram)
 import Diagram.UserPersona.Types exposing (UserPersona)
 import Diagram.UserStoryMap.Types exposing (UserStoryMap)
-import Models.Item exposing (Items)
+import Types.Item exposing (Items)
 
 
 type Data

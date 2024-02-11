@@ -10,13 +10,13 @@ import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Diagram.View exposing (view)
 import Expect
 import Html.Styled
-import Models.Color as Color
-import Models.Item as Item
-import Models.Position as Position
 import Return
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, text)
+import Types.Color as Color
+import Types.Item as Item
+import Types.Position as Position
 
 
 businessModelCanvasRenderTest : Test

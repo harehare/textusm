@@ -24,10 +24,10 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (autofocus, css, id, placeholder, value)
 import Html.Styled.Events as Events
-import Models.Color as Color
 import Style.Color as ColorStyle
 import Style.Style as Style
 import Style.Text as TextStyle
+import Types.Color as Color
 import Views.Icon as Icon
 
 

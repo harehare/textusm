@@ -9,13 +9,13 @@ import Diagram.Types.Type as DiagramType
 import Diagram.View.Grid as Grid
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Item as Item exposing (Item)
-import Models.Property as Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
+import Types.Item as Item exposing (Item)
+import Types.Property as Property exposing (Property)
 import Views.Empty as Empty
 
 

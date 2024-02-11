@@ -14,13 +14,13 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
-import Models.Color as Color
-import Models.Item as Item
-import Models.Property as Property
-import Models.Size as Size exposing (Size)
-import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
+import Types.Color as Color
+import Types.Item as Item
+import Types.Property as Property
+import Types.Size as Size exposing (Size)
+import Types.Text as Text exposing (Text)
 
 
 

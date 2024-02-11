@@ -29,17 +29,17 @@ import File
 import List
 import List.Extra as ListEx
 import Maybe
-import Models.FontStyle as FontStyle
-import Models.Item as Item exposing (Item, Items)
-import Models.Item.Settings as ItemSettings
-import Models.Item.Value as ItemValue
-import Models.Position as Position exposing (Position)
-import Models.Property as Property
-import Models.Size as Size exposing (Size)
-import Models.Text as Text
 import Ports
 import Return exposing (Return)
 import Task
+import Types.FontStyle as FontStyle
+import Types.Item as Item exposing (Item, Items)
+import Types.Item.Settings as ItemSettings
+import Types.Item.Value as ItemValue
+import Types.Position as Position exposing (Position)
+import Types.Property as Property
+import Types.Size as Size exposing (Size)
+import Types.Text as Text
 
 
 init : DiagramSettings.Settings -> Return Msg Model

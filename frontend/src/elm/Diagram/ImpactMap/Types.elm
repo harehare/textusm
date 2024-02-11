@@ -2,8 +2,8 @@ module Diagram.ImpactMap.Types exposing (size)
 
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Models.Item as Item exposing (Items)
-import Models.Size exposing (Size)
+import Types.Item as Item exposing (Items)
+import Types.Size exposing (Size)
 
 
 size : DiagramSettings.Settings -> Items -> Int -> Size

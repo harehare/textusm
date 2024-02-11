@@ -12,7 +12,7 @@ module Diagram.KeyboardLayout.Types.Key exposing
     )
 
 import Diagram.KeyboardLayout.Types.Unit as Unit exposing (Unit)
-import Models.Item as Item exposing (Item)
+import Types.Item as Item exposing (Item)
 
 
 type alias Legend =
