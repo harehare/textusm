@@ -1,4 +1,4 @@
-module Views.Footer exposing (Props, docs, view)
+module View.Footer exposing (Props, docs, view)
 
 import Css
     exposing
@@ -33,7 +33,7 @@ import Style.Style as Style
 import Style.Text as Text
 import Types.Color as Color
 import Types.Session as Session exposing (Session)
-import Views.Icon as Icon
+import View.Icon as Icon
 
 
 type alias Props msg =

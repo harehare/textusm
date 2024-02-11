@@ -1,4 +1,4 @@
-module Views.Tooltip exposing (docs, view)
+module View.Tooltip exposing (docs, view)
 
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)

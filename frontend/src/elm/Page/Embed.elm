@@ -21,7 +21,7 @@ import Style.Color as Color
 import Style.Style as Style
 import Types exposing (Model, Msg(..))
 import Types.Color as Color
-import Views.Logo as Logo
+import View.Logo as Logo
 
 
 view : Model -> Html Msg

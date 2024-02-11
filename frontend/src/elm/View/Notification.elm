@@ -1,4 +1,4 @@
-module Views.Notification exposing (docs, view)
+module View.Notification exposing (docs, view)
 
 import Css
     exposing
@@ -32,7 +32,7 @@ import Style.Style as Style
 import Style.Text as Text
 import Types.Color as Color
 import Types.Notification as Notification
-import Views.Icon as Icon
+import View.Icon as Icon
 
 
 view : Notification.Notification -> Html msg

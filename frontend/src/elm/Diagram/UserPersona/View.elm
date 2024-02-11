@@ -7,7 +7,7 @@ import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
 import Diagram.UserPersona.Types as UserPersonaModel exposing (UserPersonaItem(..))
 import Diagram.View.Canvas as Canvas
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Svg.Styled as Svg exposing (Svg)
@@ -16,7 +16,7 @@ import Svg.Styled.Lazy as Lazy
 import Types.Item as Item exposing (Item, Items)
 import Types.Property as Property exposing (Property)
 import Utils.Utils as Utils
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -28,7 +28,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, items, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

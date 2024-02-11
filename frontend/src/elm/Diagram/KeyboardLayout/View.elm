@@ -7,7 +7,7 @@ import Diagram.KeyboardLayout.Types.Unit as Unit exposing (Unit)
 import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -23,7 +23,7 @@ import Types.Color as Color
 import Types.FontSize as FontSize
 import Types.Item as Item exposing (Item)
 import Types.Property as Property exposing (Property)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -175,7 +175,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
 
                 ( foreColor, backColor ) =
                     Item.getSettings item
-                        |> Maybe.map (\_ -> Views.getItemColor settings property item)
+                        |> Maybe.map (\_ -> View.getItemColor settings property item)
                         |> Maybe.withDefault
                             ( Maybe.withDefault settings.color.label <| settings.color.text
                             , Color.fromString "#FEFEFE"

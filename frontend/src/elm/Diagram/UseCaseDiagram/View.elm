@@ -30,7 +30,7 @@ import Types.FontSize as FontSize exposing (FontSize)
 import Types.Item as Item exposing (Item)
 import Types.Position as Position exposing (Position)
 import Types.Property as Property exposing (Property)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -90,10 +90,10 @@ view { data, settings, property, onSelect } =
                         )
                         actors
 
-                ( actorMargins, actorViews ) =
+                ( actorMargins, actorView_ ) =
                     actorsView settings property actors
 
-                ( useCasePositions, useCaseViews ) =
+                ( useCasePositions, useCaseView_ ) =
                     useCasesView
                         { settings = settings
                         , basePosition = ( 0, -50 )
@@ -112,7 +112,7 @@ view { data, settings, property, onSelect } =
             in
             Svg.g [] <|
                 arrowView settings
-                    :: (actorLine ++ actorViews ++ useCaseViews)
+                    :: (actorLine ++ actorView_ ++ useCaseView_)
 
         _ ->
             Empty.view

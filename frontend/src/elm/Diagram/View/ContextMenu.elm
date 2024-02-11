@@ -38,7 +38,7 @@ import Css
         )
 import Diagram.Types as Diagram exposing (ContextMenu(..))
 import Diagram.Types.Settings as DiagramSettings
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -54,9 +54,9 @@ import Types.Item as Item exposing (Item)
 import Types.Position as Position exposing (Position)
 import Types.Property as Property exposing (Property)
 import Types.Size exposing (Width)
-import Views.DropDownList as DropDownList exposing (DropDownValue)
-import Views.Empty as Empty
-import Views.Icon as Icon
+import View.DropDownList as DropDownList exposing (DropDownValue)
+import View.Empty as Empty
+import View.Icon as Icon
 
 
 type alias Props msg =
@@ -211,7 +211,7 @@ view width display props =
                         [ Icon.font
                             Color.gray
                             (Item.getForegroundColor props.item
-                                |> Maybe.withDefault (Views.getItemColor props.settings Property.empty props.item |> Tuple.first)
+                                |> Maybe.withDefault (View.getItemColor props.settings Property.empty props.item |> Tuple.first)
                             )
                             18
                         ]
@@ -233,7 +233,7 @@ view width display props =
                     ]
                     [ colorCircle
                         (Item.getBackgroundColor props.item
-                            |> Maybe.withDefault (Views.getItemColor props.settings Property.empty props.item |> Tuple.second)
+                            |> Maybe.withDefault (View.getItemColor props.settings Property.empty props.item |> Tuple.second)
                         )
                         (props.onMenuSelect BackgroundColorSelectMenu)
                     ]

@@ -1,4 +1,4 @@
-module Views.Menu exposing (MenuInfo, MenuItem(..), Props, docs, menu, view)
+module View.Menu exposing (MenuInfo, MenuItem(..), Props, docs, menu, view)
 
 import Attributes
 import Css
@@ -76,8 +76,8 @@ import Types.Settings as Settings exposing (Settings)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
+import View.Empty as Empty
+import View.Icon as Icon
 
 
 type alias MenuInfo msg =

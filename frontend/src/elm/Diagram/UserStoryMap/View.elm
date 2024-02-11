@@ -9,7 +9,7 @@ import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
 import Diagram.UserStoryMap.Types as UserStoryMap exposing (CountPerTasks, UserStoryMap)
 import Diagram.View.Card as Card
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
@@ -26,7 +26,7 @@ import Types.Item as Item exposing (Item, Items)
 import Types.Position as Position exposing (Position)
 import Types.Property as Property exposing (Property)
 import Types.Size as Size
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -38,7 +38,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, diagram, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -80,7 +80,7 @@ mainView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 mainView { settings, property, selectedItem, items, countByTasks, countByReleaseLevel, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -207,7 +207,7 @@ activityView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 activityView { settings, property, verticalCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -265,7 +265,7 @@ taskView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 taskView { settings, property, verticalCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -333,7 +333,7 @@ storyView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> List (Svg msg)
 storyView { settings, property, verticalCount, parentCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

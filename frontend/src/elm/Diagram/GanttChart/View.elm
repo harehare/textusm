@@ -5,7 +5,7 @@ import Diagram.GanttChart.Types as GanttChart exposing (GanttChart(..), Schedule
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
@@ -301,7 +301,7 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , SvgAttr.fill <| Color.toString backgroundColor
             ]
             []
-        , Views.plainText
+        , View.plainText
             { settings = settings
             , position = ( svgWidth, -3 )
             , size = ( textWidth, Constants.ganttItemSize )
@@ -400,7 +400,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , SvgAttr.ry "3"
             ]
             []
-        , Views.plainText
+        , View.plainText
             { settings = settings
             , position = ( svgWidth, -3 )
             , size = ( textWidth, Constants.ganttItemSize )

@@ -10,7 +10,7 @@ import Diagram.View.Canvas as Canvas
 import Diagram.View.Card as Card
 import Diagram.View.Line as Line
 import Diagram.View.Text as TextView
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Svg.Styled as Svg exposing (Svg)
@@ -18,7 +18,7 @@ import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Types.Item as Item exposing (Item, Items)
 import Types.Property as Property exposing (Property)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -31,7 +31,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, items, property, selectedItem, moveState, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -68,7 +68,7 @@ formView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Int
     -> FreeFormItem
@@ -205,7 +205,7 @@ cardView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 cardView { selectedItem, settings, property, moveState, i, item_, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

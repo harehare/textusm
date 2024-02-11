@@ -1,4 +1,4 @@
-module Views.Header exposing (Props, docs, view)
+module View.Header exposing (Props, docs, view)
 
 import Asset
 import Attributes
@@ -67,10 +67,10 @@ import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
 import Types.Title as Title
-import Views.Empty as Empty
-import Views.Icon as Icon
-import Views.Menu as Menu
-import Views.Tooltip as Tooltip
+import View.Empty as Empty
+import View.Icon as Icon
+import View.Menu as Menu
+import View.Tooltip as Tooltip
 
 
 type alias Props msg =

@@ -5,7 +5,7 @@ import Css exposing (backgroundColor, property)
 import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -35,13 +35,13 @@ viewWithDefaultColor :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 viewWithDefaultColor { settings, property, position, selectedItem, item, canMove, dragStart, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( foreColor, backColor ) =
-            Views.getItemColor settings property item
+            View.getItemColor settings property item
     in
     view
         { settings = settings
@@ -75,7 +75,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { settings, property, position, selectedItem, item, canMove, defaultColor, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -206,11 +206,11 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
                             , SvgAttr.style "filter:url(#shadow)"
                             ]
                             []
-                        , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
-                        , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ), dragStart = dragStart }
-                        , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
-                        , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
-                        , Views.inputView
+                        , View.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
+                        , View.resizeCircle { item = item, direction = TopRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ), dragStart = dragStart }
+                        , View.resizeCircle { item = item, direction = BottomRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                        , View.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                        , View.inputView
                             { settings = settings
                             , fontSize = Item.getFontSizeWithProperty item property
                             , position = selectedItemPosition
@@ -264,7 +264,7 @@ text props =
             ]
 
     else if Item.isImage props.item then
-        Views.image { size = props.size, position = props.position, item = props.item }
+        View.image { size = props.size, position = props.position, item = props.item }
 
     else if String.length (Item.getText props.item) > 13 then
         Svg.foreignObject
@@ -300,7 +300,7 @@ text props =
             ]
 
     else
-        Views.plainText
+        View.plainText
             { settings = props.settings
             , position = props.position
             , size = props.size

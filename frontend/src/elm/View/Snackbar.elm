@@ -1,4 +1,4 @@
-module Views.Snackbar exposing (docs, view)
+module View.Snackbar exposing (docs, view)
 
 import Css
     exposing
@@ -36,7 +36,7 @@ import Style.Font as Font
 import Style.Style as Style
 import Style.Text as Text
 import Types.Snackbar as Snackbar
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view : Snackbar.Snackbar msg -> Html msg

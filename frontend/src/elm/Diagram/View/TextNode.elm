@@ -21,7 +21,7 @@ import Css
 import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
@@ -38,14 +38,14 @@ import Types.Property as Property exposing (Property)
 import Types.Size as Size exposing (Size)
 
 
-view : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg, dragStart : Views.DragStart msg } -> Svg msg
+view : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg, dragStart : View.DragStart msg } -> Svg msg
 view { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         view_ : Svg msg
         view_ =
             let
                 ( color, _ ) =
-                    Views.getItemColor settings property item
+                    View.getItemColor settings property item
 
                 ( posX, posY ) =
                     Item.getPosition item position
@@ -123,10 +123,10 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.class "ts-node"
                         ]
                         []
-                    , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + width_ + 8, y_ - 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + width_ + 8, y_ + height_ + 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + height_ + 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = TopRight, position = ( x_ + width_ + 8, y_ - 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = BottomRight, position = ( x_ + width_ + 8, y_ + height_ + 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + height_ + 8 ), dragStart = dragStart }
                     , textNodeInput { settings = settings, pos = ( x_, y_ ), size = ( width_, height_ ), item = item_, onEditSelectedItem = onEditSelectedItem, onEndEditSelectedItem = onEndEditSelectedItem, onSelect = onSelect }
                     ]
 

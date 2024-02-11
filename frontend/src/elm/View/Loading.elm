@@ -1,4 +1,4 @@
-module Views.Loading exposing (docs, view)
+module View.Loading exposing (docs, view)
 
 import Css exposing (scale, transform)
 import ElmBook.Chapter as Chapter exposing (Chapter)

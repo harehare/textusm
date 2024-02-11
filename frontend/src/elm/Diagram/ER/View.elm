@@ -23,7 +23,7 @@ import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
 import Diagram.View.Path as Path
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Dict exposing (Dict)
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
@@ -40,8 +40,8 @@ import Types.Item as Item
 import Types.Position as Position exposing (Position, getX, getY)
 import Types.Size exposing (Size, getHeight, getWidth)
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
+import View.Empty as Empty
+import View.Icon as Icon
 
 
 view :
@@ -49,7 +49,7 @@ view :
     , settings : DiagramSettings.Settings
     , moveState : Diagram.MoveState
     , windowSize : Size
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, moveState, windowSize, dragStart } =
@@ -381,7 +381,7 @@ getPosition pos =
     Maybe.withDefault ( 0, 0 ) pos
 
 
-onDragStart : Views.DragStart msg -> Table -> Bool -> Svg.Attribute msg
+onDragStart : View.DragStart msg -> Table -> Bool -> Svg.Attribute msg
 onDragStart dragStart table isPhone =
     dragStart (Diagram.ItemMove (Diagram.TableTarget table)) isPhone
 
@@ -579,7 +579,7 @@ tableView :
     , pos : Position
     , tableSize : Size
     , table : Table
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 tableView { settings, svgSize, pos, tableSize, table, dragStart } =

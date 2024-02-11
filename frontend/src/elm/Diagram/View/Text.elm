@@ -3,7 +3,7 @@ module Diagram.View.Text exposing (view)
 import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Card as Card
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Svg.Styled exposing (Svg)
 import Types.Color as Color
 import Types.Item as Item exposing (Item)
@@ -22,7 +22,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { settings, property, position, selectedItem, item, canMove, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

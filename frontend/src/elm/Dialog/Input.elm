@@ -34,8 +34,8 @@ import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
 import Style.Text as Text
-import Views.Empty as Empty
-import Views.Spinner as Spinner
+import View.Empty as Empty
+import View.Spinner as Spinner
 
 
 type alias Props msg =

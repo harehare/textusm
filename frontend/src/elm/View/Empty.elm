@@ -1,4 +1,4 @@
-module Views.Empty exposing (view)
+module View.Empty exposing (view)
 
 import Html.Styled as Html exposing (Html)
 

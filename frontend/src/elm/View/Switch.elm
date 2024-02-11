@@ -1,4 +1,4 @@
-module Views.Switch exposing (docs, view)
+module View.Switch exposing (docs, view)
 
 import Css
     exposing

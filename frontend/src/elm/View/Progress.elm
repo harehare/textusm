@@ -1,11 +1,11 @@
-module Views.Progress exposing (docs, view)
+module View.Progress exposing (docs, view)
 
 import Css exposing (absolute, backgroundColor, int, left, position, px, rgba, top, zIndex)
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Style.Style as Style
-import Views.Loading as Loading
+import View.Loading as Loading
 
 
 view : Html msg

@@ -1,4 +1,4 @@
-module Views.SplitWindow exposing (docs, view)
+module View.SplitWindow exposing (docs, view)
 
 import Css
     exposing
@@ -38,7 +38,7 @@ import Style.Color as Color
 import Style.Style as Style
 import Types.Color as Color
 import Types.Window as Window exposing (Window)
-import Views.Icon as Icon
+import View.Icon as Icon
 
 
 view :

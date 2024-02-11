@@ -60,9 +60,9 @@ import Types.FontSize as FontSize
 import Types.Session as Session exposing (Session)
 import Types.Settings as Settings exposing (Settings)
 import Types.Theme as Theme
-import Views.DropDownList as DropDownList exposing (DropDownValue)
-import Views.Icon as Icon
-import Views.Switch as Switch
+import View.DropDownList as DropDownList exposing (DropDownValue)
+import View.Icon as Icon
+import View.Switch as Switch
 
 
 type alias FontList =

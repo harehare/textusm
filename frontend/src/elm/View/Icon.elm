@@ -1,4 +1,4 @@
-module Views.Icon exposing
+module View.Icon exposing
     ( add
     , angleLeft
     , angleRight

@@ -16,7 +16,7 @@ import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
 import Types.Item as Item exposing (Item)
 import Types.Property as Property exposing (Property)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :

@@ -1,4 +1,4 @@
-module Views.SwitchWindow exposing (docs, view)
+module View.SwitchWindow exposing (docs, view)
 
 import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, int, none, position, px, relative, right, zIndex)
 import ElmBook.Actions as Actions
@@ -11,8 +11,8 @@ import Style.Color as Color
 import Style.Style as Style
 import Types.Color as Color
 import Types.Window as Window exposing (Window)
-import Views.Empty as Empty
-import Views.Icon as Icon
+import View.Empty as Empty
+import View.Icon as Icon
 
 
 view : { onSwitchWindow : Window -> msg, bgColor : Css.Color, window : Window } -> Html msg -> Html msg -> Html msg

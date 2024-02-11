@@ -1,4 +1,4 @@
-module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs, loadingView, stringValue, view)
+module View.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs, loadingView, stringValue, view)
 
 import Css
     exposing

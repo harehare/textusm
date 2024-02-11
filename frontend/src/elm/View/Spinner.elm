@@ -1,4 +1,4 @@
-module Views.Spinner exposing (docs, view)
+module View.Spinner exposing (docs, view)
 
 import Css
     exposing

@@ -114,9 +114,9 @@ import Types.Session as Session exposing (Session)
 import Types.Title as Title
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
-import Views.Progress as Progress
+import View.Empty as Empty
+import View.Icon as Icon
+import View.Progress as Progress
 
 
 type Msg

@@ -69,10 +69,10 @@ import Types.Title as Title exposing (Title)
 import Url.Builder as Builder exposing (crossOrigin)
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
-import Views.Spinner as Spinner
-import Views.Switch as Switch
+import View.Empty as Empty
+import View.Icon as Icon
+import View.Spinner as Spinner
+import View.Switch as Switch
 
 
 type alias InputCondition =

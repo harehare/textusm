@@ -90,8 +90,8 @@ import Types.Position as Position exposing (Position)
 import Types.Property as Property
 import Types.Size as Size exposing (Size)
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
+import View.Empty as Empty
+import View.Icon as Icon
 
 
 view : Model -> Html Msg

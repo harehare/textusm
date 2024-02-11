@@ -28,7 +28,7 @@ import Style.Color as ColorStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Types.Color as Color
-import Views.Icon as Icon
+import View.Icon as Icon
 
 
 view : { query : String, count : Int, searchMsg : String -> msg, closeMsg : msg } -> Html msg

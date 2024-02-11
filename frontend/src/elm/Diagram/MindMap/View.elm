@@ -7,7 +7,7 @@ import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
 import Diagram.View.Path as Path
 import Diagram.View.TextNode as TextNode
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
@@ -20,7 +20,7 @@ import Types.Item.Settings as ItemSettings
 import Types.Position as Position exposing (Position)
 import Types.Property as Property exposing (Property)
 import Types.Size exposing (Size)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 type ViewType
@@ -54,7 +54,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, property, selectedItem, moveState, viewType, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -198,7 +198,7 @@ nodesView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

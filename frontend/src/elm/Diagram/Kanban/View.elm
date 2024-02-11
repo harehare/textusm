@@ -8,7 +8,7 @@ import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType
 import Diagram.View.Card as Card
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import String
@@ -19,7 +19,7 @@ import Types.Color as Color
 import Types.Item as Item exposing (Item)
 import Types.Position exposing (Position)
 import Types.Property as Property exposing (Property)
-import Views.Empty as Empty
+import View.Empty as Empty
 
 
 view :
@@ -30,7 +30,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -67,7 +67,7 @@ kanbanView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 kanbanView { settings, property, selectedItem, kanban, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -113,7 +113,7 @@ listView :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 listView { settings, property, height, position, selectedItem, kanban, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

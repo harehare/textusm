@@ -28,6 +28,7 @@ import Diagram.View as DiagramView
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
+import Dialog.Types as Dialog
 import Effect
 import Effect.Settings
 import Env
@@ -57,14 +58,13 @@ import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Task
+import Types as M exposing (Model, Msg)
 import Types.Color as Color
-import Dialog.Types as Dialog
 import Types.Export.Diagram as ExportDiagram
 import Types.Hotkey as Hotkey
 import Types.IdToken as IdToken
 import Types.Jwt as Jwt
 import Types.LoginProvider as LoginProvider
-import Types as M exposing (Model, Msg)
 import Types.Notification as Notification
 import Types.Session as Session
 import Types.Settings as Settings
@@ -84,15 +84,15 @@ import Types.Title as Title
 import Types.Window as Window exposing (Window)
 import Url
 import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Footer as Footer
-import Views.Header as Header
-import Views.Menu as Menu
-import Views.Notification as Notification
-import Views.Progress as Progress
-import Views.Snackbar as Snackbar
-import Views.SplitWindow as SplitWindow
-import Views.SwitchWindow as SwitchWindow
+import View.Empty as Empty
+import View.Footer as Footer
+import View.Header as Header
+import View.Menu as Menu
+import View.Notification as Notification
+import View.Progress as Progress
+import View.Snackbar as Snackbar
+import View.SplitWindow as SplitWindow
+import View.SwitchWindow as SwitchWindow
 
 
 type alias Flags =

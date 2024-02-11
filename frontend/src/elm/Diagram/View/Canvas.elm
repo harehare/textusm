@@ -5,7 +5,7 @@ import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, Sel
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Card as Card
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Events
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -27,7 +27,7 @@ view :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 view { settings, property, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -56,7 +56,7 @@ viewBottom :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 viewBottom { settings, property, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -100,7 +100,7 @@ viewImage { settings, property, size, position, item, onSelect } =
           of
             Just item_ ->
                 if Item.isImage item_ then
-                    Views.image
+                    View.image
                         { size = Tuple.mapFirst (\_ -> Constants.itemWidth - 5) position
                         , position = Tuple.mapBoth (\x -> x + 5) (\y -> y + 5) position
                         , item = item_
@@ -131,7 +131,7 @@ canvasBase :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 canvasBase { settings, property, isTitleBottom, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
@@ -225,7 +225,7 @@ canvasBase { settings, property, isTitleBottom, size, position, selectedItem, it
                     Svg.g
                         [ dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                         [ canvasRect colors property selectedItemPosition selectedItemSize
-                        , Views.inputBoldView
+                        , View.inputBoldView
                             { settings = settings
                             , fontSize =
                                 Item.getFontSize item
@@ -334,9 +334,9 @@ getCanvasColor settings property item =
             )
 
 
-resizeCircle : { item : Item, direction : ResizeDirection, position : Position, dragStart : Views.DragStart msg } -> Svg msg
+resizeCircle : { item : Item, direction : ResizeDirection, position : Position, dragStart : View.DragStart msg } -> Svg msg
 resizeCircle { item, direction, position, dragStart } =
-    Views.resizeCircleBase { size = 8, item = item, direction = direction, position = position, dragStart = dragStart }
+    View.resizeCircleBase { size = 8, item = item, direction = direction, position = position, dragStart = dragStart }
 
 
 text :
@@ -349,7 +349,7 @@ text :
     , onEditSelectedItem : String -> msg
     , onEndEditSelectedItem : Item -> msg
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 text { settings, property, svgWidth, position, selectedItem, items, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =

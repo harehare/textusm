@@ -1,4 +1,4 @@
-module Views.Logo exposing (docs, view)
+module View.Logo exposing (docs, view)
 
 import Asset
 import Css exposing (cursor, pointer, px, width)

@@ -3,7 +3,7 @@ module Diagram.View.Line exposing (horizontal, vertical)
 import Diagram.Types as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Events
 import String
 import Svg.Styled as Svg exposing (Svg)
@@ -21,7 +21,7 @@ horizontal :
     , selectedItem : SelectedItem
     , item : Item
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
@@ -119,8 +119,8 @@ horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle { item = item, direction = Left, position = ( x_ - 8, y_ ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = Right, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = Left, position = ( x_ - 8, y_ ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = Right, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ ), dragStart = dragStart }
                     ]
 
             else
@@ -136,7 +136,7 @@ vertical :
     , selectedItem : SelectedItem
     , item : Item
     , onSelect : Maybe SelectedItemInfo -> msg
-    , dragStart : Views.DragStart msg
+    , dragStart : View.DragStart msg
     }
     -> Svg msg
 vertical { settings, position, selectedItem, item, onSelect, dragStart } =
@@ -227,8 +227,8 @@ vertical { settings, position, selectedItem, item, onSelect, dragStart } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle { item = item, direction = Top, position = ( x_, y_ - 8 ), dragStart = dragStart }
-                    , Views.resizeCircle { item = item, direction = Bottom, position = ( x_, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = Top, position = ( x_, y_ - 8 ), dragStart = dragStart }
+                    , View.resizeCircle { item = item, direction = Bottom, position = ( x_, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
                     ]
 
             else

@@ -1,4 +1,4 @@
-module Views.Book exposing (main)
+module View.Book exposing (main)
 
 import Diagram.BusinessModelCanvas.View as BusinessModelCanvas
 import Diagram.ER.View as ER
@@ -25,32 +25,32 @@ import Diagram.View.Path as Path
 import Diagram.View.Toolbar as Toolbar
 import ElmBook exposing (Book)
 import ElmBook.ComponentOptions
-import Views.DropDownList as DropDownList
-import Views.Footer as Footer
-import Views.Header as Header
-import Views.Loading as Loading
-import Views.Logo as Logo
-import Views.Menu as Menu
-import Views.Notification as Notification
-import Views.Progress as Progress
-import Views.Snackbar as Snackbar
-import Views.Spinner as Spinner
-import Views.SplitWindow as SplitWindow
-import Views.Switch as Switch
-import Views.SwitchWindow as SwitchWindow
-import Views.Tooltip as Tooltip
+import View.DropDownList as DropDownList
+import View.Footer as Footer
+import View.Header as Header
+import View.Loading as Loading
+import View.Logo as Logo
+import View.Menu as Menu
+import View.Notification as Notification
+import View.Progress as Progress
+import View.Snackbar as Snackbar
+import View.Spinner as Spinner
+import View.SplitWindow as SplitWindow
+import View.Switch as Switch
+import View.SwitchWindow as SwitchWindow
+import View.Tooltip as Tooltip
 
 
 main : Book ()
 main =
-    ElmBook.book "Views"
+    ElmBook.book "View"
         |> ElmBook.withComponentOptions
             [ ElmBook.ComponentOptions.background "#273037"
             , ElmBook.ComponentOptions.fullWidth True
             , ElmBook.ComponentOptions.displayBlock
             ]
         |> ElmBook.withChapterGroups
-            [ ( "Views"
+            [ ( "View"
               , [ Tooltip.docs
                 , Notification.docs
                 , Progress.docs

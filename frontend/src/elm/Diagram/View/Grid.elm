@@ -5,7 +5,7 @@ import Diagram.Types exposing (SelectedItem, SelectedItemInfo)
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.View.Card as Card
-import Diagram.View.Views as Views
+import Diagram.View.Views as View
 import Events
 import String
 import Svg.Styled as Svg exposing (Svg)
@@ -31,7 +31,7 @@ view :
 view { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( forgroundColor, backgroundColor ) =
-            Views.getItemColor settings property item
+            View.getItemColor settings property item
 
         ( posX, posY ) =
             position
@@ -83,7 +83,7 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.class "ts-grid"
                         ]
                         []
-                    , Views.inputView
+                    , View.inputView
                         { color = forgroundColor
                         , fontSize = Item.getFontSize item |> Maybe.withDefault FontSize.default
                         , item = item_
