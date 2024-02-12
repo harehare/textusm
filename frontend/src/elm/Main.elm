@@ -83,7 +83,7 @@ import Types.Theme as Theme
 import Types.Title as Title
 import Types.Window as Window exposing (Window)
 import Url
-import Utils.Utils as Utils
+import Utils.Common as Utils
 import View.Empty as Empty
 import View.Footer as Footer
 import View.Header as Header

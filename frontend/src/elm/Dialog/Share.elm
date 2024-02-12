@@ -67,8 +67,8 @@ import Types.Session as Session exposing (Session)
 import Types.Size as Size exposing (Size)
 import Types.Title as Title exposing (Title)
 import Url.Builder as Builder exposing (crossOrigin)
+import Utils.Common as Utils
 import Utils.Date as DateUtils
-import Utils.Utils as Utils
 import View.Empty as Empty
 import View.Icon as Icon
 import View.Spinner as Spinner

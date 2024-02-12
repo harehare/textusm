@@ -39,7 +39,7 @@ import Types.Color as Color
 import Types.Item as Item
 import Types.Position as Position exposing (Position, getX, getY)
 import Types.Size exposing (Size, getHeight, getWidth)
-import Utils.Utils as Utils
+import Utils.Common as Utils
 import View.Empty as Empty
 import View.Icon as Icon
 

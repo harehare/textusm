@@ -112,8 +112,8 @@ import Time exposing (Zone)
 import Types.Color as Color
 import Types.Session as Session exposing (Session)
 import Types.Title as Title
+import Utils.Common as Utils
 import Utils.Date as DateUtils
-import Utils.Utils as Utils
 import View.Empty as Empty
 import View.Icon as Icon
 import View.Progress as Progress

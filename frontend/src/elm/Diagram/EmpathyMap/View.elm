@@ -15,7 +15,7 @@ import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Types.Item as Item exposing (Item, Items)
 import Types.Property as Property exposing (Property)
-import Utils.Utils as Utils
+import Utils.Common as Utils
 import View.Empty as Empty
 
 

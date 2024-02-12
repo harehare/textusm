@@ -75,7 +75,7 @@ import Types.FileType as FileType
 import Types.Settings as Settings exposing (Settings)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme
-import Utils.Utils as Utils
+import Utils.Common as Utils
 import View.Empty as Empty
 import View.Icon as Icon
 

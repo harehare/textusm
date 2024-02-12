@@ -1,4 +1,4 @@
-module Utils.Utils exposing
+module Utils.Common exposing
     ( calcDistance
     , delay
     , getCanvasHeight

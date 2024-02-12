@@ -89,7 +89,7 @@ import Types.Item as Item
 import Types.Position as Position exposing (Position)
 import Types.Property as Property
 import Types.Size as Size exposing (Size)
-import Utils.Utils as Utils
+import Utils.Common as Utils
 import View.Empty as Empty
 import View.Icon as Icon
 

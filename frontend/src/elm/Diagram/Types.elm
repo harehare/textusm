@@ -67,7 +67,7 @@ import Types.Position exposing (Position)
 import Types.Property exposing (Property)
 import Types.Size exposing (Size)
 import Types.Text exposing (Text)
-import Utils.Utils as Utils
+import Utils.Common as Utils
 
 
 type ContextMenu

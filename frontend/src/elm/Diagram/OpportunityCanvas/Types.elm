@@ -4,7 +4,7 @@ import Constants
 import Diagram.Types.Settings as DiagramSettings
 import Types.Item as Item exposing (Item, Items)
 import Types.Size exposing (Size)
-import Utils.Utils as Utils
+import Utils.Common as Utils
 
 
 type alias OpportunityCanvas =
