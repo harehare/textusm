@@ -1,5 +1,7 @@
 module github.com/harehare/textusm
 
+go 1.22.0
+
 require (
 	cloud.google.com/go/firestore v1.14.0
 	cloud.google.com/go/storage v1.38.0
@@ -16,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/vektah/gqlparser/v2 v2.5.11
 	golang.org/x/crypto v0.19.0
-	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
+	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
 	golang.org/x/sync v0.6.0
 	google.golang.org/api v0.165.0
 	google.golang.org/grpc v1.61.1
@@ -68,5 +70,3 @@ require (
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-go 1.21
