@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	"context"
 
@@ -254,6 +254,6 @@ func setupLogger(goEnv string) {
 		}
 	}
 
-	logger := slog.New(opts.NewJSONHandler(os.Stdout))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &opts))
 	slog.SetDefault(logger)
 }
