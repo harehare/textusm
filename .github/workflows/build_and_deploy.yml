@@ -38,7 +38,7 @@ jobs:
             ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
             ${{ runner.os }}-node-
       - name: Install Dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        # if: steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: frontend
         run: npm ci --legacy-peer-deps --include=dev
       - name: get-npm-version
