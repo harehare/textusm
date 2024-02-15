@@ -48,7 +48,7 @@ jobs:
           path: frontend
       - name: Generate elm-constants
         working-directory: frontend
-        run: npm run dev:generate-elm-constants
+        run: npm run generate:elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
