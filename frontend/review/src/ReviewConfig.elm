@@ -1,8 +1,23 @@
 module ReviewConfig exposing (config)
 
-import Review.Rule exposing (Rule)
+import CognitiveComplexity
+import LimitAliasedRecordSize
 import NoDebug.Log
 import NoDebug.TodoOrToString
+import NoExposingEverything
+import NoForbiddenWords
+import NoImportingEverything
+import NoInconsistentAliases
+import NoMissingSubscriptionsCall
+import NoMissingTypeAnnotation
+import NoMissingTypeAnnotationInLetIn
+import NoMissingTypeExpose
+import NoModuleOnExposedNames
+import NoPrematureLetComputation
+import NoRecursiveUpdate
+import NoSimpleLetBody
+import NoSinglePatternCase
+import NoUnoptimizedRecursion
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
@@ -11,27 +26,11 @@ import NoUnused.Modules
 import NoUnused.Parameters
 import NoUnused.Patterns
 import NoUnused.Variables
-import NoUnoptimizedRecursion
-import NoSimpleLetBody
-import CognitiveComplexity
-import NoExposingEverything
-import NoImportingEverything
-import NoMissingTypeAnnotation
-import NoMissingTypeAnnotationInLetIn
-import NoMissingTypeExpose
-import NoPrematureLetComputation
-import NoForbiddenWords
-import NoInconsistentAliases
-import NoModuleOnExposedNames
-import NoSinglePatternCase
-import NoUselessSubscriptions
-import NoMissingSubscriptionsCall
-import NoRecursiveUpdate
 import NoUnusedPorts
+import NoUselessSubscriptions
 import Review.Rule exposing (Rule)
 import Simplify
 import UseCamelCase
-import Review.Rule exposing (Rule)
 
 
 config : List Rule
@@ -71,4 +70,6 @@ config =
     , NoMissingSubscriptionsCall.rule
     , NoRecursiveUpdate.rule
     , NoUnusedPorts.rule
+    , LimitAliasedRecordSize.rule
+        (20 |> LimitAliasedRecordSize.maxRecordSize)
     ]
