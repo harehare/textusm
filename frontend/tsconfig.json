@@ -12,7 +12,6 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noPropertyAccessFromIndexSignature": false,
-    "importsNotUsedAsValues": "remove",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "exactOptionalPropertyTypes": false,
