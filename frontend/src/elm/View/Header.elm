@@ -313,7 +313,7 @@ viewSettingsButton lang diagramType =
         , Attr.href <|
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
-        , Attributes.dataTest "header-help"
+        , Attributes.dataTest "header-settings"
         ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.settings Color.iconColor 16

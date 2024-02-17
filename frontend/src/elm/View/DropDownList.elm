@@ -1,5 +1,6 @@
 module View.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs, loadingView, stringValue, view)
 
+import Attributes exposing (dataTest)
 import Css
     exposing
         ( absolute
@@ -99,6 +100,7 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
             , color <| hex "#2e2e2e"
             , property "user-select" "none"
             ]
+        , dataTest dropDownId
         ]
         [ itemView selectedItem (onToggleDropDownList dropDownId)
         , if dropDownId == Maybe.withDefault "" currentId then

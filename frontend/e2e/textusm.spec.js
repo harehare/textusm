@@ -80,4 +80,14 @@ context('TextUSM', () => {
       .should('have.attr', 'color')
       .and('equal', '#00ff00');
   });
+
+  it("Change background color settings", () => {
+    cy.get("a[data-test='header-settings']").click();
+    cy.get("div[data-test='background-color']").click();
+    cy.get("div[data-test='background-color'] > div:nth-of-type(2) > div:first-child").click();
+    cy.get("div[data-test='header-back']").click();
+    cy.get('#usm')
+       .should('have.css', 'background-color')
+       .and('eq', 'rgb(254, 254, 254)')
+  });
 });
