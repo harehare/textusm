@@ -1,7 +1,7 @@
 {
   "name": "textusm",
   "description": "Online tool for Generate a User Story Mapping from indented text.",
-  "version": "0.14.5",
+  "version": "0.14.6",
   "author": "harehare",
   "type": "module",
   "bugs": {
@@ -42,10 +42,10 @@
     "elm-review": "^2.10.3",
     "elm-test": "^0.19.1-revision12",
     "firebase-tools": "^13.2.1",
-    "knip": "^5.0.1",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "size-limit": "^11.0.2",
+    "start-server-and-test": "^2.0.3",
     "stylelint": "^16.2.1",
     "stylelint-config-standard": "^36.0.0",
     "terser": "^5.27.0",
@@ -66,6 +66,8 @@
   },
   "scripts": {
     "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/public/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
+    "build:lib": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
+    "build:vscode": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
     "dev": "concurrently \"npm:dev:*\"",
     "dev:frontend": "vite",
     "dev:backend": "cd ../backend/ && just docker-up && just watch",
@@ -85,8 +87,6 @@
     "lint-fix": "concurrently \"npm:lint-fix:*\"",
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
     "lint-fix:elm": "elm-review --fix",
-    "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
-    "open:e2e": "cypress open",
     "prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "postprod": "rimraf -rf dist/*.map",
     "preview": "vite preview --port 3000",
@@ -94,8 +94,8 @@
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",
     "test:e2e": "cypress run",
-    "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
-    "knip": "knip"
+    "test:e2e:open": "cypress open",
+    "test:e2e:run": "USE_HTTPS=0 start-server-and-test dev:frontend http://localhost:3000 test:e2e"
   },
   "browserslist": [
     "defaults"

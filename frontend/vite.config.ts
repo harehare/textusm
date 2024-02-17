@@ -6,13 +6,13 @@ import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const outDir = path.join(__dirname, 'dist');
+const outDirectory = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
 
 export default defineConfig(({ mode }) => ({
   root: './src',
   build: {
-    outDir,
+    outDir: outDirectory,
     sourcemap: mode === 'production',
     minify: 'terser',
     terserOptions: {
@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => ({
           VitePWA({
             injectRegister: null,
             workbox: {
-              swDest: `${outDir}/sw.js`,
+              swDest: `${outDirectory}/sw.js`,
               clientsClaim: true,
               skipWaiting: true,
               maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
