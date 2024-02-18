@@ -68,6 +68,7 @@ jobs:
         run: npm run test
       - name: Run E2E Tests
         run: npm run test:e2e:run
+        working-directory: frontend
 
   analyze:
     name: Analyze
