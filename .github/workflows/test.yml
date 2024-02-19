@@ -44,10 +44,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
             ${{ runner.os }}-node-
-      - if: ${{ steps.npm-cache.outputs.cache-hit != 'true' }}
-        name: Install Dependencies
+      - name: Install Dependencies
         working-directory: frontend
-        run: npm ci --legacy-peer-deps --include=dev
+        run: npm ci --include=dev
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
@@ -55,7 +54,7 @@ jobs:
           path: frontend
       - name: Generate elm-constants
         working-directory: frontend
-        run: npm run dev:generate-elm-constants
+        run: npm run generate:elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
@@ -67,7 +66,9 @@ jobs:
       - name: Run Tests
         working-directory: frontend
         run: npm run test
-      - uses: cypress-io/github-action@v5
+      - name: Run E2E Tests
+        run: npm run test:e2e:run
+        working-directory: frontend
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
@@ -85,14 +86,6 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           MONITOR_ENABLE: "0"
           USE_HTTPS: "0"
-        with:
-          start: "npm run dev:frontend"
-          browser: chrome
-          headed: true
-          working-directory: frontend
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          install: false
 
   analyze:
     name: Analyze
@@ -106,10 +99,10 @@ jobs:
         language: ["go", "typescript"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3

@@ -23,7 +23,7 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 var (

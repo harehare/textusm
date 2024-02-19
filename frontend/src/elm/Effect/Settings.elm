@@ -6,18 +6,18 @@ module Effect.Settings exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Graphql.OptionalArgument as OptionalArgument
-import Models.Color as Color
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
-import Models.Session as Session exposing (Session)
-import Models.Settings as Settings
-import Models.SettingsCache as SettingCache exposing (SettingsCache)
 import Ports
 import Return
 import Task
+import Types.Color as Color
+import Types.Session as Session exposing (Session)
+import Types.Settings as Settings
+import Types.SettingsCache as SettingCache exposing (SettingsCache)
 
 
 load :

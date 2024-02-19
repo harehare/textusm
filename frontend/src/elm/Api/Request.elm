@@ -24,23 +24,23 @@ import Api.External.Github.Request as GithubRequest exposing (AccessToken)
 import Api.Graphql.Mutation as Mutation
 import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Item exposing (DiagramItem)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type exposing (DiagramType)
 import Dict
 import Env
 import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item exposing (DiagramItem)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type exposing (DiagramType)
-import Models.Duration as Duration exposing (Duration)
-import Models.Email as Email exposing (Email)
-import Models.IdToken as IdToken exposing (IdToken)
-import Models.IpAddress as IpAddress exposing (IpAddress)
-import Models.Text as Text
-import Models.Title as Title
 import Task exposing (Task)
+import Types.Duration as Duration exposing (Duration)
+import Types.Email as Email exposing (Email)
+import Types.IdToken as IdToken exposing (IdToken)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 import Url.Builder exposing (crossOrigin)
 
 

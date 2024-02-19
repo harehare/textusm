@@ -2,24 +2,25 @@ module Extension.Lib exposing (InitData, Model, Msg, main)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
-import Components.Diagram as Diagram
+import Diagram.Search.Types as Search
+import Diagram.State as DiagramState
+import Diagram.Types as DiagramModel
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
+import Diagram.View as DiagramView
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Json.Encode as E
-import Models.Color as Color exposing (Color)
-import Models.Diagram as DiagramModel
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.Search as Search
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType
-import Models.Item as Item
-import Models.Property as Property
-import Models.Text as Text
 import Return
 import Task
+import Types.Color as Color exposing (Color)
+import Types.Item as Item
+import Types.Property as Property
+import Types.Text as Text
 
 
 
@@ -61,7 +62,7 @@ main =
 init : InitData -> ( Model, Cmd Msg )
 init flags =
     let
-        settings: DiagramSettings.Settings
+        settings : DiagramSettings.Settings
         settings =
             D.decodeValue DiagramSettings.decoder flags.settings
                 |> Result.toMaybe
@@ -118,7 +119,7 @@ update (UpdateDiagram subMsg) model =
         DiagramModel.ChangeText text ->
             let
                 ( model_, _ ) =
-                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
+                    Return.singleton model.diagramModel |> DiagramState.update model.diagramModel subMsg
             in
             ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
@@ -128,7 +129,7 @@ update (UpdateDiagram subMsg) model =
         _ ->
             let
                 ( model_, cmd_ ) =
-                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
+                    Return.singleton model.diagramModel |> DiagramState.update model.diagramModel subMsg
             in
             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
@@ -145,7 +146,7 @@ view model =
             , style "width" "100%"
             , style "height" "100%"
             ]
-            [ lazy Diagram.view model.diagramModel
+            [ lazy DiagramView.view model.diagramModel
                 |> Html.map UpdateDiagram
             ]
         ]

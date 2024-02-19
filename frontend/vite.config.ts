@@ -4,16 +4,15 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
 import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const outDir = path.join(__dirname, 'dist');
+const outDirectory = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
 
 export default defineConfig(({ mode }) => ({
   root: './src',
   build: {
-    outDir,
+    outDir: outDirectory,
     sourcemap: mode === 'production',
     minify: 'terser',
     terserOptions: {
@@ -40,7 +39,6 @@ export default defineConfig(({ mode }) => ({
       'MONITOR_ENABLE',
       'FIREBASE_AUTH_EMULATOR_HOST',
     ]),
-    monacoEditorPlugin({}),
     elmPlugin({
       optimize: false,
       nodeElmCompilerOptions: {
@@ -74,7 +72,7 @@ export default defineConfig(({ mode }) => ({
           VitePWA({
             injectRegister: null,
             workbox: {
-              swDest: `${outDir}/sw.js`,
+              swDest: `${outDirectory}/sw.js`,
               clientsClaim: true,
               skipWaiting: true,
               maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,

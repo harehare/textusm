@@ -38,6 +38,8 @@ import Css
         , translateY
         , width
         )
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Env
 import Events
 import Html.Styled as Html exposing (Html)
@@ -46,15 +48,6 @@ import Html.Styled.Events exposing (onClick, onFocus, onInput)
 import Html.Styled.Lazy as Lazy
 import Maybe.Extra as MaybeEx
 import Message exposing (Message)
-import Models.Color as Color
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
-import Models.Duration as Duration exposing (Duration)
-import Models.Email as Email exposing (Email)
-import Models.IpAddress as IpAddress exposing (IpAddress)
-import Models.Session as Session exposing (Session)
-import Models.Size as Size exposing (Size)
-import Models.Title as Title exposing (Title)
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return exposing (Return)
@@ -66,13 +59,20 @@ import Style.Text as Text
 import Task exposing (Task)
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
+import Types.Color as Color
+import Types.Duration as Duration exposing (Duration)
+import Types.Email as Email exposing (Email)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Session as Session exposing (Session)
+import Types.Size as Size exposing (Size)
+import Types.Title as Title exposing (Title)
 import Url.Builder as Builder exposing (crossOrigin)
+import Utils.Common as Utils
 import Utils.Date as DateUtils
-import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
-import Views.Spinner as Spinner
-import Views.Switch as Switch
+import View.Empty as Empty
+import View.Icon as Icon
+import View.Spinner as Spinner
+import View.Switch as Switch
 
 
 type alias InputCondition =

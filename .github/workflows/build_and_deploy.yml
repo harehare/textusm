@@ -38,9 +38,8 @@ jobs:
             ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
             ${{ runner.os }}-node-
       - name: Install Dependencies
-        # if: steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: frontend
-        run: npm ci --legacy-peer-deps --include=dev
+        run: npm ci --include=dev
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
@@ -48,7 +47,7 @@ jobs:
           path: frontend
       - name: Generate elm-constants
         working-directory: frontend
-        run: npm run dev:generate-elm-constants
+        run: npm run generate:elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}

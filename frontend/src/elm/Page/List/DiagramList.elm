@@ -19,7 +19,7 @@ module Page.List.DiagramList exposing
     , unwrap
     )
 
-import Models.Diagram.Item exposing (DiagramItem)
+import Diagram.Types.Item exposing (DiagramItem)
 import RemoteData exposing (RemoteData(..), WebData)
 
 

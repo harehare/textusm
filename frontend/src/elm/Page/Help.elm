@@ -30,11 +30,11 @@ import Css
 import Html.Styled exposing (Html, div, img, span, text)
 import Html.Styled.Attributes as Attr
 import Maybe.Extra exposing (isNothing)
-import Models.Hotkey as Hotkey
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
 import Style.Text as Text
+import Types.Hotkey as Hotkey
 
 
 view : Html msg

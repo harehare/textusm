@@ -12,6 +12,11 @@ module Api.Graphql.Query exposing
     )
 
 import Api.Graphql.Selection as Selection
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.ShareCondition
@@ -20,15 +25,10 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import Models.Diagram.Id as DiagramId
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType)
-import Models.Email as Email exposing (Email)
-import Models.IpAddress as IpAddress exposing (IpAddress)
-import Models.Text as Text
-import Models.Title as Title
+import Types.Email as Email exposing (Email)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 
 
 type alias ShareCondition =

@@ -79,7 +79,11 @@ import Css
         )
 import Css.Global exposing (descendants, typeSelector)
 import Css.Transitions as Transitions
+import Diagram.Types.Id as DiagramId exposing (DiagramId)
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
 import Dialog.Confirm as ConfirmDialog
+import Dialog.Types as Dialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -92,13 +96,6 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra as ListEx
 import Message exposing (Lang)
-import Models.Color as Color
-import Models.Diagram.Id as DiagramId exposing (DiagramId)
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation
-import Models.Dialog as Dialog
-import Models.Session as Session exposing (Session)
-import Models.Title as Title
 import Monocle.Lens exposing (Lens)
 import Ordering exposing (Ordering)
 import Page.List.DiagramList as DiagramList exposing (DiagramList)
@@ -112,11 +109,14 @@ import Style.Style as Style
 import Style.Text as TextStyle
 import Task
 import Time exposing (Zone)
+import Types.Color as Color
+import Types.Session as Session exposing (Session)
+import Types.Title as Title
+import Utils.Common as Utils
 import Utils.Date as DateUtils
-import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Icon as Icon
-import Views.Progress as Progress
+import View.Empty as Empty
+import View.Icon as Icon
+import View.Progress as Progress
 
 
 type Msg

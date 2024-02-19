@@ -2,24 +2,25 @@ port module Extension.VSCode exposing (InitData, Model, Msg, main)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
-import Components.Diagram as Diagram
+import Diagram.Search.Types as Search
+import Diagram.State as DiagramState
+import Diagram.Types as DiagramModel
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Data as DiagramData
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Type as DiagramType
+import Diagram.View as DiagramView
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
-import Models.Color as Color
-import Models.Diagram as DiagramModel
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Data as DiagramData
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Search as Search
-import Models.Diagram.Type as DiagramType
-import Models.Item as Item
-import Models.Property as Property
-import Models.Size as Size exposing (Size)
-import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
+import Types.Color as Color
+import Types.Item as Item
+import Types.Property as Property
+import Types.Size as Size exposing (Size)
+import Types.Text as Text exposing (Text)
 
 
 
@@ -177,7 +178,7 @@ update model message =
         UpdateDiagram subMsg ->
             let
                 ( model_, cmd_ ) =
-                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
+                    Return.singleton model.diagramModel |> DiagramState.update model.diagramModel subMsg
 
                 m : Model
                 m =
@@ -251,7 +252,7 @@ view model =
             , style "width" "100%"
             , style "height" "100%"
             ]
-            [ lazy Diagram.view model.diagramModel
+            [ lazy DiagramView.view model.diagramModel
                 |> Html.map UpdateDiagram
             ]
         ]

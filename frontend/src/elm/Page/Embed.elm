@@ -1,6 +1,5 @@
 module Page.Embed exposing (view)
 
-import Components.Diagram as Diagram
 import Css
     exposing
         ( absolute
@@ -14,14 +13,15 @@ import Css
         , right
         , solid
         )
+import Diagram.View as Diagram
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
-import Models.Color as Color
-import Models.Model exposing (Model, Msg(..))
 import Style.Color as Color
 import Style.Style as Style
-import Views.Logo as Logo
+import Types exposing (Model, Msg(..))
+import Types.Color as Color
+import View.Logo as Logo
 
 
 view : Model -> Html Msg

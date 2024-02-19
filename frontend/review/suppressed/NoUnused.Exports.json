@@ -3,7 +3,7 @@
   "automatically created by": "elm-review suppress",
   "learn more": "elm-review suppress --help",
   "suppressions": [
-    { "count": 2, "filePath": "src/elm/Models/Hotkey.elm" },
+    { "count": 2, "filePath": "src/elm/Types/Hotkey.elm" },
     { "count": 1, "filePath": "src/Graphql/Graphql/Interface/Node.elm" },
     { "count": 1, "filePath": "src/Graphql/Graphql/VerifyScalarCodecs.elm" }
   ]

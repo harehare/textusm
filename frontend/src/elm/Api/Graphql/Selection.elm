@@ -6,6 +6,13 @@ module Api.Graphql.Selection exposing
     , settingsSelection
     )
 
+import Diagram.Types.CardSize as CardSize
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Scale as Scale
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType
 import Graphql.Object
 import Graphql.Object.Color
 import Graphql.Object.GistItem
@@ -15,16 +22,9 @@ import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
-import Models.Color as Color
-import Models.Diagram.CardSize as CardSize
-import Models.Diagram.Id as DiagramId
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation
-import Models.Diagram.Scale as Scale
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType
-import Models.Text as Text
-import Models.Title as Title
+import Types.Color as Color
+import Types.Text as Text
+import Types.Title as Title
 
 
 allItemsSelection : SelectionSet DiagramItem Graphql.Union.DiagramItem

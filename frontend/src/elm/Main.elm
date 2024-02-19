@@ -14,13 +14,22 @@ import Browser.Events
         , onVisibilityChange
         )
 import Browser.Navigation as Nav
-import Components.Diagram as Diagram
 import Css exposing (backgroundColor, calc, displayFlex, height, hidden, minus, overflow, position, px, relative, vh, width)
+import Diagram.Effect
+import Diagram.State as DiagramState
+import Diagram.Types as DiagramModel
+import Diagram.Types.Id as DiagramId
+import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
+import Diagram.Types.Location as DiagramLocation exposing (Location)
+import Diagram.Types.Scale as Scale exposing (Scale)
+import Diagram.Types.Settings as DiagramSettings
+import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
+import Diagram.View as DiagramView
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
+import Dialog.Types as Dialog
 import Effect
-import Effect.Diagram
 import Effect.Settings
 import Env
 import File.Download as Download
@@ -30,39 +39,6 @@ import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
-import Models.Color as Color
-import Models.Diagram as DiagramModel
-import Models.Diagram.Id as DiagramId
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
-import Models.Diagram.Scale as Scale exposing (Scale)
-import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
-import Models.Dialog as Dialog
-import Models.Export.Diagram as ExportDiagram
-import Models.Hotkey as Hotkey
-import Models.IdToken as IdToken
-import Models.Jwt as Jwt
-import Models.LoginProvider as LoginProvider
-import Models.Model as M exposing (Model, Msg)
-import Models.Notification as Notification
-import Models.Page as Page exposing (Page)
-import Models.Session as Session
-import Models.Settings as Settings
-    exposing
-        ( Settings
-        , defaultEditorSettings
-        , defaultSettings
-        )
-import Models.SettingsCache as SettingsCache
-import Models.ShareState as ShareState
-import Models.ShareToken as ShareToken
-import Models.Size as Size exposing (Size)
-import Models.Snackbar as SnackbarModel
-import Models.Text as Text
-import Models.Theme as Theme
-import Models.Title as Title
-import Models.Window as Window exposing (Window)
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
@@ -70,6 +46,7 @@ import Page.List.DiagramList as DiagramListModel
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
+import Page.Types as Page exposing (Page)
 import Ports
 import Return exposing (Return)
 import Route exposing (Route(..), toRoute)
@@ -81,17 +58,41 @@ import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Task
+import Types as M exposing (Model, Msg)
+import Types.Color as Color
+import Types.Export.Diagram as ExportDiagram
+import Types.Hotkey as Hotkey
+import Types.IdToken as IdToken
+import Types.Jwt as Jwt
+import Types.LoginProvider as LoginProvider
+import Types.Notification as Notification
+import Types.Session as Session
+import Types.Settings as Settings
+    exposing
+        ( Settings
+        , defaultEditorSettings
+        , defaultSettings
+        )
+import Types.SettingsCache as SettingsCache
+import Types.ShareState as ShareState
+import Types.ShareToken as ShareToken
+import Types.Size as Size exposing (Size)
+import Types.Snackbar as SnackbarModel
+import Types.Text as Text
+import Types.Theme as Theme
+import Types.Title as Title
+import Types.Window as Window exposing (Window)
 import Url
-import Utils.Utils as Utils
-import Views.Empty as Empty
-import Views.Footer as Footer
-import Views.Header as Header
-import Views.Menu as Menu
-import Views.Notification as Notification
-import Views.Progress as Progress
-import Views.Snackbar as Snackbar
-import Views.SplitWindow as SplitWindow
-import Views.SwitchWindow as SwitchWindow
+import Utils.Common as Utils
+import View.Empty as Empty
+import View.Footer as Footer
+import View.Header as Header
+import View.Menu as Menu
+import View.Notification as Notification
+import View.Progress as Progress
+import View.Snackbar as Snackbar
+import View.SplitWindow as SplitWindow
+import View.SwitchWindow as SwitchWindow
 
 
 type alias Flags =
@@ -147,10 +148,10 @@ changeRouteTo route =
                             |> (if Session.isSignedIn m.session && m.browserStatus.isOnline && isRemote then
                                     Effect.updateIdToken
                                         >> startProgress
-                                        >> Effect.Diagram.load M.Copied { id = copyDiagramId, session = m.session }
+                                        >> Diagram.Effect.load M.Copied { id = copyDiagramId, session = m.session }
 
                                 else
-                                    Effect.Diagram.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
+                                    Diagram.Effect.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
                                )
                             |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
@@ -177,23 +178,23 @@ changeRouteTo route =
                             |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
                                     Effect.updateIdToken
                                         >> startProgress
-                                        >> Effect.Diagram.load M.Load { id = id_, session = m.session }
+                                        >> Diagram.Effect.load M.Load { id = id_, session = m.session }
 
                                 else
-                                    Effect.Diagram.loadFromLocal id_ >> Effect.changeRouteInit M.Init
+                                    Diagram.Effect.loadFromLocal id_ >> Effect.changeRouteInit M.Init
                                )
                             |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
 
         Route.EditLocalFile _ id_ ->
             switchPage Page.Main
-                >> Effect.Diagram.loadFromLocal id_
+                >> Diagram.Effect.loadFromLocal id_
                 >> Effect.changeRouteInit M.Init
 
         Route.ViewPublic _ id_ ->
             Effect.updateIdToken
                 >> switchPage Page.Main
-                >> Return.andThen (\m -> Return.singleton m |> Effect.Diagram.loadFromPublic M.Load { id = id_, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Diagram.Effect.loadFromPublic M.Load { id = id_, session = m.session })
 
         Route.DiagramList ->
             initListPage
@@ -237,7 +238,7 @@ changeRouteTo route =
                         }
                 )
                 >> setTitle title
-                >> Return.andThen (\m -> Return.singleton m |> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ })
+                >> Return.andThen (\m -> Return.singleton m |> Diagram.Effect.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ })
                 >> switchPage Page.Embed
                 >> Effect.changeRouteInit M.Init
 
@@ -260,7 +261,7 @@ changeRouteTo route =
                                 (\m ->
                                     Return.singleton
                                         { m | shareState = ShareState.authenticateNoPassword id_ }
-                                        |> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ }
+                                        |> Diagram.Effect.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ }
                                 )
                                 >> switchPage Page.Main
                                 >> startProgress
@@ -319,7 +320,7 @@ init flags url key =
             DiagramList.init Session.guest lang Env.apiRoot flags.isOnline
 
         ( diagramModel, _ ) =
-            Diagram.init initSettings.diagramSettings
+            DiagramState.init initSettings.diagramSettings
 
         initSettings : Settings
         initSettings =
@@ -588,7 +589,7 @@ loadDiagram diagram =
                     }
             in
             Return.singleton newDiagramModel
-                |> Diagram.update m.diagramModel (DiagramModel.ChangeText <| Text.toString diagram.text)
+                |> DiagramState.update m.diagramModel (DiagramModel.ChangeText <| Text.toString diagram.text)
                 |> Return.mapBoth M.UpdateDiagram
                     (\m_ ->
                         { m
@@ -714,16 +715,16 @@ save =
                                 Effect.getGistTokenAfterSave
 
                             ( DiagramLocation.Gist, _ ) ->
-                                Effect.Diagram.save diagram
+                                Diagram.Effect.save diagram
 
                             ( DiagramLocation.Remote, _ ) ->
-                                Effect.Diagram.save diagram
+                                Diagram.Effect.save diagram
 
                             ( DiagramLocation.LocalFileSystem, _ ) ->
                                 Return.zero
 
                             ( DiagramLocation.Local, _ ) ->
-                                Effect.Diagram.save diagram
+                                Diagram.Effect.save diagram
                        )
                )
     )
@@ -802,7 +803,7 @@ update model message =
         M.Init window ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> Diagram.update m.diagramModel (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
+                    |> DiagramState.update m.diagramModel (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
                     |> Return.map
                         (\m_ ->
                             case toRoute m.url of
@@ -842,7 +843,7 @@ update model message =
             let
                 ( diagramModel, diagramCmd ) =
                     Return.singleton model.diagramModel
-                        |> Diagram.update model.diagramModel subMsg
+                        |> DiagramState.update model.diagramModel subMsg
                         |> Return.mapBoth M.UpdateDiagram (\m -> { model | diagramModel = m })
             in
             (case subMsg of
@@ -953,7 +954,7 @@ update model message =
                         |> DiagramItem.diagram.set model.diagramModel.diagramType
             in
             setCurrentDiagram item
-                >> Effect.Diagram.saveToLocal item
+                >> Diagram.Effect.saveToLocal item
                 >> stopProgress
                 >> showWarningMessage Message.messageFailedSaved
 
@@ -977,7 +978,7 @@ update model message =
                 |> Result.toMaybe
                 |> Maybe.map
                     (\d ->
-                        Effect.Diagram.saveToRemote M.SaveToRemoteCompleted
+                        Diagram.Effect.saveToRemote M.SaveToRemoteCompleted
                             { diagram = d
                             , session = model.session
                             , settings = model.settingsModel.settings
@@ -1112,7 +1113,7 @@ update model message =
                                                 (\jwt ->
                                                     BoolEx.ifElse (switchPage Page.Main >> Effect.changeRouteInit M.Init)
                                                         (switchPage Page.Main
-                                                            >> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = model.session, token = id_ }
+                                                            >> Diagram.Effect.loadFromShareWithoutPassword M.Load { session = model.session, token = id_ }
                                                             >> startProgress
                                                             >> Effect.changeRouteInit M.Init
                                                         )
@@ -1152,7 +1153,7 @@ update model message =
         M.Hotkey (Just (Hotkey.Find _)) ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> Diagram.update m.diagramModel DiagramModel.ToggleSearch
+                    |> DiagramState.update m.diagramModel DiagramModel.ToggleSearch
                     |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
             )
                 >> Effect.setFocus M.NoOp "diagram-search"
@@ -1259,7 +1260,7 @@ update model message =
         M.CloseFullscreen ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> Diagram.update m.diagramModel DiagramModel.ToggleFullscreen
+                    |> DiagramState.update m.diagramModel DiagramModel.ToggleFullscreen
                     |> Return.mapBoth M.UpdateDiagram
                         (\m_ ->
                             { m
@@ -1285,7 +1286,7 @@ update model message =
                 |> Maybe.map
                     (\t ->
                         switchPage Page.Main
-                            >> Effect.Diagram.loadFromShare M.LoadWithPassword
+                            >> Diagram.Effect.loadFromShare M.LoadWithPassword
                                 { password = ShareState.getPassword model.shareState
                                 , session = model.session
                                 , token = t
@@ -1312,7 +1313,7 @@ update model message =
 
         M.GotGithubAccessToken { cmd, accessToken } ->
             Return.map (\m -> { m | session = Session.updateAccessToken m.session (accessToken |> Maybe.withDefault "") })
-                >> BoolEx.ifElse (Effect.Diagram.load M.Load { id = DiagramId.fromString cmd, session = model.session })
+                >> BoolEx.ifElse (Diagram.Effect.load M.Load { id = DiagramId.fromString cmd, session = model.session })
                     (Return.command (Task.perform identity (Task.succeed M.Save)))
                     (not <| String.isEmpty cmd)
 
@@ -1339,7 +1340,7 @@ update model message =
             loadDiagram <| DiagramItem.localFile title text
 
         M.SaveLocalFile ->
-            Return.andThen <| \m -> Return.singleton m |> Effect.Diagram.saveToLocalFileSystem (DiagramItem.text.set (Text.saved m.diagramModel.text) m.currentDiagram)
+            Return.andThen <| \m -> Return.singleton m |> Diagram.Effect.saveToLocalFileSystem (DiagramItem.text.set (Text.saved m.diagramModel.text) m.currentDiagram)
 
         M.SavedLocalFile title ->
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
@@ -1562,7 +1563,7 @@ mainView model =
 
                         else
                             Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex <| Color.toString model.settingsModel.settings.diagramSettings.backgroundColor ] ]
-                                [ Lazy.lazy Diagram.view model.diagramModel
+                                [ Lazy.lazy DiagramView.view model.diagramModel
                                     |> Html.map M.UpdateDiagram
                                 ]
                     )
@@ -1588,7 +1589,7 @@ mainView model =
                         [ editor model
                         ]
                     )
-                    (Lazy.lazy Diagram.view model.diagramModel
+                    (Lazy.lazy DiagramView.view model.diagramModel
                         |> Html.map M.UpdateDiagram
                     )
 
@@ -1612,7 +1613,7 @@ mainView model =
                         [ editor model
                         ]
                     )
-                    (Lazy.lazy Diagram.view model.diagramModel
+                    (Lazy.lazy DiagramView.view model.diagramModel
                         |> Html.map M.UpdateDiagram
                     )
 

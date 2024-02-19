@@ -1,0 +1,95 @@
+module View.Switch exposing (docs, view)
+
+import Css
+    exposing
+        ( absolute
+        , after
+        , backgroundColor
+        , borderBox
+        , borderRadius
+        , boxSizing
+        , cursor
+        , display
+        , height
+        , inlineBlock
+        , int
+        , left
+        , opacity
+        , pointer
+        , position
+        , property
+        , px
+        , relative
+        , top
+        , width
+        , zIndex
+        , zero
+        )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Html.Styled as Html exposing (Html, div, input, label)
+import Html.Styled.Attributes as Attr
+import Html.Styled.Events as E
+import Style.Color as ColorStyle
+import Style.Style as Style
+
+
+view : Bool -> (Bool -> msg) -> Html msg
+view check onCheck =
+    div [ Attr.css [ Style.flexCenter, position relative ] ]
+        [ input
+            [ Attr.type_ "checkbox"
+            , Attr.css
+                [ position absolute
+                , left zero
+                , top zero
+                , Style.full
+                , zIndex <| int 5
+                , opacity zero
+                , cursor pointer
+                ]
+            , Attr.checked check
+            , E.onCheck onCheck
+            ]
+            []
+        , label
+            [ Attr.css
+                [ width <| px 32
+                , height <| px 16
+                , backgroundColor <| ColorStyle.disabledColor
+                , position relative
+                , display inlineBlock
+                , borderRadius <| px 46
+                , boxSizing borderBox
+                , property "transition" "0.4s"
+                , after
+                    [ Style.emptyContent
+                    , position absolute
+                    , width <| px 16
+                    , height <| px 16
+                    , Style.roundedFull
+                    , left zero
+                    , top zero
+                    , zIndex <| int 2
+                    , ColorStyle.bgLight
+                    , Style.shadowSm
+                    , property "transition" "0.2s"
+                    ]
+                , if check then
+                    Css.batch [ ColorStyle.bgActivity, after [ left <| px 16 ] ]
+
+                  else
+                    Css.batch []
+                ]
+            ]
+            []
+        ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Switch"
+        |> Chapter.renderComponent
+            (view True (\_ -> Actions.logAction "onCheck")
+                |> Html.toUnstyled
+            )
