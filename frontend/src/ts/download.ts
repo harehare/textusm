@@ -231,7 +231,6 @@ export const initDownload = (app: ElmApp): void => {
   app.ports.copyBase64.subscribe(async ({ id, width, height, x, y }: ExportInfo) => {
     const svg = `data:image/svg+xml;utf8,${encodeURIComponent(await createSvg(id, width, height))}`;
     const item = new ClipboardItem({
-      //
       'text/plain': new Blob([svg], {
         type: 'text/plain',
       }),
