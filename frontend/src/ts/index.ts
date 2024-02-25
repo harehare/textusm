@@ -2,7 +2,6 @@
 import '@total-typescript/ts-reset';
 import copy from 'clipboard-copy';
 import { Workbox } from 'workbox-window';
-
 // @ts-expect-error: Unreachable code error
 import { Elm } from '../elm/Main.elm';
 import '../styles.css';
@@ -15,7 +14,7 @@ import {
   pollRefreshToken,
   signInGithubWithGist,
 } from './auth';
-import { initDB } from './db';
+import { initDatabase } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
 import { loadEditor } from './editor/lang';
@@ -26,6 +25,7 @@ import { loadSettings, saveSettings } from './settings';
 import { isDarkMode } from './utils';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Navigator {
     language: string;
     userLanguage: string;
@@ -33,12 +33,14 @@ declare global {
     languages: string[];
   }
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface HTMLElement {
     mozRequestFullScreen: () => Promise<void>;
     webkitRequestFullscreen: () => Promise<void>;
     msRequestFullscreen: () => Promise<void>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Document {
     mozCancelFullScreen: () => Promise<void>;
     webkitExitFullscreen: () => Promise<void>;
@@ -120,18 +122,11 @@ app.ports.signIn.subscribe(async (provider: Provider) => {
       await signIn(providers.google).catch(() => {
         app.ports.sendErrorNotification.send('Failed sign in.');
       });
-      return;
+      break;
     }
 
     case 'Github': {
       await signIn(providers.github).catch(() => {
-        app.ports.sendErrorNotification.send('Failed sign in.');
-      });
-      return;
-    }
-
-    default: {
-      await signIn(providers.google).catch(() => {
         app.ports.sendErrorNotification.send('Failed sign in.');
       });
     }
@@ -205,7 +200,7 @@ app.ports.getGithubAccessToken.subscribe(async (cmd) => {
   });
 });
 
-for (const l of [initDownload, initDB, initFile]) {
+for (const l of [initDownload, initDatabase, initFile]) {
   l(app);
 }
 

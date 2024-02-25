@@ -1,5 +1,5 @@
-import type { Output } from 'svgo';
-
+import { optimize } from 'svgo';
+import JsPdf from 'jspdf';
 import type { ElmApp } from './elm';
 import type { ExportInfo, ImageInfo } from './model';
 
@@ -18,16 +18,7 @@ export const initDownload = (app: ElmApp): void => {
       svg.innerHTML = element.innerHTML;
     }
 
-    // @ts-expect-error: Unreachable code error
-    const svgoImport = await import('svgo/dist/svgo.browser.js').catch(() => null);
-
-    if (!svgoImport) {
-      app.ports.sendErrorNotification.send('Failed to load chunks. Please reload.');
-      return '';
-    }
-
-    const svgo = await svgoImport.default;
-    const optimizedSvg: Output = await svgo.optimize(new XMLSerializer().serializeToString(svg), {
+    return optimize(new XMLSerializer().serializeToString(svg), {
       plugins: [
         {
           name: 'preset-default',
@@ -41,9 +32,7 @@ export const initDownload = (app: ElmApp): void => {
           },
         },
       ],
-    });
-
-    return optimizedSvg.data.replace(/ style="background-color:[^"]+"/, '');
+    }).data.replace(/ style="background-color:[^"]+"/, '');
   };
 
   const createImage = async ({ id, width, height, scale = 1, callback }: ImageInfo) => {
@@ -90,17 +79,15 @@ export const initDownload = (app: ElmApp): void => {
 
     // @ts-expect-error: Unreachable code error
     window.html2canvas = html2canvas.default;
-    const importedJsPdf = await import('jspdf');
-    const JsPdf = importedJsPdf.default;
 
     if (window.location.pathname === '/md') {
-      const doc = new JsPdf({
+      const pdfDocument = new JsPdf({
         orientation: 'p',
         unit: 'px',
         compress: true,
       });
-      const pageWidth = doc.internal.pageSize.width;
-      const pageHeight = doc.internal.pageSize.height;
+      const pageWidth = pdfDocument.internal.pageSize.width;
+      const pageHeight = pdfDocument.internal.pageSize.height;
       const rate = pageWidth / width;
       const canvasHeight = height * rate;
 
@@ -116,15 +103,15 @@ export const initDownload = (app: ElmApp): void => {
             }
 
             if (printedHeight > 0) {
-              doc.addPage();
+              pdfDocument.addPage();
             }
 
-            doc.addImage(url, 'PNG', 8, printedHeight * -1, width, 0);
+            pdfDocument.addImage(url, 'PNG', 8, printedHeight * -1, width, 0);
             printPage(printedHeight + pageHeight);
           };
 
           printPage(0);
-          doc.save(title);
+          pdfDocument.save(title);
           app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         },
       }).catch(() => {
@@ -137,14 +124,14 @@ export const initDownload = (app: ElmApp): void => {
         height,
         scale: 3,
         callback(url: string) {
-          const doc = new JsPdf({
+          const pdfDocument = new JsPdf({
             orientation: 'l',
             unit: 'px',
             compress: true,
           });
-          const pageWidth = doc.internal.pageSize.getWidth();
-          doc.addImage(url, 'PNG', 0, 0, width * (pageWidth / width), height * (pageWidth / width));
-          doc.save(title);
+          const pageWidth = pdfDocument.internal.pageSize.getWidth();
+          pdfDocument.addImage(url, 'PNG', 0, 0, width * (pageWidth / width), height * (pageWidth / width));
+          pdfDocument.save(title);
           app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         },
       }).catch(() => {
@@ -189,10 +176,10 @@ export const initDownload = (app: ElmApp): void => {
           return;
         }
 
-        const bin = atob(dataUrl);
-        const buffer = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) {
-          buffer[i] = bin.codePointAt(i) ?? 0;
+        const binay = window.atob(dataUrl);
+        const buffer = new Uint8Array(binay.length);
+        for (let i = 0; i < binay.length; i++) {
+          buffer[i] = binay.codePointAt(i) ?? 0;
         }
 
         const blob = new Blob([buffer.buffer], {
@@ -212,13 +199,13 @@ export const initDownload = (app: ElmApp): void => {
   });
 
   app.ports.downloadHtml.subscribe(() => {
-    const doc = document.documentElement;
+    const documentElement = document.documentElement;
 
-    if (!doc) {
+    if (!documentElement) {
       return;
     }
 
-    const element = doc.querySelector('#usm-area');
+    const element = documentElement.querySelector('#usm-area');
 
     if (element) {
       const elm = element.cloneNode(true) as Element;
@@ -244,6 +231,7 @@ export const initDownload = (app: ElmApp): void => {
   app.ports.copyBase64.subscribe(async ({ id, width, height, x, y }: ExportInfo) => {
     const svg = `data:image/svg+xml;utf8,${encodeURIComponent(await createSvg(id, width, height))}`;
     const item = new ClipboardItem({
+      //
       'text/plain': new Blob([svg], {
         type: 'text/plain',
       }),

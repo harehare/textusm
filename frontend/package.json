@@ -114,17 +114,49 @@
     ],
     "rules": {
       "import/extensions": "off",
-      "import/order": "off",
       "n/prefer-global/process": "off",
-      "@typescript-eslint/naming-convention": "off",
-      "accessor-pairs": "off",
-      "n/file-extension-in-import": "off",
-      "unicorn/prefer-module": "off",
-      "@typescript-eslint/consistent-type-definitions": "warn",
-      "@typescript-eslint/no-unsafe-return": "warn",
-      "@typescript-eslint/no-unsafe-call": "warn",
-      "@typescript-eslint/no-unsafe-assignment": "warn",
-      "capitalized-comments": "off"
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "objectLiteralProperty",
+          "format": []
+        },
+        {
+          "selector": "default",
+          "format": [
+            "camelCase"
+          ],
+          "leadingUnderscore": "allow",
+          "trailingUnderscore": "allow"
+        },
+        {
+          "selector": "import",
+          "format": [
+            "camelCase",
+            "PascalCase"
+          ]
+        },
+        {
+          "selector": "variable",
+          "format": [
+            "camelCase",
+            "UPPER_CASE"
+          ],
+          "leadingUnderscore": "allow",
+          "trailingUnderscore": "allow"
+        },
+        {
+          "selector": "typeLike",
+          "format": [
+            "PascalCase"
+          ]
+        }
+      ],
+      "n/file-extension-in-import": [
+        "error",
+        "never"
+      ],
+      "default-case": "off"
     }
   },
   "size-limit": [

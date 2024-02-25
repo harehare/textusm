@@ -39,26 +39,9 @@ if (import.meta.env.DEV && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
 }
 
 export const signIn = async (provider: AuthProvider): Promise<UserCredential> =>
-  new Promise((resolve, reject) => {
-    firebaseSignInWithPopup(auth, provider)
-      .then((result) => {
-        resolve(result);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  firebaseSignInWithPopup(auth, provider);
 
-export const signOut = async (): Promise<void> =>
-  new Promise((resolve, reject) => {
-    firebaseSignOut(auth)
-      .then((result) => {
-        resolve(result);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+export const signOut = async (): Promise<void> => firebaseSignOut(auth);
 
 export const pollRefreshToken = (callback: (idToken: string) => void): void => {
   setInterval(
@@ -142,10 +125,11 @@ export const signInGithubWithGist = async (): Promise<{
 
         resolve({
           // @ts-expect-error: Unreachable code error
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           accessToken: result?._tokenResponse?.oauthAccessToken,
         });
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         reject(error);
       });
   });

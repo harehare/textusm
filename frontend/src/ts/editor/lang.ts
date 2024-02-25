@@ -1,5 +1,4 @@
 import * as monaco from 'monaco-editor';
-
 import type { Settings } from '../model';
 import { isDarkMode } from '../utils';
 

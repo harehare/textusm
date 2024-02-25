@@ -2,7 +2,7 @@ import type { ElmApp } from './elm';
 
 export const canUseNativeFileSystem = 'showOpenFilePicker' in window;
 
-const extensions = [
+const extensions: Array<`.${string}`> = [
   '.txt',
   '.usm',
   '.opc',

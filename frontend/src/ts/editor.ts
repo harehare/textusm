@@ -1,6 +1,5 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-
 import { registerLang } from './editor/lang';
 import type { ElmApp } from './elm';
 import type { DiagramType } from './model';
@@ -56,27 +55,6 @@ export const setElmApp = (app: ElmApp): void => {
 
 registerLang();
 
-const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
-  UserStoryMap: 'UserStoryMap',
-  MindMap: 'UserStoryMap',
-  ImpactMap: 'UserStoryMap',
-  SiteMap: 'UserStoryMap',
-  SequenceDiagram: 'UserStoryMap',
-  Freeform: 'UserStoryMap',
-  UseCaseDiagram: 'UserStoryMap',
-  ErDiagram: 'UserStoryMap',
-  GanttChart: 'GanttChart',
-  BusinessModelCanvas: 'BusinessModelCanvas',
-  OpportunityCanvas: 'BusinessModelCanvas',
-  Fourls: 'BusinessModelCanvas',
-  StartStopContinue: 'BusinessModelCanvas',
-  Kpt: 'BusinessModelCanvas',
-  UserPersona: 'BusinessModelCanvas',
-  EmpathyMap: 'BusinessModelCanvas',
-  Kanban: 'BusinessModelCanvas',
-  Table: 'BusinessModelCanvas',
-  KeyboardLayout: 'KeyboardLayout',
-};
 class MonacoEditor extends HTMLElement {
   init: boolean;
   textChanged: boolean;
@@ -153,27 +131,43 @@ class MonacoEditor extends HTMLElement {
 
         break;
       }
-
-      default: {
-        throw new Error(`Unknown attribute`);
-      }
     }
+  }
+
+  get value() {
+    return this.editor?.getValue() ?? '';
   }
 
   set value(value: string) {
     this.editor?.setValue(value);
   }
 
+  get fontSize() {
+    return this.editor?.getRawOptions().fontSize ?? 0;
+  }
+
   set fontSize(value: number) {
     this.editor?.updateOptions({ fontSize: value });
+  }
+
+  get wordWrap() {
+    return this.editor?.getRawOptions().wordWrap === 'on';
   }
 
   set wordWrap(value: boolean) {
     this.editor?.updateOptions({ wordWrap: value ? 'on' : 'off' });
   }
 
+  get showLineNumber() {
+    return this.editor?.getRawOptions().lineNumbers === 'on';
+  }
+
   set showLineNumber(value: boolean) {
     this.editor?.updateOptions({ lineNumbers: value ? 'on' : 'off' });
+  }
+
+  get changed() {
+    return this.textChanged;
   }
 
   set changed(value: boolean) {
@@ -181,10 +175,14 @@ class MonacoEditor extends HTMLElement {
     window.addEventListener('beforeunload', () => (this.textChanged ? () => true : null));
   }
 
+  get diagramType() {
+    return this.editor?.getModel()?.getLanguageId() as DiagramType;
+  }
+
   set diagramType(value: DiagramType) {
     const model = this.editor?.getModel();
     if (model) {
-      monaco.editor.setModelLanguage(model, ENABLED_LANG_DIAGRAM_TYPE[value]);
+      monaco.editor.setModelLanguage(model, value);
     }
   }
 
