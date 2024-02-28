@@ -1318,7 +1318,7 @@ update model message =
                     (not <| String.isEmpty cmd)
 
         M.ChangeNetworkState isOnline ->
-            Return.map <| \m -> { m | browserStatus = m.browserStatus |> M.ofIsOnline.set isOnline }
+            Return.map <| \m -> { m | browserStatus = m.browserStatus |> M.isOnline.set isOnline }
 
         M.ShowEditor window ->
             Return.map <| \m -> { m | window = window }

@@ -3,7 +3,7 @@ module Types exposing
     , Menu(..)
     , Model
     , Msg(..)
-    , ofIsOnline
+    , isOnline
     )
 
 import Api.RequestError exposing (RequestError)
@@ -141,6 +141,6 @@ type Msg
     | SavedLocalFile String
 
 
-ofIsOnline : Lens BrowserStatus Bool
-ofIsOnline =
+isOnline : Lens BrowserStatus Bool
+isOnline =
     Lens .isOnline (\b a -> { a | isOnline = b })

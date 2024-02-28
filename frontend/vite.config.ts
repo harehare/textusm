@@ -1,13 +1,24 @@
-import { sentryVitePlugin } from '@sentry/vite-plugin';
 import path from 'node:path';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
 import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const outDirectory = path.join(__dirname, 'dist');
+const outDirectory = path.join(import.meta.dirname, 'dist');
 const day = 60 * 60 * 24;
+const env = [
+  'FIREBASE_API_KEY',
+  'FIREBASE_AUTH_DOMAIN',
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_APP_ID',
+  'SENTRY_ENABLE',
+  'SENTRY_DSN',
+  'SENTRY_RELEASE',
+  'MONITOR_ENABLE',
+  'FIREBASE_AUTH_EMULATOR_HOST',
+];
 
 export default defineConfig(({ mode }) => ({
   root: './src',
@@ -27,18 +38,13 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
+    },
+  },
   plugins: [
-    environmentPlugin([
-      'FIREBASE_API_KEY',
-      'FIREBASE_AUTH_DOMAIN',
-      'FIREBASE_PROJECT_ID',
-      'FIREBASE_APP_ID',
-      'SENTRY_ENABLE',
-      'SENTRY_DSN',
-      'SENTRY_RELEASE',
-      'MONITOR_ENABLE',
-      'FIREBASE_AUTH_EMULATOR_HOST',
-    ]),
+    environmentPlugin(env),
     elmPlugin({
       optimize: false,
       nodeElmCompilerOptions: {
