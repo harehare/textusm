@@ -38,13 +38,8 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
-    },
-  },
+  define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
   plugins: [
-    environmentPlugin(env),
     elmPlugin({
       optimize: false,
       nodeElmCompilerOptions: {
