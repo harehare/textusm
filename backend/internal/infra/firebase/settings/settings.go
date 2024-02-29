@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/v4/storage"
 	"github.com/harehare/textusm/internal/domain/model/settings"
@@ -59,8 +61,10 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 	if r.redis != nil {
 		cachedFontList, err := r.redis.Get(ctx, cacheKey).Result()
 
-		if err == nil && err != redis.Nil && cachedFontList != "" {
-			return mo.Ok(strings.Split(cachedFontList, "\n"))
+		if (err == nil || err != redis.Nil) && cachedFontList != "" {
+			return mo.Ok(lo.Filter(strings.Split(cachedFontList, "\n"), func(x string, index int) bool {
+				return x != ""
+			}))
 		}
 	}
 
@@ -101,7 +105,9 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 		}
 	}
 
-	return mo.Ok(append(strings.Split(fontListResult.OrEmpty(), "\n"), strings.Split(langFontListResult.OrEmpty(), "\n")...))
+	return mo.Ok(lo.Filter(append(strings.Split(fontListResult.OrEmpty(), "\n"), strings.Split(langFontListResult.OrEmpty(), "\n")...), func(x string, index int) bool {
+		return x != ""
+	}))
 }
 
 func (r *FirestoreSettingsRepository) Save(ctx context.Context, userID string, diagram values.Diagram, s settings.Settings) mo.Result[*settings.Settings] {

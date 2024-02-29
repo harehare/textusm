@@ -9,7 +9,7 @@ import (
 )
 
 type Api struct {
-	gistService service.GistService
+	gistService     service.GistService
 	settingsService service.SettingsService
 }
 
@@ -56,6 +56,7 @@ func (a *Api) UsableFontList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(fontList.OrElse([]string{}))
 
 	if err != nil {

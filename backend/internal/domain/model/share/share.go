@@ -4,6 +4,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/samber/lo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -32,13 +33,11 @@ func (s *Share) ValidEmail(email string) bool {
 		return true
 	}
 
-	for _, e := range s.AllowEmailList {
-		if e == email {
-			return true
-		}
-	}
+	_, hasEmail := lo.Find(s.AllowEmailList, func(e string) bool {
+		return e == email
+	})
 
-	return false
+	return hasEmail
 }
 
 func (s *Share) CheckIpWithinRange(remoteIP string) bool {

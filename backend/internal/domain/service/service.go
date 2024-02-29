@@ -12,6 +12,8 @@ import (
 	"slices"
 	"time"
 
+	"log/slog"
+
 	"github.com/99designs/gqlgen/graphql"
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/internal/context/values"
@@ -23,7 +25,6 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
-	"log/slog"
 )
 
 var (
@@ -153,7 +154,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	jwtTokenResult := verifyToken(ctx, string(t))
+	jwtTokenResult := verifyToken(string(t))
 
 	if jwtTokenResult.IsError() {
 		return mo.Err[*diagramitem.DiagramItem](jwtTokenResult.Error())
@@ -307,7 +308,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	return mo.Ok(base64.RawURLEncoding.EncodeToString([]byte(tokenString)))
 }
 
-func verifyToken(ctx context.Context, token string) mo.Result[*jwt.Token] {
+func verifyToken(token string) mo.Result[*jwt.Token] {
 	publicKey, err := base64.StdEncoding.DecodeString(pubKey)
 
 	if err != nil {

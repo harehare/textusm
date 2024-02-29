@@ -200,7 +200,7 @@ func TestShare(t *testing.T) {
 			t.Fatal("decode failed")
 		}
 
-		verifiedToken := verifyToken(context.Background(), string(decoded))
+		verifiedToken := verifyToken(string(decoded))
 
 		if verifiedToken.IsError() || !verifiedToken.OrEmpty().Valid {
 			t.Fatal("invalid token")
