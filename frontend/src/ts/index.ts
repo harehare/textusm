@@ -60,6 +60,7 @@ type Flags = {
 };
 
 declare type ElmType = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   Main: {
     init: (flags: { flags: Flags }) => ElmApp;
   };
