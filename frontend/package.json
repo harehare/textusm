@@ -88,7 +88,7 @@
     "lint-fix:elm": "elm-review --fix",
     "prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "postprod": "rimraf -rf dist/*.map",
-    "preview": "vite preview --port 3000",
+    "preview": "concurrently \"vite preview\" \"npm run dev:backend\"",
     "prepreview": "npm run prod",
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",

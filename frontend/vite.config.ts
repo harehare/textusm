@@ -2,7 +2,6 @@ import path from 'node:path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
-import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -119,6 +118,9 @@ export default defineConfig(({ mode }) => ({
         ]
       : []),
   ],
+  preview: {
+    port: 3001,
+  },
   server: {
     host: true,
     port: 3000,

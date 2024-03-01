@@ -1,6 +1,6 @@
-default: dev
+default: run
 
-dev:
+run:
   cd frontend && npm run dev
 
 test:

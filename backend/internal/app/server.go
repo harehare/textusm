@@ -145,7 +145,7 @@ func Run() int {
 	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
 
 	cors := cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
+		AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000", "http://localhost:3001", "https://localhost:3001"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE"},
 		AllowedHeaders:   []string{"accept", "authorization", "content-type"},
 		AllowCredentials: false,

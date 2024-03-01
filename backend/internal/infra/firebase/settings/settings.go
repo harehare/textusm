@@ -78,7 +78,9 @@ func (r *FirestoreSettingsRepository) FindFontList(ctx context.Context, lang str
 	langFontListResult := storage.Get(ctx, "fontlist", lang)
 
 	if langFontListResult.IsError() {
-		return mo.Ok(strings.Split(fontListResult.OrEmpty(), "\n"))
+		return mo.Ok(lo.Filter(strings.Split(fontListResult.OrEmpty(), "\n"), func(x string, index int) bool {
+			return x != ""
+		}))
 	}
 
 	fontList := append(strings.Split(fontListResult.OrEmpty(), "\n"), strings.Split(langFontListResult.OrEmpty(), "\n")...)
