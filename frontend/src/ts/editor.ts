@@ -1,5 +1,4 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { registerLang } from './editor/lang';
 import type { ElmApp } from './elm';
 import type { DiagramType } from './model';
@@ -7,12 +6,6 @@ import type { DiagramType } from './model';
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | undefined;
 let updateTextInterval: number | undefined;
 let _app: ElmApp | undefined;
-
-window.MonacoEnvironment = {
-  getWorker() {
-    return new EditorWorker();
-  },
-};
 
 const focusEditor = () => {
   setTimeout(() => {
@@ -249,7 +242,7 @@ class MonacoEditor extends HTMLElement {
       label: 'focus',
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
-      contextMenuOrder: 3,
+      contextMenuOrder: 4,
       run() {
         const currentLineNo = monacoEditor?.getPosition()?.lineNumber ?? -1;
 
