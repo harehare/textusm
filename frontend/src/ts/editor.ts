@@ -1,4 +1,5 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { registerLang } from './editor/lang';
 import type { ElmApp } from './elm';
 import type { DiagramType } from './model';
@@ -6,6 +7,12 @@ import type { DiagramType } from './model';
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | undefined;
 let updateTextInterval: number | undefined;
 let _app: ElmApp | undefined;
+
+self.MonacoEnvironment = {
+  getWorker() {
+    return new EditorWorker();
+  },
+};
 
 const focusEditor = () => {
   setTimeout(() => {

@@ -73,7 +73,7 @@ type alias Settings =
 defaultEditorSettings : Maybe EditorSettings -> EditorSettings
 defaultEditorSettings settings =
     Maybe.withDefault
-        { fontSize = 14
+        { fontSize = 12
         , wordWrap = False
         , showLineNumber = True
         }
@@ -126,7 +126,12 @@ defaultSettings theme =
         }
     , text = Nothing
     , title = Nothing
-    , editor = Nothing
+    , editor =
+        Just
+            { fontSize = 12
+            , wordWrap = False
+            , showLineNumber = True
+            }
     , diagram = Nothing
     , location = Nothing
     , theme = Nothing

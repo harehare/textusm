@@ -1,6 +1,5 @@
 import path from 'node:path';
 import elmPlugin from 'vite-plugin-elm';
-import monacoEditorPluginModule from 'vite-plugin-monaco-editor';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -19,12 +18,6 @@ const env = [
   'MONITOR_ENABLE',
   'FIREBASE_AUTH_EMULATOR_HOST',
 ];
-
-const isObjectWithDefaultFunction = (module: unknown): module is { default: typeof monacoEditorPluginModule } =>
-  module != null && typeof module === 'object' && 'default' in module && typeof module.default === 'function';
-const monacoEditorPlugin = isObjectWithDefaultFunction(monacoEditorPluginModule)
-  ? monacoEditorPluginModule.default
-  : monacoEditorPluginModule;
 
 export default defineConfig(({ mode }) => ({
   root: './src',
@@ -53,8 +46,6 @@ export default defineConfig(({ mode }) => ({
         pathToElm: mode === 'production' ? 'node_modules/elm-optimize-level-2/bin/elm-optimize-level-2' : undefined,
       },
     }),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    monacoEditorPlugin({}),
     createHtmlPlugin({
       minify: true,
       entry: '/ts/index.ts',
