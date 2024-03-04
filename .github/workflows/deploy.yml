@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - master
+          - refs/tags/v0.14.6
 
 jobs:
   deploy:
