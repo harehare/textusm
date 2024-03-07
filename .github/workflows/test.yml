@@ -26,6 +26,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "backend/go.mod"
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -34,7 +37,6 @@ jobs:
         with:
           working-directory: backend
           args: --issues-exit-code=0 --timeout=2m
-          version: v1.54
       - name: Get npm cache directory
         id: npm-cache-dir
         shell: bash
