@@ -7,8 +7,10 @@ module Types.Settings exposing
     , decoder
     , defaultEditorSettings
     , defaultSettings
+    , diagramSettings
     , encoder
     , exportEncoder
+    , theme
     , font
     , fontSize
     , height
@@ -16,7 +18,7 @@ module Types.Settings exposing
     , labelColor
     , legacyEncoder
     , lineColor
-    , ofDiagramSettings
+    , location
     , showGrid
     , showLineNumber
     , storyBackgroundColor
@@ -81,7 +83,7 @@ defaultEditorSettings settings =
 
 
 defaultSettings : Theme -> Settings
-defaultSettings theme =
+defaultSettings t =
     { position = Just -10
     , font = "Nunito Sans"
     , diagramId = Nothing
@@ -106,7 +108,7 @@ defaultSettings theme =
             , text = Just <| Color.textDefalut
             }
         , backgroundColor =
-            case theme of
+            case t of
                 Theme.System True ->
                     Color.backgroundDarkDefalut
 
@@ -140,22 +142,22 @@ defaultSettings theme =
 
 activityBackgroundColor : Lens Settings Color
 activityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.activityBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityBackgroundColor diagramSettings
 
 
 activityColor : Lens Settings Color
 activityColor =
-    Compose.lensWithLens DiagramSettings.activityColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.activityColor diagramSettings
 
 
 backgroundColor : Lens Settings Color
 backgroundColor =
-    Compose.lensWithLens DiagramSettings.backgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.backgroundColor diagramSettings
 
 
 font : Lens Settings String
 font =
-    Compose.lensWithLens DiagramSettings.font ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.font diagramSettings
 
 
 fontSize : Optional Settings Int
@@ -165,17 +167,27 @@ fontSize =
 
 height : Lens Settings CardSize
 height =
-    Compose.lensWithLens DiagramSettings.height ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.height diagramSettings
 
 
 labelColor : Lens Settings Color
 labelColor =
-    Compose.lensWithLens DiagramSettings.labelColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.labelColor diagramSettings
 
 
 lineColor : Lens Settings Color
 lineColor =
-    Compose.lensWithLens DiagramSettings.lineColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.lineColor diagramSettings
+
+
+location : Optional Settings Location
+location =
+    Optional .location (\b a -> { a | location = Just b })
+
+
+theme : Optional Settings Theme
+theme =
+    Optional .theme (\b a -> { a | theme = Just b })
 
 
 showLineNumber : Optional Settings Bool
@@ -185,42 +197,42 @@ showLineNumber =
 
 storyBackgroundColor : Lens Settings Color
 storyBackgroundColor =
-    Compose.lensWithLens DiagramSettings.storyBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyBackgroundColor diagramSettings
 
 
 storyColor : Lens Settings Color
 storyColor =
-    Compose.lensWithLens DiagramSettings.storyColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.storyColor diagramSettings
 
 
 taskBackgroundColor : Lens Settings Color
 taskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.taskBackgroundColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskBackgroundColor diagramSettings
 
 
 taskColor : Lens Settings Color
 taskColor =
-    Compose.lensWithLens DiagramSettings.taskColor ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.taskColor diagramSettings
 
 
 textColor : Optional Settings Color
 textColor =
-    Compose.lensWithOptional DiagramSettings.textColor ofDiagramSettings
+    Compose.lensWithOptional DiagramSettings.textColor diagramSettings
 
 
 toolbar : Lens Settings (Maybe Bool)
 toolbar =
-    Compose.lensWithLens DiagramSettings.toolbar ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.toolbar diagramSettings
 
 
 showGrid : Lens Settings (Maybe Bool)
 showGrid =
-    Compose.lensWithLens DiagramSettings.showGrid ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.showGrid diagramSettings
 
 
 width : Lens Settings CardSize
 width =
-    Compose.lensWithLens DiagramSettings.width ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.width diagramSettings
 
 
 wordWrap : Optional Settings Bool
@@ -230,7 +242,7 @@ wordWrap =
 
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
-    Compose.lensWithLens DiagramSettings.zoomControl ofDiagramSettings
+    Compose.lensWithLens DiagramSettings.zoomControl diagramSettings
 
 
 decoder : D.Decoder Settings
@@ -307,8 +319,8 @@ importDecoder settings =
         |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
 
 
-ofDiagramSettings : Lens Settings DiagramSettings.Settings
-ofDiagramSettings =
+diagramSettings : Lens Settings DiagramSettings.Settings
+diagramSettings =
     Lens .diagramSettings (\b a -> { a | diagramSettings = b })
 
 

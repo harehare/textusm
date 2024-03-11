@@ -40,12 +40,12 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
 import Page.Embed as Embed
-import Page.Help as Help
-import Page.List as DiagramList
+import Page.Help
+import Page.List
 import Page.List.DiagramList as DiagramListModel
-import Page.New as New
-import Page.NotFound as NotFound
-import Page.Settings as Settings
+import Page.New
+import Page.NotFound
+import Page.Settings
 import Page.Types as Page exposing (Page)
 import Ports
 import Return exposing (Return)
@@ -317,7 +317,7 @@ init flags url key =
             initSettings.diagram |> Maybe.withDefault DiagramItem.empty
 
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest lang Env.apiRoot flags.isOnline
+            Page.List.init Session.guest lang Env.apiRoot flags.isOnline
 
         ( diagramModel, _ ) =
             DiagramState.init initSettings.diagramSettings
@@ -362,7 +362,7 @@ init flags url key =
             }
 
         ( settingsModel, _ ) =
-            Settings.init
+            Page.Settings.init
                 { canUseNativeFileSystem = flags.canUseNativeFileSystem
                 , diagramType = currentDiagram.diagram
                 , session = Session.guest
@@ -481,16 +481,16 @@ initListPage =
     Return.andThen <|
         \m ->
             Return.singleton m.diagramListModel
-                |> DiagramList.load { session = m.session, isOnline = m.browserStatus.isOnline }
+                |> Page.List.load { session = m.session, isOnline = m.browserStatus.isOnline }
                 |> Return.mapBoth M.UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
 
 
-updateListPage : DiagramList.Msg -> Return.ReturnF Msg Model
+updateListPage : Page.List.Msg -> Return.ReturnF Msg Model
 updateListPage msg =
     Return.andThen <|
         \m ->
             Return.singleton m.diagramListModel
-                |> DiagramList.update m.diagramListModel msg
+                |> Page.List.update m.diagramListModel msg
                 |> Return.mapBoth M.UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
 
 
@@ -499,7 +499,7 @@ initSettingsPage diagramType =
     Return.andThen <|
         \m ->
             Return.singleton m.settingsModel
-                |> Settings.load { diagramType = diagramType, session = m.session }
+                |> Page.Settings.load { diagramType = diagramType, session = m.session }
                 |> Return.mapBoth M.UpdateSettings (\m_ -> { m | settingsModel = m_ })
 
 
@@ -576,26 +576,16 @@ loadDiagram : DiagramItem -> Return.ReturnF Msg Model
 loadDiagram diagram =
     Return.andThen <|
         \m ->
-            let
-                diagramModel : DiagramModel.Model
-                diagramModel =
-                    m.diagramModel
-
-                newDiagramModel : DiagramModel.Model
-                newDiagramModel =
-                    { diagramModel
-                        | diagramType = diagram.diagram
-                        , text = diagram.text
-                    }
-            in
-            Return.singleton newDiagramModel
+            m
+                |> M.currentDiagram.set diagram
+                |> .diagramModel
+                |> DiagramModel.diagramType.set diagram.diagram
+                |> DiagramModel.text.set diagram.text
+                |> Return.singleton
                 |> DiagramState.update m.diagramModel (DiagramModel.ChangeText <| Text.toString diagram.text)
                 |> Return.mapBoth M.UpdateDiagram
                     (\m_ ->
-                        { m
-                            | diagramModel = m_
-                            , currentDiagram = diagram
-                        }
+                        m |> M.diagramModel.set m_
                     )
                 |> stopProgress
 
@@ -604,14 +594,9 @@ setDiagramSettings : DiagramSettings.Settings -> Return.ReturnF Msg Model
 setDiagramSettings settings =
     Return.map
         (\m ->
-            let
-                newSettings : Settings.Model
-                newSettings =
-                    m.settingsModel
-            in
             { m
                 | diagramModel = m.diagramModel |> DiagramModel.settings.set settings
-                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.ofDiagramSettings.set settings }
+                , settingsModel = m.settingsModel |> Page.Settings.diagramSettings.set settings
             }
         )
         >> setDiagramSettingsCache settings
@@ -707,7 +692,7 @@ save =
                     (\m_ ->
                         { m_
                             | diagramModel = newDiagramModel
-                            , diagramListModel = m_.diagramListModel |> DiagramList.diagramList.set DiagramListModel.notAsked
+                            , diagramListModel = m_.diagramListModel |> Page.List.diagramList.set DiagramListModel.notAsked
                         }
                     )
                     >> (case ( location, Session.loginProvider m.session ) of
@@ -752,9 +737,9 @@ subscriptions model =
          , Ports.selectItemFromLineNo (\{ lineNo, text } -> M.UpdateDiagram (DiagramModel.SelectFromLineNo lineNo text))
          , Ports.loadSettingsFromLocalCompleted M.LoadSettingsFromLocal
          , Ports.startDownload M.StartDownload
-         , Ports.gotLocalDiagramsJson (\json -> M.UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
-         , Ports.removedLocalDiagram (\idString -> (Ok <| DiagramId.fromString idString) |> DiagramList.Removed |> M.UpdateDiagramList)
-         , Ports.reload (\_ -> M.UpdateDiagramList DiagramList.Reload)
+         , Ports.gotLocalDiagramsJson (\json -> M.UpdateDiagramList (Page.List.GotLocalDiagramsJson json))
+         , Ports.removedLocalDiagram (\idString -> (Ok <| DiagramId.fromString idString) |> Page.List.Removed |> M.UpdateDiagramList)
+         , Ports.reload (\_ -> M.UpdateDiagramList Page.List.Reload)
          , onVisibilityChange M.HandleVisibilityChange
          , onResize (\width height -> M.UpdateDiagram (DiagramModel.Resize width height))
          , Ports.hotkey (\cmd -> M.Hotkey <| Hotkey.fromString cmd)
@@ -763,7 +748,7 @@ subscriptions model =
          , Ports.onWarnNotification (\n -> M.HandleAutoCloseNotification (Notification.showWarningNotifcation n))
          , Ports.onAuthStateChanged M.HandleAuthStateChanged
          , Ports.saveToRemote M.SaveToRemote
-         , Ports.removeRemoteDiagram (\diagram -> M.UpdateDiagramList <| DiagramList.RemoveRemote diagram)
+         , Ports.removeRemoteDiagram (\diagram -> M.UpdateDiagramList <| Page.List.RemoveRemote diagram)
          , Ports.downloadCompleted M.DownloadCompleted
          , Ports.progress M.Progress
          , Ports.saveToLocalCompleted M.SaveToLocalCompleted
@@ -876,7 +861,7 @@ update model message =
             Return.andThen
                 (\m ->
                     Return.singleton m.settingsModel
-                        |> Settings.update msg
+                        |> Page.Settings.update msg
                         |> Return.mapBoth M.UpdateSettings
                             (\model_ ->
                                 { m
@@ -1060,7 +1045,7 @@ update model message =
                     }
 
                 ( newSettingsModel, _ ) =
-                    Settings.init
+                    Page.Settings.init
                         { canUseNativeFileSystem = model.browserStatus.canUseNativeFileSystem
                         , diagramType = model.currentDiagram.diagram
                         , session = model.session
@@ -1068,7 +1053,7 @@ update model message =
                         , lang = model.lang
                         , usableFontList =
                             BoolEx.toMaybe model.settingsModel.usableFontList
-                                (Settings.isFetchedUsableFont model.settingsModel)
+                                (Page.Settings.isFetchedUsableFont model.settingsModel)
                         }
             in
             Return.map (\m -> { m | settingsModel = newSettingsModel })
@@ -1230,13 +1215,13 @@ update model message =
                             (\m ->
                                 let
                                     ( newSettingsModel, _ ) =
-                                        Settings.init
+                                        Page.Settings.init
                                             { canUseNativeFileSystem = m.browserStatus.canUseNativeFileSystem
                                             , diagramType = m.currentDiagram.diagram
                                             , session = m.session
                                             , settings = settings
                                             , lang = m.lang
-                                            , usableFontList = BoolEx.toMaybe m.settingsModel.usableFontList (Settings.isFetchedUsableFont m.settingsModel)
+                                            , usableFontList = BoolEx.toMaybe m.settingsModel.usableFontList (Page.Settings.isFetchedUsableFont m.settingsModel)
                                             }
                                 in
                                 { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.settings.set settings.diagramSettings m.diagramModel }
@@ -1353,10 +1338,10 @@ update model message =
             openCurrentFile model.currentDiagram
 
 
-processDiagramListMsg : DiagramList.Msg -> Return.ReturnF Msg Model
+processDiagramListMsg : Page.List.Msg -> Return.ReturnF Msg Model
 processDiagramListMsg msg =
     case msg of
-        DiagramList.Select diagram ->
+        Page.List.Select diagram ->
             (case ( diagram.location, diagram.isPublic ) of
                 ( Just DiagramLocation.Remote, True ) ->
                     pushUrl (Route.toString <| ViewPublic diagram.diagram (DiagramItem.getId diagram))
@@ -1370,7 +1355,7 @@ processDiagramListMsg msg =
                 >> startProgress
                 >> Effect.closeLocalFile
 
-        DiagramList.Copy diagram ->
+        Page.List.Copy diagram ->
             (case ( diagram.location, diagram.isPublic ) of
                 ( Just DiagramLocation.Remote, True ) ->
                     pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)) (Just True))
@@ -1384,13 +1369,13 @@ processDiagramListMsg msg =
                 >> startProgress
                 >> Effect.closeLocalFile
 
-        DiagramList.Export ->
+        Page.List.Export ->
             startProgress
 
-        DiagramList.GotExportDiagrams (Err e) ->
+        Page.List.GotExportDiagrams (Err e) ->
             showErrorMessage <| RequestError.toMessage e
 
-        DiagramList.Removed (Ok diagramId) ->
+        Page.List.Removed (Ok diagramId) ->
             Return.map <|
                 \m ->
                     if (m.currentDiagram.id |> Maybe.withDefault (DiagramId.fromString "")) == diagramId then
@@ -1399,13 +1384,13 @@ processDiagramListMsg msg =
                     else
                         m
 
-        DiagramList.Removed (Err _) ->
+        Page.List.Removed (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
-        DiagramList.GotDiagrams (Err _) ->
+        Page.List.GotDiagrams (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
-        DiagramList.ImportDiagrams json ->
+        Page.List.ImportDiagrams json ->
             case DiagramItem.stringToList json of
                 Ok _ ->
                     showInfoMessage Message.messageImportCompleted
@@ -1413,20 +1398,20 @@ processDiagramListMsg msg =
                 Err _ ->
                     showErrorMessage Message.messagEerrorOccurred
 
-        DiagramList.ImportedRemoteDiagrams (Ok _) ->
+        Page.List.ImportedRemoteDiagrams (Ok _) ->
             showInfoMessage Message.messageImportCompleted
 
-        DiagramList.ImportedRemoteDiagrams (Err _) ->
+        Page.List.ImportedRemoteDiagrams (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
         _ ->
             stopProgress
 
 
-updateSettings : Settings.Msg -> DiagramType -> Return.ReturnF Msg Model
+updateSettings : Page.Settings.Msg -> DiagramType -> Return.ReturnF Msg Model
 updateSettings msg diagramType =
     case msg of
-        Settings.UpdateSettings _ _ ->
+        Page.Settings.UpdateSettings _ _ ->
             Return.andThen
                 (\m ->
                     Return.singleton m
@@ -1438,7 +1423,7 @@ updateSettings msg diagramType =
                         |> setDiagramSettingsCache m.settingsModel.settings.diagramSettings
                 )
 
-        Settings.LoadSettings (Ok settings) ->
+        Page.Settings.LoadSettings (Ok settings) ->
             Return.andThen
                 (\m ->
                     Return.singleton m
@@ -1451,7 +1436,7 @@ updateSettings msg diagramType =
                 )
                 >> showInfoMessage Message.messageImportCompleted
 
-        Settings.LoadSettings (Err _) ->
+        Page.Settings.LoadSettings (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
         _ ->
@@ -1567,7 +1552,7 @@ mainView model =
                                     |> Html.map M.UpdateDiagram
                                 ]
                     )
-                |> Maybe.withDefault NotFound.view
+                |> Maybe.withDefault Page.NotFound.view
 
         _ ->
             if Size.getWidth model.diagramModel.windowSize > 0 && Utils.isPhone (Size.getWidth model.diagramModel.windowSize) then
@@ -1644,22 +1629,22 @@ view model =
             [ menuView model
             , case model.page of
                 Page.New ->
-                    New.view
+                    Page.New.view
 
                 Page.Help ->
-                    Help.view
+                    Page.Help.view
 
                 Page.List ->
-                    Lazy.lazy DiagramList.view model.diagramListModel |> Html.map M.UpdateDiagramList
+                    Lazy.lazy Page.List.view model.diagramListModel |> Html.map M.UpdateDiagramList
 
                 Page.Settings ->
-                    Lazy.lazy Settings.view model.settingsModel |> Html.map M.UpdateSettings
+                    Lazy.lazy Page.Settings.view model.settingsModel |> Html.map M.UpdateSettings
 
                 Page.Embed ->
                     Embed.view model
 
                 Page.NotFound ->
-                    NotFound.view
+                    Page.NotFound.view
 
                 _ ->
                     mainView model

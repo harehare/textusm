@@ -1,4 +1,4 @@
-module Page.Settings exposing (FontList, Model, Msg(..), init, isFetchedUsableFont, load, update, view)
+module Page.Settings exposing (FontList, Model, Msg(..), diagramSettings, init, isFetchedUsableFont, load, settings, update, view)
 
 import Api.Http.UsableFontList as UsableFontListRequest
 import Api.RequestError exposing (RequestError)
@@ -37,6 +37,7 @@ import Css
         )
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Location as DiagramLocation
+import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import File exposing (File)
 import File.Download as Download
@@ -48,6 +49,8 @@ import Json.Decode as D
 import Json.Encode as E
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
+import Monocle.Compose as Compose
+import Monocle.Lens exposing (Lens)
 import Return
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
@@ -112,15 +115,15 @@ init :
     , usableFontList : Maybe FontList
     }
     -> Return.Return Msg Model
-init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontList } =
+init m =
     Return.singleton
         { dropDownIndex = Nothing
-        , diagramType = diagramType
-        , settings = settings
-        , session = session
-        , canUseNativeFileSystem = canUseNativeFileSystem
-        , usableFontList = usableFontList |> Maybe.withDefault [ settings.diagramSettings.font ]
-        , lang = lang
+        , diagramType = m.diagramType
+        , settings = m.settings
+        , session = m.session
+        , canUseNativeFileSystem = m.canUseNativeFileSystem
+        , usableFontList = m.usableFontList |> Maybe.withDefault [ m.settings.diagramSettings.font ]
+        , lang = m.lang
         , isLoading = False
         }
 
@@ -136,8 +139,8 @@ load { diagramType, session } =
 update : Msg -> Return.ReturnF Msg Model
 update msg =
     case msg of
-        LoadSettings (Ok settings) ->
-            Return.map <| \m -> { m | settings = settings }
+        LoadSettings (Ok s) ->
+            Return.map <| \m -> { m | settings = s }
 
         LoadSettings (Err _) ->
             Return.zero
@@ -319,7 +322,7 @@ view_ :
     , lang : Lang
     }
     -> Html Msg
-view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading, lang } =
+view_ m =
     Html.div
         [ Attr.css
             [ Breakpoint.style
@@ -345,20 +348,20 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                 [ conrtolView
                     [ nameView [ Html.text "Font Family" ]
                     , inputAreaView
-                        [ if isLoading then
+                        [ if m.isLoading then
                             DropDownList.loadingView "Loading..."
 
                           else
                             DropDownList.view ToggleDropDownList
                                 "font-family"
-                                dropDownIndex
+                                m.dropDownIndex
                                 (UpdateSettings
                                     (\x ->
-                                        { settings | font = x }
+                                        m.settings |> Settings.font.set x
                                     )
                                 )
-                                (fontFamilyItems usableFontList)
-                                settings.font
+                                (fontFamilyItems m.usableFontList)
+                                m.settings.font
                         ]
                     ]
                 , conrtolView
@@ -366,14 +369,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "background-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.backgroundColor.set (Color.fromString x) settings
+                                    Settings.backgroundColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.backgroundColor |> Color.toString)
+                            (m.settings.diagramSettings.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -381,14 +384,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "save-location"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    { settings | location = Just <| DiagramLocation.fromString x }
+                                    m.settings |> Settings.location.set (DiagramLocation.fromString x)
                                 )
                             )
-                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled canUseNativeFileSystem (Session.isGithubUser session))
-                            ((case ( settings.location, canUseNativeFileSystem, Session.isGithubUser session ) of
+                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled m.canUseNativeFileSystem (Session.isGithubUser m.session))
+                            ((case ( m.settings.location, m.canUseNativeFileSystem, Session.isGithubUser m.session ) of
                                 ( Just DiagramLocation.Gist, _, True ) ->
                                     DiagramLocation.Gist
 
@@ -410,43 +413,43 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "editor-theme"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    { settings | theme = Just <| Theme.fromString x }
+                                    m.settings |> Settings.theme.set (Theme.fromString x)
                                 )
                             )
                             [ { name = Theme.toDisplayString <| Theme.System True, value = DropDownList.stringValue <| Theme.toString <| Theme.System True }
                             , { name = Theme.toDisplayString Theme.Light, value = DropDownList.stringValue <| Theme.toString Theme.Light }
                             , { name = Theme.toDisplayString Theme.Dark, value = DropDownList.stringValue <| Theme.toString Theme.Dark }
                             ]
-                            (settings.theme |> Maybe.map Theme.toString |> Maybe.withDefault (Theme.toString <| Theme.System True))
+                            (m.settings.theme |> Maybe.map Theme.toString |> Maybe.withDefault (Theme.toString <| Theme.System True))
                         ]
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Zoom Control" ]
-                    , Switch.view (Maybe.withDefault True settings.diagramSettings.zoomControl)
+                    , Switch.view (Maybe.withDefault True m.settings.diagramSettings.zoomControl)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> Settings.zoomControl.set (Just v))
+                                (\_ -> m.settings |> Settings.zoomControl.set (Just v))
                                 ""
                         )
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Toolbar" ]
-                    , Switch.view (Maybe.withDefault True settings.diagramSettings.toolbar)
+                    , Switch.view (Maybe.withDefault True m.settings.diagramSettings.toolbar)
                         (\v ->
                             UpdateSettings
-                                (\_ -> Settings.toolbar.set (Just v) settings)
+                                (\_ -> Settings.toolbar.set (Just v) m.settings)
                                 ""
                         )
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Grid" ]
-                    , Switch.view (Maybe.withDefault False settings.diagramSettings.showGrid)
+                    , Switch.view (Maybe.withDefault False m.settings.diagramSettings.showGrid)
                         (\v ->
                             UpdateSettings
-                                (\_ -> Settings.showGrid.set (Just v) settings)
+                                (\_ -> Settings.showGrid.set (Just v) m.settings)
                                 ""
                         )
                     ]
@@ -460,32 +463,32 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "editor-font-size"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.fontSize.set (Maybe.withDefault 0 <| String.toInt x) settings
+                                    Settings.fontSize.set (Maybe.withDefault 0 <| String.toInt x) m.settings
                                 )
                             )
                             fontSizeItems
-                            (String.fromInt <| (settings.editor |> Settings.defaultEditorSettings |> .fontSize))
+                            (String.fromInt <| (m.settings.editor |> Settings.defaultEditorSettings |> .fontSize))
                         ]
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Show Line Number" ]
-                    , Switch.view (settings.editor |> Settings.defaultEditorSettings |> .showLineNumber)
+                    , Switch.view (m.settings.editor |> Settings.defaultEditorSettings |> .showLineNumber)
                         (\v ->
                             UpdateSettings
-                                (\_ -> Settings.showLineNumber.set v settings)
+                                (\_ -> Settings.showLineNumber.set v m.settings)
                                 ""
                         )
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Word Wrap" ]
-                    , Switch.view (settings.editor |> Settings.defaultEditorSettings |> .wordWrap)
+                    , Switch.view (m.settings.editor |> Settings.defaultEditorSettings |> .wordWrap)
                         (\v ->
                             UpdateSettings
                                 (\_ ->
-                                    Settings.wordWrap.set v settings
+                                    Settings.wordWrap.set v m.settings
                                 )
                                 ""
                         )
@@ -500,14 +503,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-width"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150 |> CardSize.fromInt) settings
+                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150 |> CardSize.fromInt) m.settings
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.width)
+                            (String.fromInt <| CardSize.toInt m.settings.diagramSettings.size.width)
                         ]
                     ]
                 , conrtolView
@@ -515,14 +518,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-height"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45 |> CardSize.fromInt)
+                                    m.settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45 |> CardSize.fromInt)
                                 )
                             )
                             baseSizeItems
-                            (String.fromInt <| CardSize.toInt settings.diagramSettings.size.height)
+                            (String.fromInt <| CardSize.toInt m.settings.diagramSettings.size.height)
                         ]
                     ]
                 ]
@@ -535,14 +538,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-background-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityBackgroundColor.set (Color.fromString x) settings
+                                    Settings.activityBackgroundColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.activity.backgroundColor |> Color.toString)
+                            (m.settings.diagramSettings.color.activity.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -550,14 +553,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-foreground-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.activityColor.set (Color.fromString x) settings
+                                    Settings.activityColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.activity.color |> Color.toString)
+                            (m.settings.diagramSettings.color.activity.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -568,14 +571,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-background-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.taskBackgroundColor.set (Color.fromString x) settings
+                                    Settings.taskBackgroundColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.task.backgroundColor |> Color.toString)
+                            (m.settings.diagramSettings.color.task.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -583,14 +586,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-foreground-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> Settings.taskColor.set (Color.fromString x)
+                                    m.settings |> Settings.taskColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.task.color |> Color.toString)
+                            (m.settings.diagramSettings.color.task.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -601,14 +604,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-background-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyBackgroundColor.set (Color.fromString x) settings
+                                    Settings.storyBackgroundColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.story.backgroundColor |> Color.toString)
+                            (m.settings.diagramSettings.color.story.backgroundColor |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -616,14 +619,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-foreground-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.storyColor.set (Color.fromString x) settings
+                                    Settings.storyColor.set (Color.fromString x) m.settings
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.story.color |> Color.toString)
+                            (m.settings.diagramSettings.color.story.color |> Color.toString)
                         ]
                     ]
                 ]
@@ -635,14 +638,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "line-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.lineColor.set (Color.fromString x) settings
+                                    m.settings |> Settings.lineColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.line |> Color.toString)
+                            (m.settings.diagramSettings.color.line |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -650,14 +653,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "label-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.labelColor.set (Color.fromString x) settings
+                                    m.settings |> Settings.labelColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.label |> Color.toString)
+                            (m.settings.diagramSettings.color.label |> Color.toString)
                         ]
                     ]
                 , conrtolView
@@ -665,14 +668,14 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "text-color"
-                            dropDownIndex
+                            m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.textColor.set (Color.fromString x) settings
+                                    m.settings |> Settings.textColor.set (Color.fromString x)
                                 )
                             )
                             baseColorItems
-                            (settings.diagramSettings.color.text |> Maybe.withDefault Color.textDefalut |> Color.toString)
+                            (m.settings.diagramSettings.color.text |> Maybe.withDefault Color.textDefalut |> Color.toString)
                         ]
                     ]
                 ]
@@ -683,7 +686,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             ]
             [ Icon.cloudUpload Color.white 24
             , Html.span [ Attr.class "bottom-tooltip" ]
-                [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport lang ] ]
+                [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport m.lang ] ]
             ]
         , Html.div
             [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| px 8, Css.top <| px 8 ]
@@ -694,7 +697,23 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                 [ Attr.class "bottom-tooltip"
                 ]
                 [ Html.span [ Attr.class "text" ]
-                    [ Html.text <| Message.toolTipExport lang ]
+                    [ Html.text <| Message.toolTipExport m.lang ]
                 ]
             ]
         ]
+
+-- Lens
+
+settings : Lens Model Settings
+settings =
+    Lens .settings (\b a -> { a | settings = b })
+
+
+diagramSettings : Lens Model DiagramSettings.Settings
+diagramSettings =
+    Compose.lensWithLens settingsOfDiagramSettings settings
+
+
+settingsOfDiagramSettings : Lens Settings DiagramSettings.Settings
+settingsOfDiagramSettings =
+    Lens .diagramSettings (\b a -> { a | diagramSettings = b })
