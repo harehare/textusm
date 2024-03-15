@@ -11,7 +11,7 @@
     "@sentry/browser": "^7.101.0",
     "clipboard-copy": "^4.0.1",
     "dexie": "^3.2.5",
-    "firebase": "^10.8.0",
+    "firebase": "^10.9.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "monaco-editor": "^0.46.0",
