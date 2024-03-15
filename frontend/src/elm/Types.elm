@@ -145,6 +145,7 @@ type Msg
     | SaveLocalFile
     | SavedLocalFile String
 
+-- Lens
 
 currentDiagram : Lens Model DiagramItem
 currentDiagram =

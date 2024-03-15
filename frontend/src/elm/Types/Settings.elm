@@ -10,7 +10,6 @@ module Types.Settings exposing
     , diagramSettings
     , encoder
     , exportEncoder
-    , theme
     , font
     , fontSize
     , height
@@ -26,6 +25,7 @@ module Types.Settings exposing
     , taskBackgroundColor
     , taskColor
     , textColor
+    , theme
     , toolbar
     , width
     , wordWrap
@@ -140,6 +140,126 @@ defaultSettings t =
     }
 
 
+decoder : D.Decoder Settings
+decoder =
+    D.succeed Settings
+        |> optional "position" (D.map Just D.int) Nothing
+        |> required "font" D.string
+        |> optional "diagramId" (D.map Just DiagramId.decoder) Nothing
+        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
+        |> optional "text" (D.map Just Text.decoder) Nothing
+        |> optional "title" (D.map Just Title.decoder) Nothing
+        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
+        |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
+        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
+        |> optional "theme" (D.map Just Theme.decoder) Nothing
+
+
+encoder : Settings -> E.Value
+encoder settings =
+    E.object
+        [ ( "position", maybe E.int settings.position )
+        , ( "font", E.string settings.font )
+        , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
+        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
+        , ( "text", maybe Text.encoder settings.text )
+        , ( "title", maybe Title.encoder settings.title )
+        , ( "editor", maybe editorSettingsEncoder settings.editor )
+        , ( "diagram", maybe DiagramItem.encoder settings.diagram )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
+        ]
+
+
+legacyEncoder : Settings -> E.Value
+legacyEncoder settings =
+    E.object
+        [ ( "position", maybe E.int settings.position )
+        , ( "font", E.string settings.font )
+        , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
+        , ( "storyMap", DiagramSettings.encoder settings.diagramSettings )
+        , ( "text", maybe Text.encoder settings.text )
+        , ( "title", maybe Title.encoder settings.title )
+        , ( "editor", maybe editorSettingsEncoder settings.editor )
+        , ( "diagram", maybe DiagramItem.encoder settings.diagram )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
+        ]
+
+
+exportEncoder : Settings -> E.Value
+exportEncoder settings =
+    E.object
+        [ ( "position", maybe E.int settings.position )
+        , ( "font", E.string settings.font )
+        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
+        , ( "editor", maybe editorSettingsEncoder settings.editor )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
+        ]
+
+
+importDecoder : Settings -> D.Decoder Settings
+importDecoder settings =
+    D.succeed Settings
+        |> optional "position" (D.map Just D.int) Nothing
+        |> required "font" D.string
+        |> hardcoded settings.diagramId
+        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
+        |> hardcoded settings.text
+        |> hardcoded settings.title
+        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
+        |> hardcoded settings.diagram
+        |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
+        |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
+
+
+editorSettingsDecoder : D.Decoder EditorSettings
+editorSettingsDecoder =
+    D.succeed EditorSettings
+        |> required "fontSize" D.int
+        |> required "wordWrap" D.bool
+        |> required "showLineNumber" D.bool
+
+
+editorSettingsEncoder : EditorSettings -> E.Value
+editorSettingsEncoder editorSettings =
+    E.object
+        [ ( "fontSize", E.int editorSettings.fontSize )
+        , ( "wordWrap", E.bool editorSettings.wordWrap )
+        , ( "showLineNumber", E.bool editorSettings.showLineNumber )
+        ]
+
+
+
+-- Lens
+
+
+diagramSettings : Lens Settings DiagramSettings.Settings
+diagramSettings =
+    Lens .diagramSettings (\b a -> { a | diagramSettings = b })
+
+
+editorOfFontSize : Lens EditorSettings Int
+editorOfFontSize =
+    Lens .fontSize (\b a -> { a | fontSize = b })
+
+
+editorOfSettings : Optional Settings EditorSettings
+editorOfSettings =
+    Optional .editor (\b a -> { a | editor = Just b })
+
+
+editorOfShowLineNumber : Lens EditorSettings Bool
+editorOfShowLineNumber =
+    Lens .showLineNumber (\b a -> { a | showLineNumber = b })
+
+
+editorOfWordWrap : Lens EditorSettings Bool
+editorOfWordWrap =
+    Lens .wordWrap (\b a -> { a | wordWrap = b })
+
+
 activityBackgroundColor : Lens Settings Color
 activityBackgroundColor =
     Compose.lensWithLens DiagramSettings.activityBackgroundColor diagramSettings
@@ -243,119 +363,3 @@ wordWrap =
 zoomControl : Lens Settings (Maybe Bool)
 zoomControl =
     Compose.lensWithLens DiagramSettings.zoomControl diagramSettings
-
-
-decoder : D.Decoder Settings
-decoder =
-    D.succeed Settings
-        |> optional "position" (D.map Just D.int) Nothing
-        |> required "font" D.string
-        |> optional "diagramId" (D.map Just DiagramId.decoder) Nothing
-        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
-        |> optional "text" (D.map Just Text.decoder) Nothing
-        |> optional "title" (D.map Just Title.decoder) Nothing
-        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
-        |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
-        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
-        |> optional "theme" (D.map Just Theme.decoder) Nothing
-
-
-encoder : Settings -> E.Value
-encoder settings =
-    E.object
-        [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
-        , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
-        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
-        , ( "text", maybe Text.encoder settings.text )
-        , ( "title", maybe Title.encoder settings.title )
-        , ( "editor", maybe editorSettingsEncoder settings.editor )
-        , ( "diagram", maybe DiagramItem.encoder settings.diagram )
-        , ( "location", maybe DiagramLocation.encoder settings.location )
-        , ( "theme", maybe Theme.encoder settings.theme )
-        ]
-
-
-legacyEncoder : Settings -> E.Value
-legacyEncoder settings =
-    E.object
-        [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
-        , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
-        , ( "storyMap", DiagramSettings.encoder settings.diagramSettings )
-        , ( "text", maybe Text.encoder settings.text )
-        , ( "title", maybe Title.encoder settings.title )
-        , ( "editor", maybe editorSettingsEncoder settings.editor )
-        , ( "diagram", maybe DiagramItem.encoder settings.diagram )
-        , ( "location", maybe DiagramLocation.encoder settings.location )
-        , ( "theme", maybe Theme.encoder settings.theme )
-        ]
-
-
-exportEncoder : Settings -> E.Value
-exportEncoder settings =
-    E.object
-        [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
-        , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
-        , ( "editor", maybe editorSettingsEncoder settings.editor )
-        , ( "location", maybe DiagramLocation.encoder settings.location )
-        , ( "theme", maybe Theme.encoder settings.theme )
-        ]
-
-
-importDecoder : Settings -> D.Decoder Settings
-importDecoder settings =
-    D.succeed Settings
-        |> optional "position" (D.map Just D.int) Nothing
-        |> required "font" D.string
-        |> hardcoded settings.diagramId
-        |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
-        |> hardcoded settings.text
-        |> hardcoded settings.title
-        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
-        |> hardcoded settings.diagram
-        |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
-        |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
-
-
-diagramSettings : Lens Settings DiagramSettings.Settings
-diagramSettings =
-    Lens .diagramSettings (\b a -> { a | diagramSettings = b })
-
-
-editorOfFontSize : Lens EditorSettings Int
-editorOfFontSize =
-    Lens .fontSize (\b a -> { a | fontSize = b })
-
-
-editorOfSettings : Optional Settings EditorSettings
-editorOfSettings =
-    Optional .editor (\b a -> { a | editor = Just b })
-
-
-editorOfShowLineNumber : Lens EditorSettings Bool
-editorOfShowLineNumber =
-    Lens .showLineNumber (\b a -> { a | showLineNumber = b })
-
-
-editorOfWordWrap : Lens EditorSettings Bool
-editorOfWordWrap =
-    Lens .wordWrap (\b a -> { a | wordWrap = b })
-
-
-editorSettingsDecoder : D.Decoder EditorSettings
-editorSettingsDecoder =
-    D.succeed EditorSettings
-        |> required "fontSize" D.int
-        |> required "wordWrap" D.bool
-        |> required "showLineNumber" D.bool
-
-
-editorSettingsEncoder : EditorSettings -> E.Value
-editorSettingsEncoder editorSettings =
-    E.object
-        [ ( "fontSize", E.int editorSettings.fontSize )
-        , ( "wordWrap", E.bool editorSettings.wordWrap )
-        , ( "showLineNumber", E.bool editorSettings.showLineNumber )
-        ]

@@ -1,6 +1,6 @@
 module Main exposing (Flags, main)
 
-import Api.RequestError as RequestError
+import Api.RequestError
 import Asset
 import Attributes
 import Bool.Extra as BoolEx
@@ -14,18 +14,19 @@ import Browser.Events
         , onVisibilityChange
         )
 import Browser.Navigation as Nav
-import Css exposing (backgroundColor, calc, displayFlex, height, hidden, minus, overflow, position, px, relative, vh, width)
+import Css
 import Diagram.Effect
-import Diagram.State as DiagramState
-import Diagram.Types as DiagramModel
-import Diagram.Types.Id as DiagramId
+import Diagram.Lens
+import Diagram.State
+import Diagram.Types
+import Diagram.Types.Id
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Diagram.Types.Location as DiagramLocation exposing (Location)
 import Diagram.Types.Scale as Scale exposing (Scale)
 import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Diagram.View as DiagramView
-import Dialog.Confirm as ConfirmDialog
+import Dialog.Confirm
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Dialog.Types as Dialog
@@ -39,10 +40,10 @@ import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
-import Page.Embed as Embed
+import Page.Embed
 import Page.Help
 import Page.List
-import Page.List.DiagramList as DiagramListModel
+import Page.List.DiagramList
 import Page.New
 import Page.NotFound
 import Page.Settings
@@ -52,11 +53,11 @@ import Return exposing (Return)
 import Route exposing (Route(..), toRoute)
 import String
 import Style.Breakpoint as Breakpoint
-import Style.Color as ColorStyle
-import Style.Font as FontStyle
-import Style.Global as GlobalStyle
+import Style.Color
+import Style.Font
+import Style.Global
 import Style.Style as Style
-import Style.Text as TextStyle
+import Style.Text
 import Task
 import Types as M exposing (Model, Msg)
 import Types.Color as Color
@@ -157,15 +158,10 @@ changeRouteTo route =
                     )
 
         Route.Edit diagramType _ _ ->
-            let
-                diagram : DiagramItem
-                diagram =
-                    DiagramItem.new diagramType
-            in
-            setCurrentDiagram diagram
+            setCurrentDiagram (DiagramItem.new diagramType)
                 >> startProgress
                 >> Return.andThen (\m -> Return.singleton m |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
-                >> loadDiagram diagram
+                >> loadDiagram (DiagramItem.new diagramType)
                 >> switchPage Page.Main
                 >> Effect.changeRouteInit M.Init
                 >> Effect.closeLocalFile
@@ -228,9 +224,9 @@ changeRouteTo route =
                         { m
                             | diagramModel =
                                 m.diagramModel
-                                    |> DiagramModel.showZoomControl.set False
-                                    |> DiagramModel.diagramType.set diagram
-                                    |> DiagramModel.windowSize.set
+                                    |> Diagram.Types.showZoomControl.set False
+                                    |> Diagram.Types.diagramType.set diagram
+                                    |> Diagram.Types.windowSize.set
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.windowSize) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.windowSize) height
                                         )
@@ -248,11 +244,7 @@ changeRouteTo route =
                 |> Maybe.map
                     (\jwt ->
                         if jwt.checkPassword || jwt.checkEmail then
-                            Return.andThen
-                                (\m ->
-                                    Return.singleton
-                                        { m | shareState = ShareState.authenticateWithPassword id_ }
-                                )
+                            Return.andThen (\m -> Return.singleton { m | shareState = ShareState.authenticateWithPassword id_ })
                                 >> switchPage Page.Main
                                 >> Effect.changeRouteInit M.Init
 
@@ -316,12 +308,6 @@ init flags url key =
         currentDiagram =
             initSettings.diagram |> Maybe.withDefault DiagramItem.empty
 
-        ( diagramListModel, _ ) =
-            Page.List.init Session.guest lang Env.apiRoot flags.isOnline
-
-        ( diagramModel, _ ) =
-            DiagramState.init initSettings.diagramSettings
-
         initSettings : Settings
         initSettings =
             D.decodeValue Settings.decoder flags.settings
@@ -336,10 +322,29 @@ init flags url key =
             { key = key
             , url = url
             , page = Page.Main
-            , diagramModel = { diagramModel | text = Maybe.withDefault Text.empty initSettings.text }
-            , diagramListModel = diagramListModel
-            , settingsModel = settingsModel
-            , shareModel = shareModel
+            , diagramModel =
+                Diagram.State.init initSettings.diagramSettings
+                    |> Tuple.first
+                    |> Diagram.Lens.text.set (Maybe.withDefault Text.empty initSettings.text)
+            , diagramListModel = Page.List.init Session.guest lang Env.apiRoot flags.isOnline |> Tuple.first
+            , settingsModel =
+                Page.Settings.init
+                    { canUseNativeFileSystem = flags.canUseNativeFileSystem
+                    , diagramType = currentDiagram.diagram
+                    , session = Session.guest
+                    , settings = initSettings
+                    , lang = lang
+                    , usableFontList = Just []
+                    }
+                    |> Tuple.first
+            , shareModel =
+                Share.init
+                    { diagram = UserStoryMap
+                    , diagramId = Diagram.Types.Id.fromString ""
+                    , session = Session.guest
+                    , title = Title.untitled
+                    }
+                    |> Tuple.first
             , session = Session.guest
             , currentDiagram = { currentDiagram | title = Maybe.withDefault Title.untitled initSettings.title }
             , openMenu = Nothing
@@ -360,24 +365,6 @@ init flags url key =
             , settingsCache = SettingsCache.new
             , theme = Maybe.withDefault (Theme.System flags.isDarkMode) initSettings.theme
             }
-
-        ( settingsModel, _ ) =
-            Page.Settings.init
-                { canUseNativeFileSystem = flags.canUseNativeFileSystem
-                , diagramType = currentDiagram.diagram
-                , session = Session.guest
-                , settings = initSettings
-                , lang = lang
-                , usableFontList = Just []
-                }
-
-        ( shareModel, _ ) =
-            Share.init
-                { diagram = UserStoryMap
-                , diagramId = DiagramId.fromString ""
-                , session = Session.guest
-                , title = Title.untitled
-                }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
 
@@ -390,7 +377,7 @@ showDialog d =
 
         Dialog.Show { title, message, ok, cancel } ->
             Just <|
-                ConfirmDialog.view
+                Dialog.Confirm.view
                     { title = title
                     , message = message
                     , okButton = { text = "Ok", onClick = ok }
@@ -419,7 +406,7 @@ moveTo route =
 
 needSaved : Return.ReturnF Msg Model
 needSaved =
-    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.text.set (Text.change m.diagramModel.text) }
+    Return.map <| \m -> { m | diagramModel = m.diagramModel |> Diagram.Types.text.set (Text.change m.diagramModel.text) }
 
 
 pushUrl : String -> Return.ReturnF Msg Model
@@ -509,7 +496,7 @@ initShareDiagram diagramItem =
         \m ->
             Share.init
                 { diagram = diagramItem.diagram
-                , diagramId = diagramItem.id |> Maybe.withDefault (DiagramId.fromString "")
+                , diagramId = diagramItem.id |> Maybe.withDefault (Diagram.Types.Id.fromString "")
                 , session = m.session
                 , title = m.currentDiagram.title
                 }
@@ -579,10 +566,10 @@ loadDiagram diagram =
             m
                 |> M.currentDiagram.set diagram
                 |> .diagramModel
-                |> DiagramModel.diagramType.set diagram.diagram
-                |> DiagramModel.text.set diagram.text
+                |> Diagram.Types.diagramType.set diagram.diagram
+                |> Diagram.Types.text.set diagram.text
                 |> Return.singleton
-                |> DiagramState.update m.diagramModel (DiagramModel.ChangeText <| Text.toString diagram.text)
+                |> Diagram.State.update m.diagramModel (Diagram.Types.ChangeText <| Text.toString diagram.text)
                 |> Return.mapBoth M.UpdateDiagram
                     (\m_ ->
                         m |> M.diagramModel.set m_
@@ -595,7 +582,7 @@ setDiagramSettings settings =
     Return.map
         (\m ->
             { m
-                | diagramModel = m.diagramModel |> DiagramModel.settings.set settings
+                | diagramModel = m.diagramModel |> Diagram.Types.settings.set settings
                 , settingsModel = m.settingsModel |> Page.Settings.diagramSettings.set settings
             }
         )
@@ -628,7 +615,7 @@ updateWindowState =
 
 unchanged : Return.ReturnF Msg Model
 unchanged =
-    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.text.set (Text.saved m.diagramModel.text) }
+    Return.map <| \m -> { m | diagramModel = m.diagramModel |> Diagram.Types.text.set (Text.saved m.diagramModel.text) }
 
 
 setTitle : String -> Return.ReturnF Msg Model
@@ -676,9 +663,9 @@ save =
                                     DiagramLocation.Local
                                 )
 
-                    newDiagramModel : DiagramModel.Model
+                    newDiagramModel : Diagram.Types.Model
                     newDiagramModel =
-                        DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
+                        Diagram.Types.updatedText m.diagramModel (Text.saved m.diagramModel.text)
 
                     diagram : DiagramItem
                     diagram =
@@ -692,7 +679,7 @@ save =
                     (\m_ ->
                         { m_
                             | diagramModel = newDiagramModel
-                            , diagramListModel = m_.diagramListModel |> Page.List.diagramList.set DiagramListModel.notAsked
+                            , diagramListModel = m_.diagramListModel |> Page.List.diagramList.set Page.List.DiagramList.notAsked
                         }
                     )
                     >> (case ( location, Session.loginProvider m.session ) of
@@ -733,15 +720,15 @@ signOut =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ Ports.changeText (\text -> M.UpdateDiagram (DiagramModel.ChangeText text))
-         , Ports.selectItemFromLineNo (\{ lineNo, text } -> M.UpdateDiagram (DiagramModel.SelectFromLineNo lineNo text))
+        ([ Ports.changeText (\text -> M.UpdateDiagram (Diagram.Types.ChangeText text))
+         , Ports.selectItemFromLineNo (\{ lineNo, text } -> M.UpdateDiagram (Diagram.Types.SelectFromLineNo lineNo text))
          , Ports.loadSettingsFromLocalCompleted M.LoadSettingsFromLocal
          , Ports.startDownload M.StartDownload
          , Ports.gotLocalDiagramsJson (\json -> M.UpdateDiagramList (Page.List.GotLocalDiagramsJson json))
-         , Ports.removedLocalDiagram (\idString -> (Ok <| DiagramId.fromString idString) |> Page.List.Removed |> M.UpdateDiagramList)
+         , Ports.removedLocalDiagram (\idString -> (Ok <| Diagram.Types.Id.fromString idString) |> Page.List.Removed |> M.UpdateDiagramList)
          , Ports.reload (\_ -> M.UpdateDiagramList Page.List.Reload)
          , onVisibilityChange M.HandleVisibilityChange
-         , onResize (\width height -> M.UpdateDiagram (DiagramModel.Resize width height))
+         , onResize (\width height -> M.UpdateDiagram (Diagram.Types.Resize width height))
          , Ports.hotkey (\cmd -> M.Hotkey <| Hotkey.fromString cmd)
          , Ports.onNotification (\n -> M.HandleAutoCloseNotification (Notification.showInfoNotifcation n))
          , Ports.sendErrorNotification (\n -> M.HandleAutoCloseNotification (Notification.showErrorNotifcation n))
@@ -788,7 +775,7 @@ update model message =
         M.Init window ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> DiagramState.update m.diagramModel (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
+                    |> Diagram.State.update m.diagramModel (Diagram.Types.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
                     |> Return.map
                         (\m_ ->
                             case toRoute m.url of
@@ -828,11 +815,11 @@ update model message =
             let
                 ( diagramModel, diagramCmd ) =
                     Return.singleton model.diagramModel
-                        |> DiagramState.update model.diagramModel subMsg
+                        |> Diagram.State.update model.diagramModel subMsg
                         |> Return.mapBoth M.UpdateDiagram (\m -> { model | diagramModel = m })
             in
             (case subMsg of
-                DiagramModel.ToggleFullscreen ->
+                Diagram.Types.ToggleFullscreen ->
                     Return.map
                         (\m ->
                             { m
@@ -842,7 +829,7 @@ update model message =
                         )
                         >> Effect.toggleFullscreen model.window
 
-                DiagramModel.Resize _ _ ->
+                Diagram.Types.Resize _ _ ->
                     updateWindowState
 
                 _ ->
@@ -863,11 +850,11 @@ update model message =
                     Return.singleton m.settingsModel
                         |> Page.Settings.update msg
                         |> Return.mapBoth M.UpdateSettings
-                            (\model_ ->
+                            (\m_ ->
                                 { m
-                                    | diagramModel = m.diagramModel |> DiagramModel.settings.set model_.settings.diagramSettings
+                                    | diagramModel = m.diagramModel |> Diagram.Types.settings.set m_.settings.diagramSettings
                                     , page = Page.Settings
-                                    , settingsModel = model_
+                                    , settingsModel = m_
                                 }
                             )
                         |> updateSettings msg m.diagramModel.diagramType
@@ -886,7 +873,7 @@ update model message =
             loadDiagram { diagram | id = Nothing, title = Title.fromString <| "Copy of " ++ Title.toString diagram.title }
 
         M.Copied (Err e) ->
-            showErrorMessage (RequestError.toMessage e)
+            showErrorMessage (Api.RequestError.toMessage e)
                 >> stopProgress
 
         M.Download exportDiagram ->
@@ -900,7 +887,7 @@ update model message =
                 , diagramType = model.diagramModel.diagramType
                 , items = model.diagramModel.items
                 , size =
-                    DiagramModel.size model.diagramModel
+                    Diagram.Types.size model.diagramModel
                         |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
                 , text = model.diagramModel.text
                 , title = model.currentDiagram.title
@@ -909,7 +896,7 @@ update model message =
                 |> Maybe.withDefault Return.zero
 
         M.DownloadCompleted ( x, y ) ->
-            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.position.set ( x, y ) })
+            Return.map (\m -> { m | diagramModel = m.diagramModel |> Diagram.Types.position.set ( x, y ) })
 
         M.StartDownload info ->
             Return.command (Download.string (Title.toString model.currentDiagram.title ++ info.extension) info.mimeType info.content)
@@ -919,7 +906,7 @@ update model message =
             save
 
         M.SaveToRemoteCompleted (Ok diagram) ->
-            (Maybe.withDefault (DiagramId.fromString "") diagram.id
+            (Maybe.withDefault (Diagram.Types.Id.fromString "") diagram.id
                 |> Route.EditFile diagram.diagram
                 |> Route.replaceRoute model.key
                 |> Return.command
@@ -949,7 +936,7 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         setCurrentDiagram item
-                            >> (Maybe.withDefault (DiagramId.fromString "") item.id
+                            >> (Maybe.withDefault (Diagram.Types.Id.fromString "") item.id
                                     |> Route.EditLocalFile item.diagram
                                     |> Route.replaceRoute model.key
                                     |> Return.command
@@ -1043,20 +1030,24 @@ update model message =
                     , location = model.settingsModel.settings.location
                     , theme = model.settingsModel.settings.theme
                     }
-
-                ( newSettingsModel, _ ) =
-                    Page.Settings.init
-                        { canUseNativeFileSystem = model.browserStatus.canUseNativeFileSystem
-                        , diagramType = model.currentDiagram.diagram
-                        , session = model.session
-                        , settings = newSettings
-                        , lang = model.lang
-                        , usableFontList =
-                            BoolEx.toMaybe model.settingsModel.usableFontList
-                                (Page.Settings.isFetchedUsableFont model.settingsModel)
-                        }
             in
-            Return.map (\m -> { m | settingsModel = newSettingsModel })
+            Return.map
+                (\m ->
+                    { m
+                        | settingsModel =
+                            Page.Settings.init
+                                { canUseNativeFileSystem = model.browserStatus.canUseNativeFileSystem
+                                , diagramType = model.currentDiagram.diagram
+                                , session = model.session
+                                , settings = newSettings
+                                , lang = model.lang
+                                , usableFontList =
+                                    BoolEx.toMaybe model.settingsModel.usableFontList
+                                        (Page.Settings.isFetchedUsableFont model.settingsModel)
+                                }
+                                |> Tuple.first
+                    }
+                )
                 >> Effect.Settings.saveToLocal newSettings
 
         M.HandleVisibilityChange _ ->
@@ -1138,7 +1129,7 @@ update model message =
         M.Hotkey (Just (Hotkey.Find _)) ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> DiagramState.update m.diagramModel DiagramModel.ToggleSearch
+                    |> Diagram.State.update m.diagramModel Diagram.Types.ToggleSearch
                     |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
             )
                 >> Effect.setFocus M.NoOp "diagram-search"
@@ -1190,13 +1181,13 @@ update model message =
         M.Load (Ok diagram) ->
             loadDiagram diagram
 
-        M.Load (Err (RequestError.NotFound as e)) ->
+        M.Load (Err (Api.RequestError.NotFound as e)) ->
             moveTo Route.NotFound
-                >> showErrorMessage (RequestError.toMessage e)
+                >> showErrorMessage (Api.RequestError.toMessage e)
                 >> stopProgress
 
         M.Load (Err e) ->
-            showErrorMessage (RequestError.toMessage e)
+            showErrorMessage (Api.RequestError.toMessage e)
                 >> stopProgress
 
         M.LoadSettings (Ok settings) ->
@@ -1213,8 +1204,8 @@ update model message =
                     (\settings ->
                         Return.map
                             (\m ->
-                                let
-                                    ( newSettingsModel, _ ) =
+                                { m
+                                    | settingsModel =
                                         Page.Settings.init
                                             { canUseNativeFileSystem = m.browserStatus.canUseNativeFileSystem
                                             , diagramType = m.currentDiagram.diagram
@@ -1223,8 +1214,9 @@ update model message =
                                             , lang = m.lang
                                             , usableFontList = BoolEx.toMaybe m.settingsModel.usableFontList (Page.Settings.isFetchedUsableFont m.settingsModel)
                                             }
-                                in
-                                { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.settings.set settings.diagramSettings m.diagramModel }
+                                            |> Tuple.first
+                                    , diagramModel = Diagram.Types.settings.set settings.diagramSettings m.diagramModel
+                                }
                             )
                     )
                 |> Maybe.withDefault (showWarningMessage Message.messageFailedLoadSettings)
@@ -1245,7 +1237,7 @@ update model message =
         M.CloseFullscreen ->
             (\m ->
                 Return.singleton m.diagramModel
-                    |> DiagramState.update m.diagramModel DiagramModel.ToggleFullscreen
+                    |> Diagram.State.update m.diagramModel Diagram.Types.ToggleFullscreen
                     |> Return.mapBoth M.UpdateDiagram
                         (\m_ ->
                             { m
@@ -1298,7 +1290,7 @@ update model message =
 
         M.GotGithubAccessToken { cmd, accessToken } ->
             Return.map (\m -> { m | session = Session.updateAccessToken m.session (accessToken |> Maybe.withDefault "") })
-                >> BoolEx.ifElse (Diagram.Effect.load M.Load { id = DiagramId.fromString cmd, session = model.session })
+                >> BoolEx.ifElse (Diagram.Effect.load M.Load { id = Diagram.Types.Id.fromString cmd, session = model.session })
                     (Return.command (Task.perform identity (Task.succeed M.Save)))
                     (not <| String.isEmpty cmd)
 
@@ -1331,7 +1323,7 @@ update model message =
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
 
         M.ChangeDiagramType diagramType ->
-            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.diagramType.set diagramType })
+            Return.map (\m -> { m | diagramModel = m.diagramModel |> Diagram.Types.diagramType.set diagramType })
                 >> loadDiagram (model.currentDiagram |> DiagramItem.diagram.set diagramType)
 
         M.OpenCurrentFile ->
@@ -1373,12 +1365,12 @@ processDiagramListMsg msg =
             startProgress
 
         Page.List.GotExportDiagrams (Err e) ->
-            showErrorMessage <| RequestError.toMessage e
+            showErrorMessage <| Api.RequestError.toMessage e
 
         Page.List.Removed (Ok diagramId) ->
             Return.map <|
                 \m ->
-                    if (m.currentDiagram.id |> Maybe.withDefault (DiagramId.fromString "")) == diagramId then
+                    if (m.currentDiagram.id |> Maybe.withDefault (Diagram.Types.Id.fromString "")) == diagramId then
                         { m | currentDiagram = DiagramItem.new DiagramType.UserStoryMap }
 
                     else
@@ -1529,17 +1521,17 @@ mainView model =
                             Html.div
                                 [ Attr.css
                                     [ Style.flexCenter
-                                    , TextStyle.xl
-                                    , FontStyle.fontSemiBold
+                                    , Style.Text.xl
+                                    , Style.Font.fontSemiBold
                                     , Style.widthScreen
-                                    , ColorStyle.textColor
+                                    , Style.Color.textColor
                                     , Style.mSm
-                                    , height <| calc (vh 100) minus (px 40)
+                                    , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 40)
                                     ]
                                 ]
                                 [ Html.img
                                     [ Asset.src Asset.logo
-                                    , Attr.css [ width <| px 32 ]
+                                    , Attr.css [ Css.width <| Css.px 32 ]
                                     , Attr.alt "NOT FOUND"
                                     ]
                                     []
@@ -1547,7 +1539,7 @@ mainView model =
                                 ]
 
                         else
-                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex <| Color.toString model.settingsModel.settings.diagramSettings.backgroundColor ] ]
+                            Html.div [ Attr.css [ Style.full, Css.backgroundColor <| Css.hex <| Color.toString model.settingsModel.settings.diagramSettings.backgroundColor ] ]
                                 [ Lazy.lazy DiagramView.view model.diagramModel
                                     |> Html.map M.UpdateDiagram
                                 ]
@@ -1566,7 +1558,7 @@ mainView model =
                             [ Breakpoint.style
                                 [ Style.hMain
                                 , Style.widthFull
-                                , ColorStyle.bgMain
+                                , Style.Color.bgMain
                                 ]
                                 [ Breakpoint.large [ Style.heightFull ] ]
                             ]
@@ -1590,7 +1582,7 @@ mainView model =
                             [ Breakpoint.style
                                 [ Style.hMain
                                 , Style.widthFull
-                                , ColorStyle.bgMain
+                                , Style.Color.bgMain
                                 ]
                                 [ Breakpoint.large [ Style.heightFull ] ]
                             ]
@@ -1606,18 +1598,18 @@ mainView model =
 view : Model -> Html Msg
 view model =
     Html.main_
-        [ Attr.css [ position relative, Style.widthScreen ]
+        [ Attr.css [ Css.position Css.relative, Style.widthScreen ]
         , E.onClick M.CloseMenu
         ]
-        ([ GlobalStyle.style
+        ([ Style.Global.style
          , headerView model
          , Lazy.lazy Notification.view model.notification
          , Lazy.lazy Snackbar.view model.snackbar
          , Html.div
             [ Attr.css
-                [ displayFlex
-                , overflow hidden
-                , position relative
+                [ Css.displayFlex
+                , Css.overflow Css.hidden
+                , Css.position Css.relative
                 , Style.widthFull
                 , if Window.isFullscreen model.window then
                     Css.batch [ Style.heightScreen ]
@@ -1641,7 +1633,7 @@ view model =
                     Lazy.lazy Page.Settings.view model.settingsModel |> Html.map M.UpdateSettings
 
                 Page.Embed ->
-                    Embed.view model
+                    Page.Embed.view model
 
                 Page.NotFound ->
                     Page.NotFound.view
@@ -1661,7 +1653,7 @@ view model =
                             if jwt.checkPassword && not (ShareState.isAuthenticated model.shareState) then
                                 Lazy.lazy InputDialog.view
                                     { title = "Protedted diagram"
-                                    , errorMessage = Maybe.map RequestError.toMessage (ShareState.getError model.shareState)
+                                    , errorMessage = Maybe.map Api.RequestError.toMessage (ShareState.getError model.shareState)
                                     , value = ShareState.getPassword model.shareState |> Maybe.withDefault ""
                                     , inProcess = model.progress
                                     , lang = model.lang
