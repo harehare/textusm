@@ -272,6 +272,10 @@ moveingItem moveState =
             Nothing
 
 
+
+-- Lens
+
+
 diagramType : Lens Model DiagramType
 diagramType =
     Lens .diagramType (\b a -> { a | diagramType = b })

@@ -180,36 +180,6 @@ new diagramType =
     }
 
 
-text : Lens DiagramItem Text
-text =
-    Lens .text (\b a -> { a | text = b })
-
-
-title : Lens DiagramItem Title
-title =
-    Lens .title (\b a -> { a | title = b })
-
-
-diagram : Lens DiagramItem DiagramType
-diagram =
-    Lens .diagram (\b a -> { a | diagram = b })
-
-
-thumbnail : Lens DiagramItem (Maybe String)
-thumbnail =
-    Lens .thumbnail (\b a -> { a | thumbnail = b })
-
-
-location : Lens DiagramItem (Maybe Location)
-location =
-    Lens .location (\b a -> { a | location = b })
-
-
-id : Lens DiagramItem (Maybe DiagramId)
-id =
-    Lens .id (\b a -> { a | id = b })
-
-
 stringToList : String -> Result D.Error (List DiagramItem)
 stringToList json =
     D.decodeString (D.list decoder) json
@@ -260,3 +230,37 @@ toInputItem item =
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
     }
+
+
+
+-- Lens
+
+
+text : Lens DiagramItem Text
+text =
+    Lens .text (\b a -> { a | text = b })
+
+
+title : Lens DiagramItem Title
+title =
+    Lens .title (\b a -> { a | title = b })
+
+
+diagram : Lens DiagramItem DiagramType
+diagram =
+    Lens .diagram (\b a -> { a | diagram = b })
+
+
+thumbnail : Lens DiagramItem (Maybe String)
+thumbnail =
+    Lens .thumbnail (\b a -> { a | thumbnail = b })
+
+
+location : Lens DiagramItem (Maybe Location)
+location =
+    Lens .location (\b a -> { a | location = b })
+
+
+id : Lens DiagramItem (Maybe DiagramId)
+id =
+    Lens .id (\b a -> { a | id = b })

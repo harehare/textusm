@@ -1,6 +1,6 @@
 module Diagram.UseCaseDiagram.View exposing (docs, view)
 
-import Css exposing (backgroundColor, color, hex, padding4, px, transparent, zero)
+import Css
 import Diagram.Types exposing (SelectedItemInfo)
 import Diagram.Types.Data as DiagramData
 import Diagram.Types.Settings as DiagramSettings
@@ -348,17 +348,17 @@ relationLineView { settings, property, from, to, relation, reverse } =
             [ Html.div
                 [ css
                     [ if diffY < 10 then
-                        padding4 (px 32) zero zero zero
+                        Css.padding4 (Css.px 32) Css.zero Css.zero Css.zero
 
                       else
-                        padding4 (px 28) zero zero (px 24)
+                        Css.padding4 (Css.px 28) Css.zero Css.zero (Css.px 24)
                     , DiagramSettings.fontFamiliy settings
-                    , backgroundColor transparent
+                    , Css.backgroundColor Css.transparent
                     ]
                 ]
                 [ Html.div
                     [ css
-                        [ color <| hex <| Color.toString <| DiagramSettings.getTextColor settings property
+                        [ Css.color <| Css.hex <| Color.toString <| DiagramSettings.getTextColor settings property
                         , FontSize.cssFontSize FontSize.xs
                         ]
                     ]

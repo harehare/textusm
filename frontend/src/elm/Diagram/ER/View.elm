@@ -2,21 +2,6 @@ module Diagram.ER.View exposing (docs, view)
 
 import Constants
 import Css
-    exposing
-        ( alignItems
-        , center
-        , color
-        , displayFlex
-        , hex
-        , int
-        , justifyContent
-        , marginLeft
-        , marginRight
-        , marginTop
-        , px
-        , rem
-        , spaceBetween
-        )
 import Diagram.ER.Types as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
 import Diagram.Types as Diagram
 import Diagram.Types.Data as DiagramData
@@ -308,10 +293,10 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         style : Css.Style
         style =
             if isPrimaryKey then
-                Css.batch [ Css.fontWeight <| int 600, color <| hex <| Color.toString settings.color.story.color ]
+                Css.batch [ Css.fontWeight <| Css.int 600, Css.color <| Css.hex <| Color.toString settings.color.story.color ]
 
             else
-                Css.batch [ Css.fontWeight <| int 400, color <| hex <| Color.toString settings.color.label ]
+                Css.batch [ Css.fontWeight <| Css.int 400, Css.color <| Css.hex <| Color.toString settings.color.label ]
     in
     Svg.g []
         [ Svg.rect
@@ -330,28 +315,28 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             ]
             [ Html.div
                 [ css
-                    [ Css.width <| px <| toFloat columnWidth
-                    , Css.height <| px <| toFloat Constants.tableRowHeight
-                    , displayFlex
-                    , alignItems center
-                    , justifyContent spaceBetween
-                    , Css.fontSize <| rem 0.9
-                    , color <| hex <| Color.toString settings.color.story.color
+                    [ Css.width <| Css.px <| toFloat columnWidth
+                    , Css.height <| Css.px <| toFloat Constants.tableRowHeight
+                    , Css.displayFlex
+                    , Css.alignItems Css.center
+                    , Css.justifyContent Css.spaceBetween
+                    , Css.fontSize <| Css.rem 0.9
+                    , Css.color <| Css.hex <| Color.toString settings.color.story.color
                     , style
                     ]
                 ]
                 [ Html.div
-                    [ css [ marginLeft <| px 8 ] ]
+                    [ css [ Css.marginLeft <| Css.px 8 ] ]
                     [ Html.text name_ ]
                 , Html.div
-                    [ css [ marginRight <| px 8, displayFlex, alignItems center, Css.fontSize <| rem 0.8 ] ]
+                    [ css [ Css.marginRight <| Css.px 8, Css.displayFlex, Css.alignItems Css.center, Css.fontSize <| Css.rem 0.8 ] ]
                     [ if isPrimaryKey then
-                        Html.div [ css [ marginRight <| px 8 ] ]
+                        Html.div [ css [ Css.marginRight <| Css.px 8 ] ]
                             [ Icon.key (Color.toString settings.color.story.color) 12 ]
 
                       else if ListEx.find (\i -> i == Index) attrs |> MaybeEx.isJust then
                         Html.div
-                            [ css [ marginRight <| px 8, marginTop <| px 5 ] ]
+                            [ css [ Css.marginRight <| Css.px 8, Css.marginTop <| Css.px 5 ] ]
                             [ Icon.search (Color.toString settings.color.story.color) 16 ]
 
                       else

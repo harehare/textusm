@@ -1,22 +1,6 @@
 module View.Footer exposing (Props, docs, view)
 
 import Css
-    exposing
-        ( alignItems
-        , center
-        , cursor
-        , displayFlex
-        , flexEnd
-        , height
-        , justifyContent
-        , marginTop
-        , padding
-        , pointer
-        , position
-        , px
-        , relative
-        , rem
-        )
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Diagram.Types.Location as DiagramLocation exposing (Location)
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
@@ -48,20 +32,20 @@ view : Props msg -> Html msg
 view props =
     Html.div
         [ Attr.css
-            [ height <| rem 2
+            [ Css.height <| Css.rem 2
             , ColorStyle.bgMain
             , Style.widthFull
-            , position relative
+            , Css.position Css.relative
             , Style.shadowSm
-            , displayFlex
-            , alignItems center
-            , justifyContent flexEnd
+            , Css.displayFlex
+            , Css.alignItems Css.center
+            , Css.justifyContent Css.flexEnd
             , ColorStyle.bgFooterColor
             ]
         ]
         [ diagramTypeSelect props
         , Lazy.lazy2 viewLocationButton props.session props.currentDiagram.location
-        , Html.div [ Attr.css [ padding <| rem 1, cursor pointer, marginTop <| px 6 ] ]
+        , Html.div [ Attr.css [ Css.padding <| Css.rem 1, Css.cursor Css.pointer, Css.marginTop <| Css.px 6 ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"

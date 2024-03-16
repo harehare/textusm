@@ -13,70 +13,6 @@ import Api.RequestError exposing (RequestError)
 import Attributes
 import Bool.Extra as BoolEx
 import Css
-    exposing
-        ( absolute
-        , after
-        , alignItems
-        , auto
-        , backgroundColor
-        , backgroundImage
-        , backgroundRepeat
-        , backgroundSize
-        , block
-        , border3
-        , borderRadius4
-        , borderStyle
-        , borderTop3
-        , bottom
-        , calc
-        , center
-        , color
-        , cover
-        , cursor
-        , display
-        , displayFlex
-        , ellipsis
-        , end
-        , focus
-        , height
-        , hex
-        , hidden
-        , hover
-        , justifyContent
-        , left
-        , lineHeight
-        , marginLeft
-        , minus
-        , noRepeat
-        , noWrap
-        , none
-        , outline
-        , overflow
-        , overflowY
-        , padding
-        , padding4
-        , paddingBottom
-        , paddingLeft
-        , pointer
-        , position
-        , property
-        , px
-        , relative
-        , rgba
-        , right
-        , scale
-        , scroll
-        , solid
-        , spaceBetween
-        , textAlign
-        , textOverflow
-        , top
-        , transforms
-        , url
-        , vh
-        , whiteSpace
-        , zero
-        )
 import Css.Global exposing (descendants, typeSelector)
 import Css.Transitions as Transitions
 import Diagram.Types.Id as DiagramId exposing (DiagramId)
@@ -241,23 +177,23 @@ closeDialog =
 itemStyle : Css.Style
 itemStyle =
     Css.batch
-        [ displayFlex
-        , alignItems center
-        , cursor pointer
+        [ Css.displayFlex
+        , Css.alignItems Css.center
+        , Css.cursor Css.pointer
         , TextStyle.sm
         , ColorStyle.textLight
-        , height <| px 40
-        , lineHeight <| px 30
-        , padding4 (px 0) (px 16) (px 2) (px 16)
+        , Css.height <| Css.px 40
+        , Css.lineHeight <| Css.px 30
+        , Css.padding4 (Css.px 0) (Css.px 16) (Css.px 2) (Css.px 16)
         , descendants
             [ typeSelector "div"
                 [ Style.widthFull
-                , overflow hidden
-                , whiteSpace noWrap
-                , textOverflow ellipsis
+                , Css.overflow Css.hidden
+                , Css.whiteSpace Css.noWrap
+                , Css.textOverflow Css.ellipsis
                 ]
             ]
-        , hover [ ColorStyle.textAccent ]
+        , Css.hover [ ColorStyle.textAccent ]
         ]
 
 
@@ -329,13 +265,13 @@ tabs : Session -> DiagramList -> Bool -> Html Msg
 tabs session list isOnline =
     Html.div
         [ Attr.css
-            [ Breakpoint.style [ display none ]
+            [ Breakpoint.style [ Css.display Css.none ]
                 [ Breakpoint.large
                     [ TextStyle.base
-                    , displayFlex
+                    , Css.displayFlex
                     , ColorStyle.textDark
                     , ColorStyle.bgMain
-                    , overflowY scroll
+                    , Css.overflowY Css.scroll
                     ]
                 ]
             ]
@@ -364,15 +300,15 @@ mainView children =
         [ Attr.css
             [ Breakpoint.style
                 [ Style.widthFull
-                , height <| calc (vh 100) minus (px 128)
+                , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 128)
                 ]
                 [ Breakpoint.large
-                    [ displayFlex
+                    [ Css.displayFlex
                     , ColorStyle.bgDefault
                     , Css.flexDirection Css.column
                     , Style.widthScreen
-                    , height <| calc (vh 100) minus (px 40)
-                    , position relative
+                    , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 40)
+                    , Css.position Css.relative
                     ]
                 ]
             ]
@@ -504,16 +440,16 @@ diagramListView props =
         [ Attr.css [ Style.widthFull ] ]
         [ Html.div
             [ Attr.css
-                [ displayFlex
-                , alignItems center
-                , justifyContent end
+                [ Css.displayFlex
+                , Css.alignItems Css.center
+                , Css.justifyContent Css.end
                 , Style.paddingSm
-                , color <| hex <| Color.toString Color.white
+                , Css.color <| Css.hex <| Color.toString Color.white
                 ]
             ]
-            [ Html.div [ Attr.css [ displayFlex, alignItems center, Style.widthFull, position relative ] ]
+            [ Html.div [ Attr.css [ Css.displayFlex, Css.alignItems Css.center, Style.widthFull, Css.position Css.relative ] ]
                 [ Html.div
-                    [ Attr.css [ position absolute, left <| px 3, top <| px 5 ]
+                    [ Attr.css [ Css.position Css.absolute, Css.left <| Css.px 3, Css.top <| Css.px 5 ]
                     ]
                     [ Icon.search (Color.toString Color.labelDefalut) 24 ]
                 , Html.input
@@ -521,13 +457,13 @@ diagramListView props =
                     , Attr.css
                         [ Style.widthFull
                         , TextStyle.sm
-                        , borderStyle none
+                        , Css.borderStyle Css.none
                         , Style.paddingSm
                         , Style.roundedSm
-                        , paddingLeft <| px 32
-                        , color <| hex "#000000"
-                        , focus
-                            [ outline none
+                        , Css.paddingLeft <| Css.px 32
+                        , Css.color <| Css.hex "#000000"
+                        , Css.focus
+                            [ Css.outline Css.none
                             ]
                         ]
                     , onInput SearchInput
@@ -535,7 +471,7 @@ diagramListView props =
                     []
                 ]
             , Html.div
-                [ Attr.css [ Style.button, marginLeft <| px 8 ]
+                [ Attr.css [ Style.button, Css.marginLeft <| Css.px 8 ]
                 , onClick Export
                 ]
                 [ Icon.cloudDownload Color.white 24
@@ -555,27 +491,27 @@ diagramListView props =
                     [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ]
                 ]
             ]
-        , Html.div [ Attr.css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
+        , Html.div [ Attr.css [ Css.overflowY Css.auto, Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 148) ] ]
             [ Html.div
                 [ Attr.css
                     [ Breakpoint.style
                         [ Style.full
                         , ColorStyle.bgDefault
-                        , overflowY scroll
-                        , padding <| px 16
-                        , property "display" "grid"
-                        , property "grid-column-gap" "16px"
-                        , property "grid-row-gap" "16px"
-                        , property "grid-template-columns" "repeat(auto-fit, 47%)"
-                        , property "grid-auto-rows" "200px"
-                        , property "will-change" "transform"
+                        , Css.overflowY Css.scroll
+                        , Css.padding <| Css.px 16
+                        , Css.property "display" "grid"
+                        , Css.property "grid-column-gap" "16px"
+                        , Css.property "grid-row-gap" "16px"
+                        , Css.property "grid-template-columns" "repeat(auto-fit, 47%)"
+                        , Css.property "grid-auto-rows" "200px"
+                        , Css.property "will-change" "transform"
                         , Style.paddingSm
                         , Style.mbSm
-                        , borderTop3 (px 1) solid (hex "#323B46")
+                        , Css.borderTop3 (Css.px 1) Css.solid (Css.hex "#323B46")
                         ]
                         [ Breakpoint.small
-                            [ property "grid-template-columns" "repeat(auto-fit, 240px)"
-                            , property "grid-auto-rows" "200px"
+                            [ Css.property "grid-template-columns" "repeat(auto-fit, 240px)"
+                            , Css.property "grid-auto-rows" "200px"
                             ]
                         ]
                     ]
@@ -603,7 +539,7 @@ hasMorePageButton list pageNo hasMorePage =
         Just <|
             Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ]
                 [ Html.div
-                    [ Attr.css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
+                    [ Attr.css [ Style.button, ColorStyle.bgActivity, Css.textAlign Css.center, Style.mSm ]
                     , onClick <| LoadNextPage list <| pageNo + 1
                     ]
                     [ Html.text "Load more" ]
@@ -615,53 +551,53 @@ hasMorePageButton list pageNo hasMorePage =
 
 cloudIconView : List (Html msg) -> Html msg
 cloudIconView children =
-    Html.div [ Attr.css [ display block, position absolute, top <| px 5, right <| px 32 ] ] children
+    Html.div [ Attr.css [ Css.display Css.block, Css.position Css.absolute, Css.top <| Css.px 5, Css.right <| Css.px 32 ] ] children
 
 
 publicIconView : List (Html msg) -> Html msg
 publicIconView children =
-    Html.div [ Attr.css [ display block, position absolute, top <| px 5, right <| px 8 ] ] children
+    Html.div [ Attr.css [ Css.display Css.block, Css.position Css.absolute, Css.top <| Css.px 5, Css.right <| Css.px 8 ] ] children
 
 
 bookmarkIconView : DiagramItem -> List (Html Msg) -> Html Msg
 bookmarkIconView diagram children =
-    Html.div [ Attr.css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
+    Html.div [ Attr.css [ Css.display Css.block, Css.position Css.absolute, Css.bottom <| Css.px 40, Css.right <| Css.px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
 
 
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     Html.div
         [ Attr.css
-            [ displayFlex
-            , alignItems end
-            , justifyContent end
-            , backgroundSize cover
-            , cursor pointer
+            [ Css.displayFlex
+            , Css.alignItems Css.end
+            , Css.justifyContent Css.end
+            , Css.backgroundSize Css.cover
+            , Css.cursor Css.pointer
             , Style.shadowSm
             , Style.roundedSm
             , Transitions.transition [ Transitions.boxShadow3 100 100 Transitions.easeInOut ]
-            , property "will-change" "box-shadow"
-            , height <| px 200
-            , backgroundRepeat noRepeat
-            , position relative
-            , backgroundImage <| url (diagram.thumbnail |> Maybe.withDefault "")
-            , border3 (px 3) solid ColorStyle.lightBackgroundColor
-            , after
+            , Css.property "will-change" "box-shadow"
+            , Css.height <| Css.px 200
+            , Css.backgroundRepeat Css.noRepeat
+            , Css.position Css.relative
+            , Css.backgroundImage <| Css.url (diagram.thumbnail |> Maybe.withDefault "")
+            , Css.border3 (Css.px 3) Css.solid ColorStyle.lightBackgroundColor
+            , Css.after
                 [ Breakpoint.style
                     [ Style.emptyContent
-                    , position absolute
-                    , top zero
-                    , left zero
+                    , Css.position Css.absolute
+                    , Css.top Css.zero
+                    , Css.left Css.zero
                     , Style.widthFull
-                    , height <| px 120
+                    , Css.height <| Css.px 120
                     , Transitions.transition [ Transitions.background3 100 100 Transitions.ease ]
                     ]
                     [ Breakpoint.large
-                        [ height <| px 120
+                        [ Css.height <| Css.px 120
                         ]
                     ]
                 ]
-            , hover [ after [ backgroundColor <| rgba 0 0 0 0.2 ] ]
+            , Css.hover [ Css.after [ Css.backgroundColor <| Css.rgba 0 0 0 0.2 ] ]
             ]
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         , Attributes.dataTest "diagram-list-item"
@@ -670,21 +606,21 @@ diagramView timezone diagram =
             [ Attr.css
                 [ TextStyle.sm
                 , Style.widthFull
-                , textOverflow ellipsis
-                , whiteSpace noWrap
-                , overflow hidden
+                , Css.textOverflow Css.ellipsis
+                , Css.whiteSpace Css.noWrap
+                , Css.overflow Css.hidden
                 , ColorStyle.bgLight
-                , height <| px 64
-                , padding <| px 8
-                , borderRadius4 zero zero (px 2) (px 2)
+                , Css.height <| Css.px 64
+                , Css.padding <| Css.px 8
+                , Css.borderRadius4 Css.zero Css.zero (Css.px 2) (Css.px 2)
                 ]
             ]
             [ Html.div
-                [ Attr.css [ overflow hidden, textOverflow ellipsis, TextStyle.base, FontStyle.fontSemiBold ] ]
+                [ Attr.css [ Css.overflow Css.hidden, Css.textOverflow Css.ellipsis, TextStyle.base, FontStyle.fontSemiBold ] ]
                 [ Html.text (Title.toString diagram.title) ]
             , Html.div
-                [ Attr.css [ displayFlex, alignItems center, justifyContent spaceBetween ] ]
-                [ Html.div [ Attr.css [ TextStyle.xs, display block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
+                [ Attr.css [ Css.displayFlex, Css.alignItems Css.center, Css.justifyContent Css.spaceBetween ] ]
+                [ Html.div [ Attr.css [ TextStyle.xs, Css.display Css.block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
          , case diagram.location of
             Just DiagramLocation.Gist ->
@@ -732,11 +668,11 @@ deleteButtonView diagram =
         Just <|
             Html.div
                 [ Attr.css
-                    [ bottom <| px -4
-                    , right <| px -1
+                    [ Css.bottom <| Css.px -4
+                    , Css.right <| Css.px -1
                     , Style.button
-                    , position absolute
-                    , hover [ transforms [ scale 1.1 ] ]
+                    , Css.position Css.absolute
+                    , Css.hover [ Css.transforms [ Css.scale 1.1 ] ]
                     ]
                 , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
                 ]
@@ -747,11 +683,11 @@ copyButtonView : DiagramItem -> Html Msg
 copyButtonView diagram =
     Html.div
         [ Attr.css
-            [ bottom <| px -2
-            , right <| px 32
+            [ Css.bottom <| Css.px -2
+            , Css.right <| Css.px 32
             , Style.button
-            , position absolute
-            , hover [ transforms [ scale 1.1 ] ]
+            , Css.position Css.absolute
+            , Css.hover [ Css.transforms [ Css.scale 1.1 ] ]
             ]
         , stopPropagationOn "click" (D.succeed ( Copy diagram, True ))
         ]
@@ -766,8 +702,8 @@ errorView e =
                 [ Style.flexCenter
                 , Style.heightFull
                 , TextStyle.xl2
-                , paddingBottom <| px 32
-                , color <| hex <| Color.toString Color.labelDefalut
+                , Css.paddingBottom <| Css.px 32
+                , Css.color <| Css.hex <| Color.toString Color.labelDefalut
                 ]
             ]
             [ Html.div [ Attr.css [ Style.mbSm ] ]

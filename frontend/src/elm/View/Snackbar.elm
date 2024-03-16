@@ -1,30 +1,6 @@
 module View.Snackbar exposing (docs, view)
 
 import Css
-    exposing
-        ( alignItems
-        , backgroundColor
-        , bottom
-        , center
-        , cursor
-        , displayFlex
-        , fixed
-        , int
-        , justifyContent
-        , left
-        , pct
-        , pointer
-        , position
-        , px
-        , rem
-        , rgba
-        , right
-        , spaceBetween
-        , transform
-        , translate2
-        , width
-        , zIndex
-        )
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
@@ -46,36 +22,36 @@ view snackbar =
             Html.div
                 [ Attr.css
                     [ Breakpoint.style
-                        [ position fixed
-                        , displayFlex
-                        , alignItems center
-                        , justifyContent spaceBetween
+                        [ Css.position Css.fixed
+                        , Css.displayFlex
+                        , Css.alignItems Css.center
+                        , Css.justifyContent Css.spaceBetween
                         , Text.sm
                         , Style.widthScreen
                         , Style.shadowNone
-                        , right <| px 0
-                        , left <| px 0
-                        , bottom <| px 55
-                        , zIndex <| int 200
+                        , Css.right <| Css.px 0
+                        , Css.left <| Css.px 0
+                        , Css.bottom <| Css.px 55
+                        , Css.zIndex <| Css.int 200
                         , Color.textColor
-                        , cursor pointer
-                        , zIndex <| int 200
-                        , transform <| translate2 (px 0) (pct -50)
-                        , backgroundColor <| rgba 0 0 0 0.87
+                        , Css.cursor Css.pointer
+                        , Css.zIndex <| Css.int 200
+                        , Css.transform <| Css.translate2 (Css.px 0) (Css.pct -50)
+                        , Css.backgroundColor <| Css.rgba 0 0 0 0.87
                         ]
                         [ Breakpoint.large
                             [ Style.shadowSm
-                            , width <| px 300
-                            , left <| pct 40
-                            , right <| px 0
-                            , bottom <| rem 0.125
+                            , Css.width <| Css.px 300
+                            , Css.left <| Css.pct 40
+                            , Css.right <| Css.px 0
+                            , Css.bottom <| Css.rem 0.125
                             ]
                         ]
                     ]
                 ]
                 [ Html.div [ Attr.css [ Style.padding3 ] ] [ Html.text model.message ]
                 , Html.div
-                    [ Attr.css [ Style.padding3, Color.textAccent, cursor pointer, Font.fontBold ]
+                    [ Attr.css [ Style.padding3, Color.textAccent, Css.cursor Css.pointer, Font.fontBold ]
                     , Events.onClick model.action
                     ]
                     [ Html.text model.text ]

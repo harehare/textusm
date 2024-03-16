@@ -3,39 +3,6 @@ module Diagram.View exposing (view)
 import Attributes
 import Constants
 import Css
-    exposing
-        ( absolute
-        , alignItems
-        , backgroundColor
-        , border3
-        , center
-        , color
-        , cursor
-        , disc
-        , displayFlex
-        , fontWeight
-        , grab
-        , grabbing
-        , height
-        , hex
-        , important
-        , int
-        , justifyContent
-        , listStyleType
-        , padding2
-        , pointer
-        , position
-        , px
-        , relative
-        , rem
-        , rgba
-        , right
-        , solid
-        , spaceBetween
-        , textAlign
-        , top
-        , width
-        )
 import Css.Global as Global exposing (global)
 import Diagram.BusinessModelCanvas.View as BusinessModelCanvas
 import Diagram.ER.View as ER
@@ -135,20 +102,20 @@ view model =
     Html.div
         [ Attr.id "usm-area"
         , Attr.css
-            [ position relative
+            [ Css.position Css.relative
             , Style.heightFull
             , case model.moveState of
                 Diagram.BoardMove ->
-                    Css.batch [ cursor grabbing ]
+                    Css.batch [ Css.cursor Css.grabbing ]
 
                 _ ->
-                    Css.batch [ cursor grab ]
+                    Css.batch [ Css.cursor Css.grab ]
             , case model.dragStatus of
                 NoDrag ->
                     Css.batch []
 
                 DragOver ->
-                    Css.batch [ backgroundColor <| rgba 0 0 0 0.3 ]
+                    Css.batch [ Css.backgroundColor <| Css.rgba 0 0 0 0.3 ]
             ]
         , Events.onDrop DropFiles
         , Events.onMouseUp <| \_ -> Stop
@@ -162,8 +129,8 @@ view model =
                 [ Style.paddingSm
                 , Global.children
                     [ Global.typeSelector "li"
-                        [ listStyleType disc
-                        , important <| Css.paddingLeft Css.zero
+                        [ Css.listStyleType Css.disc
+                        , Css.important <| Css.paddingLeft Css.zero
                         ]
                     ]
                 ]
@@ -228,9 +195,9 @@ view model =
         , if SearchModel.isSearch model.search then
             Html.div
                 [ Attr.css
-                    [ position absolute
-                    , top <| px 62
-                    , right <| px 32
+                    [ Css.position Css.absolute
+                    , Css.top <| Css.px 62
+                    , Css.right <| Css.px 32
                     ]
                 ]
                 [ Search.view
@@ -830,26 +797,26 @@ zoomControl { isFullscreen, scale, lockEditing } =
     Html.div
         [ Attr.id "zoom-control"
         , Attr.css
-            [ position absolute
-            , alignItems center
-            , displayFlex
-            , justifyContent spaceBetween
-            , top <| px 16
-            , right <| px 32
-            , width <| px 240
-            , backgroundColor <| hex <| Color.toString Color.white2
+            [ Css.position Css.absolute
+            , Css.alignItems Css.center
+            , Css.displayFlex
+            , Css.justifyContent Css.spaceBetween
+            , Css.top <| Css.px 16
+            , Css.right <| Css.px 32
+            , Css.width <| Css.px 240
+            , Css.backgroundColor <| Css.hex <| Color.toString Color.white2
             , Style.roundedSm
-            , padding2 (px 8) (px 16)
-            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , Css.padding2 (Css.px 8) (Css.px 16)
+            , Css.border3 (Css.px 1) Css.solid (Css.rgba 0 0 0 0.1)
             ]
         ]
         [ Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
-                , displayFlex
-                , alignItems center
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
+                , Css.displayFlex
+                , Css.alignItems Css.center
                 ]
             , onClick ToggleSearch
             ]
@@ -857,11 +824,11 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
-                , displayFlex
-                , alignItems center
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
+                , Css.displayFlex
+                , Css.alignItems Css.center
                 ]
             , onClick FitToWindow
             ]
@@ -869,11 +836,11 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
-                , displayFlex
-                , alignItems center
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
+                , Css.displayFlex
+                , Css.alignItems Css.center
                 ]
             , onClick ToggleMiniMap
             ]
@@ -881,9 +848,9 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
                 ]
             , onClick <| ZoomOut Scale.step
             ]
@@ -891,20 +858,20 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ Css.fontSize <| rem 0.7
-                , color <| hex <| Color.toString Color.labelDefalut
-                , cursor pointer
-                , fontWeight <| int 600
-                , width <| px 32
+                [ Css.fontSize <| Css.rem 0.7
+                , Css.color <| Css.hex <| Color.toString Color.labelDefalut
+                , Css.cursor Css.pointer
+                , Css.fontWeight <| Css.int 600
+                , Css.width <| Css.px 32
                 ]
             ]
             [ Html.text (String.fromInt s ++ "%")
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
                 ]
             , onClick <| ZoomIn Scale.step
             ]
@@ -912,10 +879,10 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 16
-                , cursor pointer
-                , textAlign center
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 16
+                , Css.cursor Css.pointer
+                , Css.textAlign Css.center
                 ]
             , onClick ToggleEdit
             ]
@@ -927,9 +894,9 @@ zoomControl { isFullscreen, scale, lockEditing } =
             ]
         , Html.div
             [ Attr.css
-                [ width <| px 24
-                , height <| px 24
-                , cursor pointer
+                [ Css.width <| Css.px 24
+                , Css.height <| Css.px 24
+                , Css.cursor Css.pointer
                 ]
             , onClick ToggleFullscreen
             ]

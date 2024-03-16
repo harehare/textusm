@@ -4,43 +4,6 @@ import Asset
 import Attributes
 import Avatar exposing (Avatar(..))
 import Css
-    exposing
-        ( alignItems
-        , borderStyle
-        , center
-        , color
-        , cursor
-        , displayFlex
-        , ellipsis
-        , flexStart
-        , focus
-        , height
-        , hex
-        , hidden
-        , hover
-        , justifyContent
-        , left
-        , marginLeft
-        , marginRight
-        , marginTop
-        , noWrap
-        , none
-        , outline
-        , overflow
-        , padding4
-        , paddingLeft
-        , pct
-        , pointer
-        , position
-        , property
-        , px
-        , relative
-        , rem
-        , textAlign
-        , textOverflow
-        , whiteSpace
-        , width
-        )
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
 import Diagram.Types.Location as DiagramLocation
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
@@ -99,30 +62,30 @@ view : Props msg -> Html msg
 view props =
     Html.header
         [ css
-            [ displayFlex
-            , alignItems center
+            [ Css.displayFlex
+            , Css.alignItems Css.center
             , Style.widthFull
             , ColorStyle.bgHeaderColor
-            , height <| px 40
+            , Css.height <| Css.px 40
             ]
         ]
         (Html.div
             [ css
-                [ displayFlex
-                , width <| pct 100
-                , height <| pct 100
+                [ Css.displayFlex
+                , Css.width <| Css.pct 100
+                , Css.height <| Css.pct 100
                 ]
             ]
             [ case props.page of
                 Page.Main ->
                     Html.div
-                        [ css [ width <| px 32, height <| px 32, marginTop <| px 6 ]
+                        [ css [ Css.width <| Css.px 32, Css.height <| Css.px 32, Css.marginTop <| Css.px 6 ]
                         , Attributes.dataTest "header-logo"
                         ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
                             [ Html.img
                                 [ Asset.src Asset.logo
-                                , css [ width <| px 28, height <| px 28, marginLeft <| px 4 ]
+                                , css [ Css.width <| Css.px 28, Css.height <| Css.px 28, Css.marginLeft <| Css.px 4 ]
                                 , Attr.alt "logo"
                                 ]
                                 []
@@ -133,7 +96,7 @@ view props =
                     case props.prevRoute of
                         Just r ->
                             Html.div
-                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
+                                [ css [ Style.flexCenter, Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) (Css.px 12), Css.cursor Css.pointer ]
                                 , Events.onClick <| props.onMoveTo r
                                 , Attributes.dataTest "header-back"
                                 ]
@@ -141,7 +104,7 @@ view props =
 
                         Nothing ->
                             Html.div
-                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ] ]
+                                [ css [ Style.flexCenter, Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) (Css.px 12), Css.cursor Css.pointer ] ]
                                 [ Icon.arrowLeft Color.disabledIconColor 16 ]
             , case props.page of
                 Page.Main ->
@@ -151,14 +114,14 @@ view props =
                             , css
                                 [ Style.widthFull
                                 , ColorStyle.bgHeaderColor
-                                , borderStyle none
+                                , Css.borderStyle Css.none
                                 , Font.fontFamily
                                 , Text.base
                                 , Font.fontBold
-                                , paddingLeft <| px 8
-                                , color <| hex <| Color.toString Color.white2
-                                , focus
-                                    [ outline none
+                                , Css.paddingLeft <| Css.px 8
+                                , Css.color <| Css.hex <| Color.toString Color.white2
+                                , Css.focus
+                                    [ Css.outline Css.none
                                     ]
                                 ]
                             , Attr.value <| Title.toString props.currentDiagram.title
@@ -173,15 +136,15 @@ view props =
                     else
                         viewTitle
                             [ css
-                                [ cursor pointer
-                                , hover []
+                                [ Css.cursor Css.pointer
+                                , Css.hover []
                                 ]
                             , Events.onClick props.onStartEditTitle
                             , Attributes.dataTest "header-title"
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
-                                [ css [ marginLeft <| px 8 ] ]
+                                [ css [ Css.marginLeft <| Css.px 8 ] ]
                                 [ if canEdit props && Text.isChanged props.currentText then
                                     Icon.circle Color.white 10
 
@@ -294,7 +257,7 @@ viewHelpButton : Lang -> Html msg
 viewHelpButton lang =
     Html.a
         [ Attr.attribute "aria-label" "Help"
-        , css [ displayFlex ]
+        , css [ Css.displayFlex ]
         , Attr.href <| Route.toString Route.Help
         , Attributes.dataTest "header-help"
         ]
@@ -309,7 +272,7 @@ viewSettingsButton : Lang -> DiagramType -> Html msg
 viewSettingsButton lang diagramType =
     Html.a
         [ Attr.attribute "aria-label" "Help"
-        , css [ displayFlex ]
+        , css [ Css.displayFlex ]
         , Attr.href <|
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
@@ -326,7 +289,7 @@ viewShareButton : Lang -> Bool -> Html msg
 viewShareButton lang canShare_ =
     if canShare_ then
         Html.a
-            [ css [ displayFlex ]
+            [ css [ Css.displayFlex ]
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
             , Attributes.dataTest "header-share"
@@ -358,14 +321,14 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
         Html.div
             [ css
                 [ Breakpoint.style
-                    [ width <| px 32
-                    , marginLeft <| px 8
-                    , marginRight <| px 8
+                    [ Css.width <| Css.px 32
+                    , Css.marginLeft <| Css.px 8
+                    , Css.marginRight <| Css.px 8
                     ]
                     [ Breakpoint.small
                         [ Style.button
-                        , width <| px 40
-                        , height <| px 40
+                        , Css.width <| Css.px 40
+                        , Css.height <| Css.px 40
                         ]
                     ]
                 ]
@@ -373,20 +336,20 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
             , Attributes.dataTest "header-signin"
             ]
             [ Html.div
-                [ css [ Text.sm, marginRight <| px 4 ]
+                [ css [ Text.sm, Css.marginRight <| Css.px 4 ]
                 ]
                 [ Html.img
                     [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
                     , css
                         [ Breakpoint.style
-                            [ width <| rem 1.25
+                            [ Css.width <| Css.rem 1.25
                             , Style.heightFull
-                            , property "object-fit" "cover"
+                            , Css.property "object-fit" "cover"
                             , Style.roundedFull
                             , Style.mtXs
-                            , position relative
+                            , Css.position Css.relative
                             ]
-                            [ Breakpoint.large [ width <| rem 1.5, height <| rem 1.5 ] ]
+                            [ Breakpoint.large [ Css.width <| Css.rem 1.5, Css.height <| Css.rem 1.5 ] ]
                         ]
                     , Attr.alt "avatar"
                     ]
@@ -439,7 +402,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
 
     else
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 40 ]
+            [ css [ Style.button, Css.width <| Css.px 96, Css.height <| Css.px 40 ]
             , case menu of
                 Just LoginMenu ->
                     Events.stopPropagationOn "click" (D.succeed ( onCloseMenu, True ))
@@ -487,17 +450,17 @@ viewTitle attrs children =
     Html.div
         (css
             [ Style.widthFull
-            , displayFlex
+            , Css.displayFlex
             , Text.base
             , Font.fontBold
-            , overflow hidden
-            , alignItems center
-            , justifyContent flexStart
-            , whiteSpace noWrap
+            , Css.overflow Css.hidden
+            , Css.alignItems Css.center
+            , Css.justifyContent Css.flexStart
+            , Css.whiteSpace Css.noWrap
             , ColorStyle.textColor
-            , textOverflow ellipsis
-            , textAlign left
-            , paddingLeft <| px 8
+            , Css.textOverflow Css.ellipsis
+            , Css.textAlign Css.left
+            , Css.paddingLeft <| Css.px 8
             ]
             :: attrs
         )

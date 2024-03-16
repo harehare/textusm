@@ -2,31 +2,6 @@ module Page.Help exposing (view)
 
 import Asset
 import Css
-    exposing
-        ( alignItems
-        , border3
-        , borderBottom3
-        , borderTop3
-        , center
-        , color
-        , column
-        , displayFlex
-        , flexDirection
-        , flexStart
-        , hex
-        , hidden
-        , justifyContent
-        , margin4
-        , overflowX
-        , padding
-        , padding2
-        , padding3
-        , padding4
-        , px
-        , solid
-        , width
-        , zero
-        )
 import Html.Styled exposing (Html, div, img, span, text)
 import Html.Styled.Attributes as Attr
 import Maybe.Extra exposing (isNothing)
@@ -40,22 +15,22 @@ import Types.Hotkey as Hotkey
 view : Html msg
 view =
     div
-        [ Attr.css [ Text.xs, Color.bgDefault, Style.widthFull, Color.textColor, overflowX hidden ]
+        [ Attr.css [ Text.xs, Color.bgDefault, Style.widthFull, Color.textColor, Css.overflowX Css.hidden ]
         ]
         [ div
             [ Attr.css
                 [ Font.fontSemiBold
-                , displayFlex
-                , alignItems center
-                , justifyContent flexStart
-                , padding2 (px 16) zero
+                , Css.displayFlex
+                , Css.alignItems Css.center
+                , Css.justifyContent Css.flexStart
+                , Css.padding2 (Css.px 16) Css.zero
                 , Style.padding3
                 ]
             ]
-            [ img [ Asset.src Asset.logo, Attr.css [ Style.ml2, width <| px 32 ], Attr.alt "logo" ] []
+            [ img [ Asset.src Asset.logo, Attr.css [ Style.ml2, Css.width <| Css.px 32 ], Attr.alt "logo" ] []
             , span [ Attr.css [ Text.xl2, Style.ml2 ] ] [ text "TextUSM" ]
             ]
-        , div [ Attr.css [ Text.sm, padding2 zero (px 16) ] ]
+        , div [ Attr.css [ Text.sm, Css.padding2 Css.zero (Css.px 16) ] ]
             [ text "TextUSM is a simple tool. Help you draw user story map using indented text."
             ]
 
@@ -161,28 +136,28 @@ view =
         , section (Just "Hotkeys")
         , div
             [ Attr.css
-                [ displayFlex
+                [ Css.displayFlex
                 , Text.base
-                , flexDirection column
-                , padding <| px 16
+                , Css.flexDirection Css.column
+                , Css.padding <| Css.px 16
                 ]
             ]
-            [ div [ Attr.css [ Font.fontSemiBold, displayFlex ] ]
+            [ div [ Attr.css [ Font.fontSemiBold, Css.displayFlex ] ]
                 [ itemView [ text "Windows" ]
                 , itemView [ text "Mac" ]
                 , itemView [ text "Action" ]
                 ]
-            , div [ Attr.css [ displayFlex ] ]
+            , div [ Attr.css [ Css.displayFlex ] ]
                 [ itemView [ text <| Hotkey.toWindowsString Hotkey.save ]
                 , itemView [ text <| Hotkey.toMacString Hotkey.save ]
                 , itemView [ text "Save" ]
                 ]
-            , div [ Attr.css [ displayFlex ] ]
+            , div [ Attr.css [ Css.displayFlex ] ]
                 [ itemView [ text <| Hotkey.toWindowsString Hotkey.open ]
                 , itemView [ text <| Hotkey.toMacString Hotkey.open ]
                 , itemView [ text "Open" ]
                 ]
-            , div [ Attr.css [ displayFlex ] ]
+            , div [ Attr.css [ Css.displayFlex ] ]
                 [ itemView [ text <| Hotkey.toWindowsString Hotkey.select ]
                 , itemView [ text <| Hotkey.toMacString Hotkey.select ]
                 , itemView [ text "Select the card in the current row" ]
@@ -205,7 +180,7 @@ indentedText s indent =
 
 itemView : List (Html msg) -> Html msg
 itemView children =
-    div [ Attr.css [ width <| px 96, Text.sm, Style.flexCenter, border3 (px 1) solid Color.borderColor, Style.paddingSm ] ] children
+    div [ Attr.css [ Css.width <| Css.px 96, Text.sm, Style.flexCenter, Css.border3 (Css.px 1) Css.solid Color.borderColor, Style.paddingSm ] ] children
 
 
 section : Maybe String -> Html msg
@@ -216,13 +191,13 @@ section title =
                 Css.batch []
 
               else
-                Css.batch [ borderTop3 (px 1) solid (hex "#323B46") ]
+                Css.batch [ Css.borderTop3 (Css.px 1) Css.solid (Css.hex "#323B46") ]
             , if isNothing title then
-                Css.batch [ padding <| px 0 ]
+                Css.batch [ Css.padding <| Css.px 0 ]
 
               else
-                Css.batch [ padding4 (px 32) zero (px 8) zero ]
-            , Css.batch [ Font.fontSemiBold, borderBottom3 (px 1) solid (hex "#666666"), margin4 (px 8) (px 16) (px 8) (px 16) ]
+                Css.batch [ Css.padding4 (Css.px 32) Css.zero (Css.px 8) Css.zero ]
+            , Css.batch [ Font.fontSemiBold, Css.borderBottom3 (Css.px 1) Css.solid (Css.hex "#666666"), Css.margin4 (Css.px 8) (Css.px 16) (Css.px 8) (Css.px 16) ]
             ]
         ]
         [ div [] [ text (title |> Maybe.withDefault "") ]
@@ -231,7 +206,7 @@ section title =
 
 storyView : List (Html msg) -> Html msg
 storyView children =
-    div [ Attr.css [ color <| hex "#ffffff" ] ] children
+    div [ Attr.css [ Css.color <| Css.hex "#ffffff" ] ] children
 
 
 taskView : List (Html msg) -> Html msg
@@ -241,24 +216,24 @@ taskView children =
 
 textActivityView : List (Html msg) -> Html msg
 textActivityView children =
-    div [ Attr.css [ Text.base, Color.textActivity, padding3 zero (px 16) zero ] ] children
+    div [ Attr.css [ Text.base, Color.textActivity, Css.padding3 Css.zero (Css.px 16) Css.zero ] ] children
 
 
 textCommentView : List (Html msg) -> Html msg
 textCommentView children =
-    div [ Attr.css [ Text.base, Color.textComment, padding3 zero (px 16) zero ] ] children
+    div [ Attr.css [ Text.base, Color.textComment, Css.padding3 Css.zero (Css.px 16) Css.zero ] ] children
 
 
 textPropertyView : List (Html msg) -> Html msg
 textPropertyView children =
-    div [ Attr.css [ Text.base, Color.textPropertyColor, padding3 zero (px 16) zero ] ] children
+    div [ Attr.css [ Text.base, Color.textPropertyColor, Css.padding3 Css.zero (Css.px 16) Css.zero ] ] children
 
 
 textTaskStyle : List (Html msg) -> Html msg
 textTaskStyle children =
-    div [ Attr.css [ Text.base, Color.textAccent, padding3 zero (px 16) zero ] ] children
+    div [ Attr.css [ Text.base, Color.textAccent, Css.padding3 Css.zero (Css.px 16) Css.zero ] ] children
 
 
 textView : List (Html msg) -> Html msg
 textView children =
-    div [ Attr.css [ Text.base, padding3 zero (px 16) zero ] ] children
+    div [ Attr.css [ Text.base, Css.padding3 Css.zero (Css.px 16) Css.zero ] ] children

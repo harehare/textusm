@@ -1,27 +1,6 @@
 module View.Notification exposing (docs, view)
 
 import Css
-    exposing
-        ( alignItems
-        , backgroundColor
-        , bottom
-        , center
-        , cursor
-        , displayFlex
-        , fixed
-        , height
-        , int
-        , minWidth
-        , pct
-        , pointer
-        , position
-        , px
-        , rgba
-        , right
-        , transform
-        , translateY
-        , zIndex
-        )
 import Css.Transitions as Transitions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
@@ -56,38 +35,38 @@ view notification =
         [ Attr.css
             [ Breakpoint.style
                 [ Text.sm
-                , position fixed
-                , cursor pointer
-                , displayFlex
-                , alignItems center
-                , minWidth <| px 300
-                , height <| px 40
-                , backgroundColor <| rgba 0 0 0 0.87
+                , Css.position Css.fixed
+                , Css.cursor Css.pointer
+                , Css.displayFlex
+                , Css.alignItems Css.center
+                , Css.minWidth <| Css.px 300
+                , Css.height <| Css.px 40
+                , Css.backgroundColor <| Css.rgba 0 0 0 0.87
                 , ColorStyle.textColor
                 , Transitions.transition [ Transitions.transform3 100 100 Transitions.easeInOut ]
                 , Style.widthScreen
                 , Style.shadowNone
-                , right <| px 0
-                , bottom <| px 0
-                , zIndex <| int 200
+                , Css.right <| Css.px 0
+                , Css.bottom <| Css.px 0
+                , Css.zIndex <| Css.int 200
                 , case notification of
                     Notification.Hide ->
-                        transform <| translateY <| px 100
+                        Css.transform <| Css.translateY <| Css.px 100
 
                     _ ->
-                        transform <| translateY <| pct 10
+                        Css.transform <| Css.translateY <| Css.pct 10
                 ]
                 [ Breakpoint.large
                     [ Style.widthAuto
                     , Style.shadowSm
-                    , bottom <| px 16
-                    , right <| px 16
+                    , Css.bottom <| Css.px 16
+                    , Css.right <| Css.px 16
                     ]
                 ]
             ]
         ]
         [ Html.div
-            [ Attr.css [ displayFlex, alignItems center, Style.mrMd ]
+            [ Attr.css [ Css.displayFlex, Css.alignItems Css.center, Style.mrMd ]
             ]
             [ Html.div [ Attr.css [ Style.mlSm ] ] [ icon ]
             , Html.div [ Attr.css [ Style.mlSm ] ] [ Html.text text_ ]

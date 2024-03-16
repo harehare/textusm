@@ -1,5 +1,15 @@
-frontend: frontend/src/*
-backend: backend/*
-vscode: extension/vscode/*
-npm: extension/lib/*
-cli: cli/*
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: "frontend/src/*"
+backend:
+  - changed-files:
+      - any-glob-to-any-file: "backend/*"
+vscode:
+  - changed-files:
+      - any-glob-to-any-file: "extension/vscode/*"
+npm:
+  - changed-files:
+      - any-glob-to-any-file: "extension/lib/*"
+cli:
+  - changed-files:
+      - any-glob-to-any-file: "cli/*"
