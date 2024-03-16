@@ -1,30 +1,6 @@
 module View.Switch exposing (docs, view)
 
 import Css
-    exposing
-        ( absolute
-        , after
-        , backgroundColor
-        , borderBox
-        , borderRadius
-        , boxSizing
-        , cursor
-        , display
-        , height
-        , inlineBlock
-        , int
-        , left
-        , opacity
-        , pointer
-        , position
-        , property
-        , px
-        , relative
-        , top
-        , width
-        , zIndex
-        , zero
-        )
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html, div, input, label)
@@ -36,17 +12,17 @@ import Style.Style as Style
 
 view : Bool -> (Bool -> msg) -> Html msg
 view check onCheck =
-    div [ Attr.css [ Style.flexCenter, position relative ] ]
+    div [ Attr.css [ Style.flexCenter, Css.position Css.relative ] ]
         [ input
             [ Attr.type_ "checkbox"
             , Attr.css
-                [ position absolute
-                , left zero
-                , top zero
+                [ Css.position Css.absolute
+                , Css.left Css.zero
+                , Css.top Css.zero
                 , Style.full
-                , zIndex <| int 5
-                , opacity zero
-                , cursor pointer
+                , Css.zIndex <| Css.int 5
+                , Css.opacity Css.zero
+                , Css.cursor Css.pointer
                 ]
             , Attr.checked check
             , E.onCheck onCheck
@@ -54,29 +30,29 @@ view check onCheck =
             []
         , label
             [ Attr.css
-                [ width <| px 32
-                , height <| px 16
-                , backgroundColor <| ColorStyle.disabledColor
-                , position relative
-                , display inlineBlock
-                , borderRadius <| px 46
-                , boxSizing borderBox
-                , property "transition" "0.4s"
-                , after
+                [ Css.width <| Css.px 32
+                , Css.height <| Css.px 16
+                , Css.backgroundColor <| ColorStyle.disabledColor
+                , Css.position Css.relative
+                , Css.display Css.inlineBlock
+                , Css.borderRadius <| Css.px 46
+                , Css.boxSizing Css.borderBox
+                , Css.property "transition" "0.4s"
+                , Css.after
                     [ Style.emptyContent
-                    , position absolute
-                    , width <| px 16
-                    , height <| px 16
+                    , Css.position Css.absolute
+                    , Css.width <| Css.px 16
+                    , Css.height <| Css.px 16
                     , Style.roundedFull
-                    , left zero
-                    , top zero
-                    , zIndex <| int 2
+                    , Css.left Css.zero
+                    , Css.top Css.zero
+                    , Css.zIndex <| Css.int 2
                     , ColorStyle.bgLight
                     , Style.shadowSm
-                    , property "transition" "0.2s"
+                    , Css.property "transition" "0.2s"
                     ]
                 , if check then
-                    Css.batch [ ColorStyle.bgActivity, after [ left <| px 16 ] ]
+                    Css.batch [ ColorStyle.bgActivity, Css.after [ Css.left <| Css.px 16 ] ]
 
                   else
                     Css.batch []

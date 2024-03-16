@@ -2,49 +2,6 @@ module View.Menu exposing (MenuInfo, MenuItem(..), Props, docs, menu, view)
 
 import Attributes
 import Css
-    exposing
-        ( absolute
-        , alignItems
-        , backgroundColor
-        , bottom
-        , calc
-        , center
-        , column
-        , cursor
-        , displayFlex
-        , fixed
-        , flexDirection
-        , height
-        , hidden
-        , hover
-        , int
-        , justifyContent
-        , left
-        , marginBottom
-        , maxHeight
-        , minWidth
-        , minus
-        , opacity
-        , overflow
-        , padding
-        , padding2
-        , paddingTop
-        , pointer
-        , position
-        , px
-        , relative
-        , rgba
-        , right
-        , row
-        , spaceBetween
-        , start
-        , top
-        , vh
-        , visibility
-        , visible
-        , zIndex
-        , zero
-        )
 import Css.Global exposing (class, descendants)
 import Css.Transitions as Transitions
 import Diagram.Types.Item as DiagramItem exposing (DiagramItem)
@@ -184,19 +141,19 @@ menu : { bottom : Maybe Int, left : Maybe Int, right : Maybe Int, top : Maybe In
 menu pos items =
     Html.div
         [ css
-            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) pos.top |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) pos.left |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) pos.right |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) pos.bottom |> Maybe.withDefault (Css.batch [])
-            , minWidth <| px 128
-            , maxHeight <| calc (vh 100) minus (px 40)
+            [ Maybe.map (\p -> Css.batch [ Css.top <| Css.px <| toFloat <| p ]) pos.top |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ Css.left <| Css.px <| toFloat <| p ]) pos.left |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ Css.right <| Css.px <| toFloat <| p ]) pos.right |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ Css.bottom <| Css.px <| toFloat <| p ]) pos.bottom |> Maybe.withDefault (Css.batch [])
+            , Css.minWidth <| Css.px 128
+            , Css.maxHeight <| Css.calc (Css.vh 100) Css.minus (Css.px 40)
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
             , Style.m1
-            , overflow hidden
+            , Css.overflow Css.hidden
             , ColorStyle.bgMenuColor
-            , position absolute
+            , Css.position Css.absolute
             , Style.rounded
-            , zIndex <| int 10
+            , Css.zIndex <| Css.int 10
             , Style.shadowSm
             ]
         ]
@@ -207,12 +164,12 @@ menu pos items =
                         [ css
                             [ TextStyle.base
                             , ColorStyle.textColor
-                            , cursor pointer
-                            , displayFlex
-                            , alignItems center
-                            , height <| px 40
-                            , hover
-                                [ backgroundColor <| rgba 0 0 0 0.3
+                            , Css.cursor Css.pointer
+                            , Css.displayFlex
+                            , Css.alignItems Css.center
+                            , Css.height <| Css.px 40
+                            , Css.hover
+                                [ Css.backgroundColor <| Css.rgba 0 0 0 0.3
                                 ]
                             ]
                         , case menuItem.e of
@@ -230,13 +187,13 @@ menu pos items =
                         [ Html.div
                             [ css
                                 [ Breakpoint.style
-                                    [ cursor pointer
+                                    [ Css.cursor Css.pointer
                                     , TextStyle.sm
                                     , FontStyle.fontBold
-                                    , padding2 zero (px 16)
+                                    , Css.padding2 Css.zero (Css.px 16)
                                     , Style.mt0
                                     ]
-                                    [ Breakpoint.large [ padding <| px 16 ]
+                                    [ Breakpoint.large [ Css.padding <| Css.px 16 ]
                                     ]
                                 ]
                             ]
@@ -252,24 +209,24 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
     Html.nav
         [ css
             [ Breakpoint.style
-                [ displayFlex
-                , flexDirection row
-                , alignItems center
-                , justifyContent spaceBetween
+                [ Css.displayFlex
+                , Css.flexDirection Css.row
+                , Css.alignItems Css.center
+                , Css.justifyContent Css.spaceBetween
                 , ColorStyle.bgMain
                 , Style.shadowSm
-                , bottom zero
+                , Css.bottom Css.zero
                 , Style.widthScreen
-                , position fixed
-                , zIndex <| int 10
-                , minWidth <| px 40
+                , Css.position Css.fixed
+                , Css.zIndex <| Css.int 10
+                , Css.minWidth <| Css.px 40
                 , ColorStyle.bgMenuColor
                 ]
                 [ Breakpoint.large
-                    [ justifyContent start
+                    [ Css.justifyContent Css.start
                     , Style.heightScreen
-                    , position relative
-                    , flexDirection column
+                    , Css.position Css.relative
+                    , Css.flexDirection Css.column
                     , Style.wMenu
                     ]
                 ]
@@ -486,18 +443,18 @@ menuButtonStyle : Css.Style
 menuButtonStyle =
     Css.batch
         [ Breakpoint.style
-            [ cursor pointer
-            , marginBottom <| px 8
-            , padding <| px 16
-            , marginBottom zero
+            [ Css.cursor Css.pointer
+            , Css.marginBottom <| Css.px 8
+            , Css.padding <| Css.px 16
+            , Css.marginBottom Css.zero
             ]
-            [ Breakpoint.large [ padding <| px 0, paddingTop <| px 16 ] ]
-        , hover
-            [ position relative
+            [ Breakpoint.large [ Css.padding <| Css.px 0, Css.paddingTop <| Css.px 16 ] ]
+        , Css.hover
+            [ Css.position Css.relative
             , descendants
                 [ class "tooltip"
-                    [ visibility visible
-                    , opacity <| int 100
+                    [ Css.visibility Css.visible
+                    , Css.opacity <| Css.int 100
                     , ColorStyle.textColor
                     ]
                 ]

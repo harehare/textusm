@@ -4,40 +4,6 @@ import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request
 import Bool.Extra as BoolEx
 import Css
-    exposing
-        ( absolute
-        , alignItems
-        , border3
-        , borderStyle
-        , center
-        , color
-        , cursor
-        , displayFlex
-        , height
-        , hex
-        , justifyContent
-        , left
-        , none
-        , padding
-        , padding3
-        , paddingTop
-        , pct
-        , pointer
-        , position
-        , px
-        , relative
-        , rem
-        , resize
-        , right
-        , solid
-        , start
-        , textAlign
-        , top
-        , transforms
-        , translateX
-        , translateY
-        , width
-        )
 import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Env
@@ -591,19 +557,19 @@ copyButton copy msg =
     Html.div
         [ Attr.css
             [ Style.flexCenter
-            , cursor pointer
-            , position absolute
-            , top <| px 8
-            , right <| px 8
-            , height <| px 8
+            , Css.cursor Css.pointer
+            , Css.position Css.absolute
+            , Css.top <| Css.px 8
+            , Css.right <| Css.px 8
+            , Css.height <| Css.px 8
             , Color.bgActivity
-            , height <| px 32
+            , Css.height <| Css.px 32
             , case copy of
                 Copied ->
-                    width <| px 64
+                    Css.width <| Css.px 64
 
                 _ ->
-                    width <| px 32
+                    Css.width <| Css.px 32
             ]
         , onClick msg
         ]
@@ -626,26 +592,26 @@ view model =
             [ Attr.css
                 [ Breakpoint.style
                     [ Style.shadowSm
-                    , top <| pct 50
-                    , left <| pct 50
-                    , transforms [ translateX <| pct -50, translateY <| pct -50 ]
-                    , padding <| rem 1
-                    , displayFlex
+                    , Css.top <| Css.pct 50
+                    , Css.left <| Css.pct 50
+                    , Css.transforms [ Css.translateX <| Css.pct -50, Css.translateY <| Css.pct -50 ]
+                    , Css.padding <| Css.rem 1
+                    , Css.displayFlex
                     , Color.bgMain
                     , Color.textColor
                     , Style.fullScreen
                     , Style.roundedNone
-                    , position absolute
+                    , Css.position Css.absolute
                     ]
                     [ Breakpoint.small [ Style.widthAuto, Style.heightAuto, Style.rounded ] ]
                 ]
             ]
             [ Html.div
-                [ Attr.css [ displayFlex, alignItems center, justifyContent start, Font.fontSemiBold ]
+                [ Attr.css [ Css.displayFlex, Css.alignItems Css.center, Css.justifyContent Css.start, Font.fontSemiBold ]
                 ]
                 [ Html.div [ Attr.css [ Style.widthFull ] ]
                     [ Html.div []
-                        [ Html.div [ Attr.css [ Style.label, padding3 (px 8) (px 8) (px 16) ] ] [ Html.text "Link to share" ]
+                        [ Html.div [ Attr.css [ Style.label, Css.padding3 (Css.px 8) (Css.px 8) (Css.px 16) ] ] [ Html.text "Link to share" ]
                         , Html.div [ Attr.css [ Style.flexHCenter, Style.paddingSm ] ]
                             [ Html.div [ Attr.css [ Text.sm, Style.mrSm ] ] [ Html.text "Expire in" ]
                             , Html.input
@@ -672,7 +638,7 @@ view model =
                             Just p ->
                                 Html.div [ Attr.css [ Style.paddingSm ] ]
                                     [ Html.input
-                                        [ Attr.css [ Style.inputLight, Text.sm, color <| hex "#555555", width <| px 305 ]
+                                        [ Attr.css [ Style.inputLight, Text.sm, Css.color <| Css.hex "#555555", Css.width <| Css.px 305 ]
                                         , Attr.type_ "password"
                                         , Attr.placeholder "Password"
                                         , Attr.value p
@@ -695,15 +661,15 @@ view model =
                                         [ Attr.css
                                             [ Style.inputLight
                                             , Text.sm
-                                            , resize none
-                                            , color <| hex "#555555"
-                                            , width <| px 305
-                                            , height <| px 100
+                                            , Css.resize Css.none
+                                            , Css.color <| Css.hex "#555555"
+                                            , Css.width <| Css.px 305
+                                            , Css.height <| Css.px 100
                                             , if model.ip.error then
-                                                border3 (px 3) solid Color.errorColor
+                                                Css.border3 (Css.px 3) Css.solid Color.errorColor
 
                                               else
-                                                borderStyle none
+                                                Css.borderStyle Css.none
                                             ]
                                         , Attr.placeholder "127.0.0.1"
                                         , Attr.maxlength 150
@@ -711,7 +677,7 @@ view model =
                                         ]
                                         [ Html.text i ]
                                     , if model.ip.error then
-                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, Css.textAlign Css.right, Color.textError ] ]
                                             [ Html.text "Invalid ip address entered" ]
 
                                       else
@@ -731,15 +697,15 @@ view model =
                                         [ Attr.css
                                             [ Style.inputLight
                                             , Text.sm
-                                            , resize none
-                                            , color <| hex "#555555"
-                                            , width <| px 305
-                                            , height <| px 100
+                                            , Css.resize Css.none
+                                            , Css.color <| Css.hex "#555555"
+                                            , Css.width <| Css.px 305
+                                            , Css.height <| Css.px 100
                                             , if model.email.error then
-                                                border3 (px 3) solid Color.errorColor
+                                                Css.border3 (Css.px 3) Css.solid Color.errorColor
 
                                               else
-                                                borderStyle none
+                                                Css.borderStyle Css.none
                                             ]
                                         , Attr.placeholder "example@textusm.com"
                                         , Attr.maxlength 150
@@ -747,7 +713,7 @@ view model =
                                         ]
                                         [ Html.text m ]
                                     , if model.email.error then
-                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, Css.textAlign Css.right, Color.textError ] ]
                                             [ Html.text "Invalid mail address entered" ]
 
                                       else
@@ -756,13 +722,13 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , Html.div [ Attr.css [ position relative, Style.paddingSm ] ]
+                        , Html.div [ Attr.css [ Css.position Css.relative, Style.paddingSm ] ]
                             [ Html.input
                                 [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
-                                    , color <| hex "#555555"
-                                    , width <| px 305
+                                    , Css.color <| Css.hex "#555555"
+                                    , Css.width <| Css.px 305
                                     ]
                                 , Attr.readonly True
                                 , Attr.value <| sharUrl model.token model.diagramType
@@ -774,19 +740,19 @@ view model =
                             , Lazy.lazy2 copyButton model.urlCopyState UrlCopy
                             ]
                         ]
-                    , Html.div [ Attr.css [ paddingTop <| px 24 ] ]
-                        [ Html.div [ Attr.css [ Style.label, displayFlex, alignItems center, padding3 (px 8) (px 8) (px 16) ] ]
+                    , Html.div [ Attr.css [ Css.paddingTop <| Css.px 24 ] ]
+                        [ Html.div [ Attr.css [ Style.label, Css.displayFlex, Css.alignItems Css.center, Css.padding3 (Css.px 8) (Css.px 8) (Css.px 16) ] ]
                             [ Html.text "Embed"
                             ]
-                        , Html.div [ Attr.css [ displayFlex, alignItems center, Style.paddingSm ] ]
+                        , Html.div [ Attr.css [ Css.displayFlex, Css.alignItems Css.center, Style.paddingSm ] ]
                             [ Html.div [ Attr.css [ Text.sm, Style.mrSm ] ] [ Html.text "Embed size" ]
                             , Html.input
                                 [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
-                                    , color <| hex "#555555"
-                                    , width <| px 60
-                                    , height <| px 32
+                                    , Css.color <| Css.hex "#555555"
+                                    , Css.width <| Css.px 60
+                                    , Css.height <| Css.px 32
                                     ]
                                 , Attr.type_ "number"
                                 , Attr.value <| String.fromInt (Size.getWidth model.embedSize)
@@ -798,9 +764,9 @@ view model =
                                 [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
-                                    , color <| hex "#555555"
-                                    , width <| px 60
-                                    , height <| px 32
+                                    , Css.color <| Css.hex "#555555"
+                                    , Css.width <| Css.px 60
+                                    , Css.height <| Css.px 32
                                     ]
                                 , Attr.type_ "number"
                                 , Attr.value <| String.fromInt (Size.getHeight model.embedSize)
@@ -809,13 +775,13 @@ view model =
                                 []
                             , Html.div [] [ Html.text "px" ]
                             ]
-                        , Html.div [ Attr.css [ position relative, Style.paddingSm ] ]
+                        , Html.div [ Attr.css [ Css.position Css.relative, Style.paddingSm ] ]
                             [ Html.input
                                 [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
-                                    , color <| hex "#555555"
-                                    , width <| px 305
+                                    , Css.color <| Css.hex "#555555"
+                                    , Css.width <| Css.px 305
                                     ]
                                 , Attr.readonly True
                                 , Attr.value <| embedUrl { token = model.token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize }
@@ -830,7 +796,7 @@ view model =
                     ]
                 ]
             , Html.div
-                [ Attr.css [ position absolute, cursor pointer, top <| rem 1, right <| rem 1 ]
+                [ Attr.css [ Css.position Css.absolute, Css.cursor Css.pointer, Css.top <| Css.rem 1, Css.right <| Css.rem 1 ]
                 , onClick Close
                 ]
                 [ Icon.times Color.white 24 ]

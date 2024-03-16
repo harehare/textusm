@@ -1,6 +1,6 @@
 module View.Loading exposing (docs, view)
 
-import Css exposing (scale, transform)
+import Css
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
@@ -12,7 +12,7 @@ import Types.Color as Color
 
 view : Html msg
 view =
-    Html.div [ Attr.css [ transform <| scale 0.2 ] ]
+    Html.div [ Attr.css [ Css.transform <| Css.scale 0.2 ] ]
         [ Svg.svg
             [ SvgAttr.viewBox "0 0 320 320"
             , SvgAttr.width "320"

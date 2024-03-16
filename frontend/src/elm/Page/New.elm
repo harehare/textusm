@@ -3,24 +3,6 @@ module Page.New exposing (view)
 import Asset exposing (Asset)
 import Attributes
 import Css
-    exposing
-        ( border3
-        , borderBox
-        , boxSizing
-        , column
-        , cursor
-        , flexDirection
-        , height
-        , hover
-        , overflowY
-        , padding
-        , pointer
-        , property
-        , px
-        , scroll
-        , solid
-        , transparent
-        )
 import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attr
@@ -41,17 +23,17 @@ view =
                     [ Style.widthScreen
                     , Style.hMobileContent
                     , Color.bgDefault
-                    , overflowY scroll
-                    , padding <| px 8
-                    , property "display" "grid"
-                    , property "grid-column-gap" "16px"
-                    , property "grid-row-gap" "16px"
-                    , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
-                    , property "grid-auto-rows" "120px"
+                    , Css.overflowY Css.scroll
+                    , Css.padding <| Css.px 8
+                    , Css.property "display" "grid"
+                    , Css.property "grid-column-gap" "16px"
+                    , Css.property "grid-row-gap" "16px"
+                    , Css.property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
+                    , Css.property "grid-auto-rows" "120px"
                     ]
                     [ Breakpoint.small
-                        [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
-                        , property "grid-auto-rows" "150px"
+                        [ Css.property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
+                        , Css.property "grid-auto-rows" "150px"
                         , Style.full
                         ]
                     ]
@@ -66,7 +48,7 @@ view =
                             , newItemStyle
                             , Attributes.dataTest <| "new-" ++ DiagramType.toString item.type_
                             ]
-                            [ Html.img [ Asset.src item.image, Attr.css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
+                            [ Html.img [ Asset.src item.image, Attr.css [ Css.property "object-fit" "contain", Style.widthFull, Css.height <| Css.px 100 ] ] []
                             , Html.div
                                 [ Attr.css [ Text.sm, Font.fontSemiBold ]
                                 ]
@@ -89,14 +71,14 @@ newItemStyle : Attribute msg
 newItemStyle =
     Attr.css
         [ Style.flexCenter
-        , flexDirection column
-        , cursor pointer
+        , Css.flexDirection Css.column
+        , Css.cursor Css.pointer
         , Color.bgLight
         , Color.textMain
         , Style.roundedSm
-        , border3 (px 3) solid transparent
-        , boxSizing borderBox
-        , hover
+        , Css.border3 (Css.px 3) Css.solid Css.transparent
+        , Css.boxSizing Css.borderBox
+        , Css.hover
             [ Color.textAccent ]
         ]
 

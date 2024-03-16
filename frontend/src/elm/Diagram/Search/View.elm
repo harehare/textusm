@@ -1,24 +1,6 @@
 module Diagram.Search.View exposing (docs, view)
 
 import Css
-    exposing
-        ( absolute
-        , backgroundColor
-        , border3
-        , cursor
-        , hex
-        , marginTop
-        , padding2
-        , padding4
-        , pointer
-        , position
-        , px
-        , rgba
-        , right
-        , solid
-        , top
-        , width
-        )
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
@@ -36,11 +18,11 @@ view { query, searchMsg, count, closeMsg } =
     Html.div
         [ css
             [ Style.roundedSm
-            , padding4 (px 4) (px 4) (px 4) (px 16)
-            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , Css.padding4 (Css.px 4) (Css.px 4) (Css.px 4) (Css.px 16)
+            , Css.border3 (Css.px 1) Css.solid (Css.rgba 0 0 0 0.1)
             , Style.flexSpace
-            , backgroundColor <| hex <| Color.toString Color.white2
-            , width <| px 252
+            , Css.backgroundColor <| Css.hex <| Color.toString Color.white2
+            , Css.width <| Css.px 252
             ]
         ]
         [ Html.input
@@ -48,7 +30,7 @@ view { query, searchMsg, count, closeMsg } =
                 [ Style.inputLight
                 , TextStyle.sm
                 , Style.paddingXs
-                , width <| px 240
+                , Css.width <| Css.px 240
                 ]
             , id "diagram-search"
             , Events.onInput searchMsg
@@ -58,13 +40,13 @@ view { query, searchMsg, count, closeMsg } =
             ]
             []
         , Html.div
-            [ css [ padding2 (px 8) (px 8), marginTop (px 4), cursor pointer ], Events.onClick closeMsg ]
+            [ css [ Css.padding2 (Css.px 8) (Css.px 8), Css.marginTop (Css.px 4), Css.cursor Css.pointer ], Events.onClick closeMsg ]
             [ Icon.clear (Color.toString Color.gray) 20 ]
         , Html.div
             [ css
-                [ position absolute
-                , right <| px 48
-                , top <| px 20
+                [ Css.position Css.absolute
+                , Css.right <| Css.px 48
+                , Css.top <| Css.px 20
                 , TextStyle.xs
                 , ColorStyle.textSecondaryColor
                 ]

@@ -2,50 +2,6 @@ module View.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs
 
 import Attributes exposing (dataTest)
 import Css
-    exposing
-        ( absolute
-        , after
-        , backgroundColor
-        , block
-        , border3
-        , borderBottom3
-        , borderColor2
-        , borderStyle
-        , borderTop
-        , borderWidth3
-        , color
-        , cursor
-        , display
-        , height
-        , hex
-        , hidden
-        , hover
-        , int
-        , marginRight
-        , marginTop
-        , none
-        , outline
-        , overflowX
-        , overflowY
-        , padding2
-        , paddingLeft
-        , pct
-        , pointer
-        , position
-        , property
-        , pseudoElement
-        , px
-        , relative
-        , rgba
-        , right
-        , scroll
-        , solid
-        , top
-        , transparent
-        , width
-        , zIndex
-        , zero
-        )
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -93,12 +49,12 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
         [ Attr.css
             [ Style.widthFull
             , Text.sm
-            , position relative
+            , Css.position Css.relative
             , Color.bgTransparent
-            , cursor pointer
-            , outline none
-            , color <| hex "#2e2e2e"
-            , property "user-select" "none"
+            , Css.cursor Css.pointer
+            , Css.outline Css.none
+            , Css.color <| Css.hex "#2e2e2e"
+            , Css.property "user-select" "none"
             ]
         , dataTest dropDownId
         ]
@@ -117,12 +73,12 @@ loadingView text =
         [ Attr.css
             [ Style.widthFull
             , Text.sm
-            , position relative
+            , Css.position Css.relative
             , Color.bgTransparent
-            , cursor pointer
-            , outline none
-            , color <| hex "#2e2e2e"
-            , property "user-select" "none"
+            , Css.cursor Css.pointer
+            , Css.outline Css.none
+            , Css.color <| Css.hex "#2e2e2e"
+            , Css.property "user-select" "none"
             ]
         ]
         [ textItemView text
@@ -134,12 +90,12 @@ dropDownItemView item onChange =
     Html.div
         [ Attr.css
             [ Style.widthFull
-            , display block
+            , Css.display Css.block
             , Style.paddingSm
-            , borderBottom3 (px 1) solid (rgba 0 0 0 0.1)
+            , Css.borderBottom3 (Css.px 1) Css.solid (Css.rgba 0 0 0 0.1)
             , Color.bgLight
-            , hover
-                [ backgroundColor <| hex "#dddddd"
+            , Css.hover
+                [ Css.backgroundColor <| Css.hex "#dddddd"
                 ]
             ]
         , Events.onClick (onChange <| unwrapValue item.value)
@@ -148,10 +104,10 @@ dropDownItemView item onChange =
             Just rgb ->
                 Html.span
                     [ Attr.css
-                        [ padding2 (px 0) (px 12)
-                        , marginRight <| px 5
-                        , backgroundColor <| hex rgb
-                        , border3 (px 1) solid (hex "#cccccc")
+                        [ Css.padding2 (Css.px 0) (Css.px 12)
+                        , Css.marginRight <| Css.px 5
+                        , Css.backgroundColor <| Css.hex rgb
+                        , Css.border3 (Css.px 1) Css.solid (Css.hex "#cccccc")
                         ]
                     ]
                     []
@@ -166,21 +122,21 @@ dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
     Html.div
         [ Attr.css
-            [ position absolute
+            [ Css.position Css.absolute
             , Color.bgTransparent
             , Style.m0
-            , overflowY scroll
-            , overflowX hidden
-            , zIndex <| int 10
-            , top <| px 33
-            , paddingLeft <| px 0
-            , borderTop <| px 0
-            , width <| pct 100
-            , height <| px 192
-            , property "-webkit-overflow-scrolling" "touch"
-            , property "-ms-overflow-style" "none"
-            , property "scrollbar-width" "none"
-            , pseudoElement "-webkit-scrollbar" [ display none ]
+            , Css.overflowY Css.scroll
+            , Css.overflowX Css.hidden
+            , Css.zIndex <| Css.int 10
+            , Css.top <| Css.px 33
+            , Css.paddingLeft <| Css.px 0
+            , Css.borderTop <| Css.px 0
+            , Css.width <| Css.pct 100
+            , Css.height <| Css.px 192
+            , Css.property "-webkit-overflow-scrolling" "touch"
+            , Css.property "-ms-overflow-style" "none"
+            , Css.property "scrollbar-width" "none"
+            , Css.pseudoElement "-webkit-scrollbar" [ Css.display Css.none ]
             ]
         ]
     <|
@@ -201,21 +157,21 @@ itemView : DropDownItem -> msg -> Html msg
 itemView item onActive =
     Html.div
         [ Attr.css
-            [ display block
+            [ Css.display Css.block
             , Color.bgLight
-            , position relative
+            , Css.position Css.relative
             , Style.paddingSm
-            , after
+            , Css.after
                 [ Style.emptyContent
-                , width zero
-                , height zero
-                , position absolute
-                , right <| px 16
-                , top <| pct 50
-                , borderStyle solid
-                , borderWidth3 (px 6) (px 6) zero
-                , borderColor2 (hex "#2e2e2e") transparent
-                , marginTop <| px -4
+                , Css.width Css.zero
+                , Css.height Css.zero
+                , Css.position Css.absolute
+                , Css.right <| Css.px 16
+                , Css.top <| Css.pct 50
+                , Css.borderStyle Css.solid
+                , Css.borderWidth3 (Css.px 6) (Css.px 6) Css.zero
+                , Css.borderColor2 (Css.hex "#2e2e2e") Css.transparent
+                , Css.marginTop <| Css.px -4
                 ]
             ]
         , Events.onClickStopPropagation onActive
@@ -224,10 +180,10 @@ itemView item onActive =
             Just rgb ->
                 Html.span
                     [ Attr.css
-                        [ padding2 (px 0) (px 12)
-                        , marginRight <| px 5
-                        , backgroundColor <| hex rgb
-                        , border3 (px 1) solid (hex "#cccccc")
+                        [ Css.padding2 (Css.px 0) (Css.px 12)
+                        , Css.marginRight <| Css.px 5
+                        , Css.backgroundColor <| Css.hex rgb
+                        , Css.border3 (Css.px 1) Css.solid (Css.hex "#cccccc")
                         ]
                     ]
                     []
@@ -242,21 +198,21 @@ textItemView : String -> Html msg
 textItemView text =
     Html.div
         [ Attr.css
-            [ display block
+            [ Css.display Css.block
             , Color.bgLight
-            , position relative
+            , Css.position Css.relative
             , Style.paddingSm
-            , after
+            , Css.after
                 [ Style.emptyContent
-                , width zero
-                , height zero
-                , position absolute
-                , right <| px 16
-                , top <| pct 50
-                , borderStyle solid
-                , borderWidth3 (px 6) (px 6) zero
-                , borderColor2 (hex "#2e2e2e") transparent
-                , marginTop <| px -4
+                , Css.width Css.zero
+                , Css.height Css.zero
+                , Css.position Css.absolute
+                , Css.right <| Css.px 16
+                , Css.top <| Css.pct 50
+                , Css.borderStyle Css.solid
+                , Css.borderWidth3 (Css.px 6) (Css.px 6) Css.zero
+                , Css.borderColor2 (Css.hex "#2e2e2e") Css.transparent
+                , Css.marginTop <| Css.px -4
                 ]
             ]
         ]

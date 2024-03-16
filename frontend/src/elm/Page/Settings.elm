@@ -3,38 +3,6 @@ module Page.Settings exposing (FontList, Model, Msg(..), diagramSettings, init, 
 import Api.Http.UsableFontList as UsableFontListRequest
 import Api.RequestError exposing (RequestError)
 import Css
-    exposing
-        ( alignItems
-        , borderTop3
-        , calc
-        , center
-        , column
-        , displayFlex
-        , flexDirection
-        , flexWrap
-        , fontWeight
-        , height
-        , hex
-        , int
-        , justifyContent
-        , margin4
-        , marginBottom
-        , maxWidth
-        , minus
-        , overflowY
-        , padding
-        , padding2
-        , padding4
-        , pct
-        , px
-        , scroll
-        , solid
-        , spaceBetween
-        , vh
-        , width
-        , wrap
-        , zero
-        )
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Location as DiagramLocation
 import Diagram.Types.Settings as DiagramSettings
@@ -58,7 +26,7 @@ import Style.Font as FontStyle
 import Style.Style as Style
 import Style.Text as Text
 import Task
-import Types.Color as Color exposing (colors)
+import Types.Color as Color
 import Types.FontSize as FontSize
 import Types.Session as Session exposing (Session)
 import Types.Settings as Settings exposing (Settings)
@@ -220,7 +188,7 @@ baseColorItems =
         (\color ->
             { name = Color.name color, value = DropDownList.colorValue <| Color.toString color }
         )
-        colors
+        Color.colors
 
 
 baseSizeItems : List { name : String, value : DropDownValue }
@@ -234,18 +202,18 @@ baseSizeItems =
 
 columnView : List (Html msg) -> Html msg
 columnView children =
-    Html.div [ Attr.css [ width <| px 300 ] ] children
+    Html.div [ Attr.css [ Css.width <| Css.px 300 ] ] children
 
 
 conrtolRowView : List (Html msg) -> Html msg
 conrtolRowView children =
     Html.div
         [ Attr.css
-            [ displayFlex
-            , alignItems center
-            , justifyContent spaceBetween
-            , width <| px 250
-            , padding2 (px 8) zero
+            [ Css.displayFlex
+            , Css.alignItems Css.center
+            , Css.justifyContent Css.spaceBetween
+            , Css.width <| Css.px 250
+            , Css.padding2 (Css.px 8) Css.zero
             ]
         ]
         children
@@ -253,12 +221,12 @@ conrtolRowView children =
 
 conrtolView : List (Html msg) -> Html msg
 conrtolView children =
-    Html.div [ Attr.css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
+    Html.div [ Attr.css [ Style.flexStart, Css.flexDirection Css.column, Css.marginBottom <| Css.px 8 ] ] children
 
 
 conrtolsView : List (Html msg) -> Html msg
 conrtolsView children =
-    Html.div [ Attr.css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
+    Html.div [ Attr.css [ Css.padding2 (Css.px 4) (Css.px 8), Css.marginBottom <| Css.px 8 ] ] children
 
 
 fontFamilyItems : FontList -> List { name : String, value : DropDownValue }
@@ -282,30 +250,30 @@ fontSizeItems =
 
 inputAreaView : List (Html msg) -> Html msg
 inputAreaView children =
-    Html.div [ Attr.css [ maxWidth <| px 300, width <| pct 90, padding2 (px 4) (px 8) ] ] children
+    Html.div [ Attr.css [ Css.maxWidth <| Css.px 300, Css.width <| Css.pct 90, Css.padding2 (Css.px 4) (Css.px 8) ] ] children
 
 
 nameView : List (Html msg) -> Html msg
 nameView children =
-    Html.div [ Attr.css [ Text.sm, FontStyle.fontBold, padding2 (px 1) (px 8) ] ] children
+    Html.div [ Attr.css [ Text.sm, FontStyle.fontBold, Css.padding2 (Css.px 1) (Css.px 8) ] ] children
 
 
 section : Maybe String -> Html Msg
 section title =
     Html.div
         [ Attr.css
-            [ fontWeight <| int 400
-            , margin4 zero zero (px 16) zero
+            [ Css.fontWeight <| Css.int 400
+            , Css.margin4 Css.zero Css.zero (Css.px 16) Css.zero
             , if isNothing title then
                 Css.batch []
 
               else
-                Css.batch [ borderTop3 (px 1) solid (hex <| Color.toString Color.gray) ]
+                Css.batch [ Css.borderTop3 (Css.px 1) Css.solid (Css.hex <| Color.toString Color.gray) ]
             , if isNothing title then
-                Css.batch [ padding zero ]
+                Css.batch [ Css.padding Css.zero ]
 
               else
-                Css.batch [ padding4 (px 16) zero zero (px 16) ]
+                Css.batch [ Css.padding4 (Css.px 16) Css.zero Css.zero (Css.px 16) ]
             ]
         ]
         [ Html.div [ Attr.css [ Text.xl, FontStyle.fontSemiBold ] ] [ Html.text (title |> Maybe.withDefault "") ]
@@ -329,14 +297,14 @@ view_ m =
                 [ ColorStyle.bgDefault
                 , Style.widthFull
                 , ColorStyle.textColor
-                , overflowY scroll
-                , displayFlex
-                , flexWrap wrap
-                , height <| calc (vh 100) minus (px 130)
+                , Css.overflowY Css.scroll
+                , Css.displayFlex
+                , Css.flexWrap Css.wrap
+                , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 130)
                 ]
                 [ Breakpoint.large
                     [ Style.widthScreen
-                    , height <| calc (vh 100) minus (px 35)
+                    , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 35)
                     ]
                 ]
             ]
@@ -681,7 +649,7 @@ view_ m =
                 ]
             ]
         , Html.div
-            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| px 48, Css.top <| px 8 ]
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 48, Css.top <| Css.px 8 ]
             , onClick Import
             ]
             [ Icon.cloudUpload Color.white 24
@@ -689,7 +657,7 @@ view_ m =
                 [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport m.lang ] ]
             ]
         , Html.div
-            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| px 8, Css.top <| px 8 ]
+            [ Attr.css [ Style.button, Css.position Css.absolute, Css.right <| Css.px 8, Css.top <| Css.px 8 ]
             , onClick Export
             ]
             [ Icon.cloudDownload Color.white 24

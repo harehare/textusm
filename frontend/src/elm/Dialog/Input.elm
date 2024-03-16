@@ -1,30 +1,6 @@
 module Dialog.Input exposing (Props, view)
 
 import Css
-    exposing
-        ( border3
-        , color
-        , column
-        , fixed
-        , flexDirection
-        , hex
-        , left
-        , marginTop
-        , padding
-        , padding2
-        , pct
-        , position
-        , px
-        , right
-        , solid
-        , textAlign
-        , top
-        , transforms
-        , translateX
-        , translateY
-        , width
-        , zero
-        )
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
@@ -57,28 +33,28 @@ view props =
                 [ Color.bgDefault
                 , Color.textColor
                 , Style.shadowSm
-                , position fixed
-                , top <| pct 50
-                , left <| pct 50
-                , transforms [ translateX <| pct -50, translateY <| pct -50 ]
-                , padding <| px 16
+                , Css.position Css.fixed
+                , Css.top <| Css.pct 50
+                , Css.left <| Css.pct 50
+                , Css.transforms [ Css.translateX <| Css.pct -50, Css.translateY <| Css.pct -50 ]
+                , Css.padding <| Css.px 16
                 , Style.roundedSm
                 ]
             ]
-            [ Html.div [ Attr.css [ Font.fontBold, padding2 zero (px 8) ] ] [ Html.text props.title ]
-            , Html.div [ Attr.css [ Style.flexCenter, flexDirection column, padding <| px 8 ] ]
+            [ Html.div [ Attr.css [ Font.fontBold, Css.padding2 Css.zero (Css.px 8) ] ] [ Html.text props.title ]
+            , Html.div [ Attr.css [ Style.flexCenter, Css.flexDirection Css.column, Css.padding <| Css.px 8 ] ]
                 [ Html.input
                     [ Attr.css
                         [ Css.batch
                             [ Style.inputLight
                             , Text.sm
-                            , color <| hex "#555555"
-                            , width <| px 305
+                            , Css.color <| Css.hex "#555555"
+                            , Css.width <| Css.px 305
                             ]
                         , Css.batch
                             [ case props.errorMessage of
                                 Just _ ->
-                                    border3 (px 3) solid Color.errorColor
+                                    Css.border3 (Css.px 3) Css.solid Color.errorColor
 
                                 Nothing ->
                                     Css.batch []
@@ -108,8 +84,8 @@ view props =
                                 [ Style.widthFull
                                 , Text.sm
                                 , Font.fontBold
-                                , textAlign right
-                                , color Color.errorColor
+                                , Css.textAlign Css.right
+                                , Css.color Color.errorColor
                                 ]
                             ]
                             [ Html.text (msg props.lang) ]
@@ -118,7 +94,7 @@ view props =
                         Empty.view
                 , Html.button
                     [ Attr.type_ "button"
-                    , Attr.css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
+                    , Attr.css [ Style.submit, Css.marginTop <| Css.px 8, Style.roundedSm ]
                     , if props.inProcess then
                         Attr.classList []
 

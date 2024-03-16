@@ -2,16 +2,6 @@ module Page.NotFound exposing (view)
 
 import Asset
 import Css
-    exposing
-        ( calc
-        , height
-        , margin
-        , minus
-        , padding
-        , px
-        , vh
-        , width
-        )
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Style.Color as Color
@@ -29,10 +19,10 @@ view =
             , Font.fontSemiBold
             , Style.widthScreen
             , Color.textColor
-            , height <| calc (vh 100) minus (px 40)
-            , margin <| px 8
+            , Css.height <| Css.calc (Css.vh 100) Css.minus (Css.px 40)
+            , Css.margin <| Css.px 8
             ]
         ]
-        [ Html.img [ Asset.src Asset.logo, Attr.css [ width <| px 32 ], Attr.alt "Not found" ] []
-        , Html.div [ Attr.css [ padding <| px 8 ] ] [ Html.text "Not found" ]
+        [ Html.img [ Asset.src Asset.logo, Attr.css [ Css.width <| Css.px 32 ], Attr.alt "Not found" ] []
+        , Html.div [ Attr.css [ Css.padding <| Css.px 8 ] ] [ Html.text "Not found" ]
         ]

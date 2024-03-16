@@ -27,8 +27,8 @@ import Diagram.Types.Settings as DiagramSettings
 import Diagram.Types.Type as DiagramType exposing (DiagramType(..))
 import Diagram.View as DiagramView
 import Dialog.Confirm
-import Dialog.Input as InputDialog
-import Dialog.Share as Share
+import Dialog.Input
+import Dialog.Share
 import Dialog.Types as Dialog
 import Effect
 import Effect.Settings
@@ -338,7 +338,7 @@ init flags url key =
                     }
                     |> Tuple.first
             , shareModel =
-                Share.init
+                Dialog.Share.init
                     { diagram = UserStoryMap
                     , diagramId = Diagram.Types.Id.fromString ""
                     , session = Session.guest
@@ -494,7 +494,7 @@ initShareDiagram : DiagramItem -> Return.ReturnF Msg Model
 initShareDiagram diagramItem =
     Return.andThen <|
         \m ->
-            Share.init
+            Dialog.Share.init
                 { diagram = diagramItem.diagram
                 , diagramId = diagramItem.id |> Maybe.withDefault (Diagram.Types.Id.fromString "")
                 , session = m.session
@@ -503,12 +503,12 @@ initShareDiagram diagramItem =
                 |> Return.mapBoth M.UpdateShare (\m_ -> { m | shareModel = m_ })
 
 
-updateShareDiagram : Share.Msg -> Return.ReturnF Msg Model
+updateShareDiagram : Dialog.Share.Msg -> Return.ReturnF Msg Model
 updateShareDiagram msg =
     Return.andThen <|
         \m ->
             Return.singleton m.shareModel
-                |> Share.update m.shareModel msg
+                |> Dialog.Share.update m.shareModel msg
                 |> Return.mapBoth M.UpdateShare (\m_ -> { m | shareModel = m_ })
 
 
@@ -1435,19 +1435,19 @@ updateSettings msg diagramType =
             Return.zero
 
 
-processShareMsg : Share.Msg -> Return.ReturnF Msg Model
+processShareMsg : Dialog.Share.Msg -> Return.ReturnF Msg Model
 processShareMsg msg =
     Return.andThen <|
         \m ->
             Return.singleton m
                 |> (case msg of
-                        Share.Shared (Err e) ->
+                        Dialog.Share.Shared (Err e) ->
                             showErrorMessage e
 
-                        Share.Close ->
+                        Dialog.Share.Close ->
                             Effect.historyBack m.key
 
-                        Share.LoadShareCondition (Err e) ->
+                        Dialog.Share.LoadShareCondition (Err e) ->
                             showErrorMessage e
 
                         _ ->
@@ -1643,7 +1643,7 @@ view model =
             ]
          , case toRoute model.url of
             Share ->
-                Lazy.lazy Share.view model.shareModel |> Html.map M.UpdateShare
+                Lazy.lazy Dialog.Share.view model.shareModel |> Html.map M.UpdateShare
 
             ViewFile _ id_ ->
                 ShareToken.unwrap id_
@@ -1651,7 +1651,7 @@ view model =
                     |> Maybe.map
                         (\jwt ->
                             if jwt.checkPassword && not (ShareState.isAuthenticated model.shareState) then
-                                Lazy.lazy InputDialog.view
+                                Lazy.lazy Dialog.Input.view
                                     { title = "Protedted diagram"
                                     , errorMessage = Maybe.map Api.RequestError.toMessage (ShareState.getError model.shareState)
                                     , value = ShareState.getPassword model.shareState |> Maybe.withDefault ""

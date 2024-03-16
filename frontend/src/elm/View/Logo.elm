@@ -1,7 +1,7 @@
 module View.Logo exposing (docs, view)
 
 import Asset
-import Css exposing (cursor, pointer, px, width)
+import Css
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
@@ -12,7 +12,7 @@ import Style.Text as Text
 
 view : Html msg
 view =
-    Html.div [ Attr.css [ cursor pointer ] ]
+    Html.div [ Attr.css [ Css.cursor Css.pointer ] ]
         [ Html.a
             [ Attr.css [ Style.Style.flexCenter ]
             , Attr.href "https://textusm.com"
@@ -21,7 +21,7 @@ view =
             ]
             [ Html.img
                 [ Asset.src Asset.logo
-                , Attr.css [ width <| px 24 ]
+                , Attr.css [ Css.width <| Css.px 24 ]
                 , Attr.alt "logo"
                 ]
                 []

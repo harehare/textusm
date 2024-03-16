@@ -1,6 +1,6 @@
 module View.SwitchWindow exposing (docs, view)
 
-import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, int, none, position, px, relative, right, zIndex)
+import Css
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
@@ -19,25 +19,25 @@ view : { onSwitchWindow : Window -> msg, bgColor : Css.Color, window : Window } 
 view { onSwitchWindow, bgColor, window } view1 view2 =
     Html.div
         [ Attr.css
-            [ displayFlex
-            , flexDirection column
-            , position relative
+            [ Css.displayFlex
+            , Css.flexDirection Css.column
+            , Css.position Css.relative
             , Style.widthScreen
             , Color.bgMain
             ]
         ]
         [ Html.div
             [ Attr.css
-                [ displayFlex
-                , position fixed
+                [ Css.displayFlex
+                , Css.position Css.fixed
                 , Style.flexCenter
                 , Style.roundedFull
                 , Color.bgAccent
-                , zIndex <| int 50
+                , Css.zIndex <| Css.int 50
                 , Style.paddingSm
                 , Style.shadowSm
-                , bottom <| px 72
-                , right <| px 16
+                , Css.bottom <| Css.px 72
+                , Css.right <| Css.px 16
                 ]
             , if Window.isDisplayEditor window then
                 onClick (onSwitchWindow window)
@@ -70,22 +70,22 @@ view { onSwitchWindow, bgColor, window } view1 view2 =
                 [ Attr.css
                     [ Style.full
                     , if Window.isDisplayPreview window then
-                        display none
+                        Css.display Css.none
 
                       else
-                        display block
+                        Css.display Css.block
                     ]
                 ]
                 [ view1 ]
             , Html.div
                 [ Attr.css
                     [ Style.full
-                    , backgroundColor bgColor
+                    , Css.backgroundColor bgColor
                     , if Window.isDisplayEditor window then
-                        display none
+                        Css.display Css.none
 
                       else
-                        display block
+                        Css.display Css.block
                     ]
                 ]
                 [ view2 ]
