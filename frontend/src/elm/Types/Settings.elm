@@ -2,7 +2,6 @@ module Types.Settings exposing
     ( EditorSettings
     , Settings
     , activityBackgroundColor
-    , mainFont
     , activityColor
     , backgroundColor
     , decoder
@@ -19,6 +18,7 @@ module Types.Settings exposing
     , legacyEncoder
     , lineColor
     , location
+    , mainFont
     , showGrid
     , showLineNumber
     , storyBackgroundColor
