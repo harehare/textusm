@@ -15,6 +15,7 @@ import Ports
 import Return
 import Task
 import Types.Color as Color
+import Types.Font as Font
 import Types.Session as Session exposing (Session)
 import Types.Settings as Settings
 import Types.SettingsCache as SettingCache exposing (SettingsCache)
@@ -69,7 +70,7 @@ save msg { diagramType, session, settings } =
         Request.saveSettings
             (Session.getIdToken session)
             diagramType
-            { font = settings.diagramSettings.font
+            { font = Font.name settings.diagramSettings.font
             , width = CardSize.toInt settings.diagramSettings.size.width
             , height = CardSize.toInt settings.diagramSettings.size.height
             , backgroundColor = Color.toString settings.diagramSettings.backgroundColor

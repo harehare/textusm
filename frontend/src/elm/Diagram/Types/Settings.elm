@@ -48,6 +48,7 @@ import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Types.Color as Color exposing (Color)
+import Types.Font as Font exposing (Font)
 import Types.Property as Property exposing (Property)
 
 
@@ -68,7 +69,7 @@ type alias ColorSettings =
 
 
 type alias Settings =
-    { font : String
+    { font : Font
     , size : Size
     , color : ColorSettings
     , backgroundColor : Color
@@ -88,7 +89,7 @@ type alias Size =
 
 default : Settings
 default =
-    { font = "Nunito Sans"
+    { font = Font.googleFont "Nunito Sans"
     , size = { width = CardSize.fromInt 140, height = CardSize.fromInt 65 }
     , color =
         { activity =
@@ -120,7 +121,7 @@ default =
 fontFamiliy : Settings -> Css.Style
 fontFamiliy settings =
     fontFamilies
-        [ Css.qt settings.font
+        [ Css.qt <| Font.name settings.font
         , "apple-system"
         , "BlinkMacSystemFont"
         , "Helvetica Neue"
@@ -136,7 +137,7 @@ fontFamiliy settings =
 
 fontStyle : Settings -> String
 fontStyle settings =
-    "'" ++ settings.font ++ "', sans-serif"
+    "'" ++ Font.name settings.font ++ "', apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,YuGothicM, メイリオ, Meiryo, sans-serif"
 
 
 getBackgroundColor : Settings -> Property -> Color
@@ -216,7 +217,7 @@ backgroundColor =
     Lens .backgroundColor (\b a -> { a | backgroundColor = b })
 
 
-font : Lens Settings String
+font : Lens Settings Font
 font =
     Lens .font (\b a -> { a | font = b })
 
@@ -365,7 +366,7 @@ sizeOfWidth =
 decoder : D.Decoder Settings
 decoder =
     D.succeed Settings
-        |> required "font" D.string
+        |> required "font" (D.map Font.googleFont D.string)
         |> required "size" sizeDecoder
         |> required "color" colorSettingsDecoder
         |> required "backgroundColor" Color.decoder
@@ -379,7 +380,7 @@ decoder =
 encoder : Settings -> E.Value
 encoder settings =
     E.object
-        [ ( "font", E.string settings.font )
+        [ ( "font", E.string <| Font.name settings.font )
         , ( "size", sizeEncoder settings.size )
         , ( "color", colorSettingsEncoder settings.color )
         , ( "backgroundColor", Color.encoder settings.backgroundColor )

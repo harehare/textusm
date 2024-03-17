@@ -2,7 +2,6 @@ alias g := generate
 
 main := "cmd/api-server/main.go"
 module := "github.com/harehare/textusm"
-lint := "staticcheck"
 sec := "gosec"
 target := "./..."
 
@@ -11,6 +10,7 @@ setup:
   go get github.com/securego/gosec/v2/cmd/gosec
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
   go install github.com/cosmtrek/air@latest
+  go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 
 docker-up:
   #!/usr/bin/env bash
@@ -49,8 +49,10 @@ test:
 	go test {{ target }}
 
 lint:
-	{{ lint }} {{ module }}
-	{{ sec }} {{ target }}
+	staticcheck {{ target }}
+	gosec {{ target }}
+	golangci-lint run {{ target }}
+
 
 fix:
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go

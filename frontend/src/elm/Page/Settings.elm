@@ -27,6 +27,7 @@ import Style.Style as Style
 import Style.Text as Text
 import Task
 import Types.Color as Color
+import Types.Font as Font exposing (Font)
 import Types.FontSize as FontSize
 import Types.Session as Session exposing (Session)
 import Types.Settings as Settings exposing (Settings)
@@ -37,7 +38,7 @@ import View.Switch as Switch
 
 
 type alias FontList =
-    List String
+    List Font
 
 
 type alias Model =
@@ -231,7 +232,7 @@ conrtolsView children =
 
 fontFamilyItems : FontList -> List { name : String, value : DropDownValue }
 fontFamilyItems usableFontList =
-    List.map (\font -> { name = font, value = DropDownList.stringValue font }) usableFontList
+    List.map (\font -> { name = Font.name font, value = DropDownList.stringValue <| Font.name font }) usableFontList
 
 
 fontSizeItems : List { name : String, value : DropDownValue }
@@ -325,11 +326,11 @@ view_ m =
                                 m.dropDownIndex
                                 (UpdateSettings
                                     (\x ->
-                                        m.settings |> Settings.font.set x
+                                        m.settings |> Settings.font.set (Font.googleFont x) |> Settings.mainFont.set (Font.googleFont x)
                                     )
                                 )
                                 (fontFamilyItems m.usableFontList)
-                                m.settings.font
+                                (Font.name m.settings.font)
                         ]
                     ]
                 , conrtolView

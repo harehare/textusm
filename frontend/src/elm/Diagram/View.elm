@@ -52,6 +52,7 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Events exposing (onClick)
 import Types.Color as Color
+import Types.Font as Font
 import Types.Item as Item
 import Types.Position as Position exposing (Position)
 import Types.Property as Property
@@ -642,11 +643,11 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
         , onDragMove model.moveState
         , onTouchDrag model.touchDistance model.moveState
         ]
-        [ if String.isEmpty model.settings.font then
+        [ if String.isEmpty (Font.name model.settings.font) then
             Svg.defs [] [ highlightDefs ]
 
           else
-            Svg.defs [] [ highlightDefs, Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css2?family=" ++ model.settings.font ++ "&display=swap');") ] ]
+            Svg.defs [] [ highlightDefs, Svg.style [] [ Svg.text ("@import url('" ++ Font.url model.settings.font ++ "'&display=swap');") ] ]
         , Svg.defs []
             [ Svg.filter [ SvgAttr.id "shadow", SvgAttr.height "120%" ]
                 [ Svg.feGaussianBlur [ SvgAttr.in_ "SourceAlpha", SvgAttr.stdDeviation "2" ] []

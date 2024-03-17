@@ -1,6 +1,7 @@
-module Style.Font exposing (fontBold, fontFamily, fontSemiBold)
+module Style.Font exposing (customFontFamily, fontBold, fontFamily, fontSemiBold)
 
 import Css exposing (fontFamilies, fontWeight, int, qt)
+import Types.Font as Font exposing (Font)
 
 
 fontBold : Css.Style
@@ -10,10 +11,10 @@ fontBold =
         ]
 
 
-fontFamily : Css.Style
-fontFamily =
+customFontFamily : Font -> Css.Style
+customFontFamily font =
     fontFamilies
-        [ qt "Nunito Sans"
+        [ qt <| Font.name font
         , "apple-system"
         , "BlinkMacSystemFont"
         , "Helvetica Neue"
@@ -24,7 +25,13 @@ fontFamily =
         , "メイリオ"
         , "Meiryo"
         , "sans-serif"
+        , "monospace"
         ]
+
+
+fontFamily : Css.Style
+fontFamily =
+    customFontFamily (Font.googleFont "Nunito Sans")
 
 
 fontSemiBold : Css.Style

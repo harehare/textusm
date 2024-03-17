@@ -201,14 +201,17 @@ class MonacoEditor extends HTMLElement {
       minimap: {
         enabled: false,
       },
-      fontSize: 14,
-      mouseWheelZoom: true,
+      fontSize: 12,
+      mouseWheelZoom: false,
       automaticLayout: true,
       scrollbar: {
         verticalScrollbarSize: 6,
         horizontalScrollbarSize: 6,
       },
       renderLineHighlight: 'none',
+      insertSpaces: true,
+      tabSize: 4,
+      wordBasedSuggestions: 'off',
     });
 
     this.editor.addAction({

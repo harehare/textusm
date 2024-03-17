@@ -23,6 +23,7 @@ import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, w
 import Graphql.Union
 import Graphql.Union.DiagramItem
 import Types.Color as Color
+import Types.Font as Font
 import Types.Text as Text
 import Types.Title as Title
 
@@ -91,7 +92,7 @@ itemSelectionWithText =
 settingsSelection : SelectionSet DiagramSettings.Settings Graphql.Object.Settings
 settingsSelection =
     SelectionSet.succeed DiagramSettings.Settings
-        |> with Graphql.Object.Settings.font
+        |> with (SelectionSet.map Font.googleFont Graphql.Object.Settings.font)
         |> with (SelectionSet.map2 (\w h -> { width = CardSize.fromInt w, height = CardSize.fromInt h }) Graphql.Object.Settings.width Graphql.Object.Settings.height)
         |> with
             (SelectionSet.succeed DiagramSettings.ColorSettings

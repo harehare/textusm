@@ -1023,6 +1023,7 @@ update model message =
                         diagramSettings.diagramSettings
                             |> DiagramSettings.scale.set model.diagramModel.settings.scale
                             |> DiagramSettings.lockEditing.set model.diagramModel.settings.lockEditing
+                            |> DiagramSettings.font.set model.settingsModel.settings.font
                     , text = Just model.diagramModel.text
                     , title = Just model.currentDiagram.title
                     , editor = model.settingsModel.settings.editor

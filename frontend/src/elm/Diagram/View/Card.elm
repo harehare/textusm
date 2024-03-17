@@ -18,6 +18,7 @@ import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Types.Color as Color exposing (Color)
+import Types.Font as Font
 import Types.FontSize as FontSize exposing (FontSize)
 import Types.Item as Item exposing (Item)
 import Types.Position as Position exposing (Position)
@@ -316,7 +317,7 @@ markdown settings ( foreColor, backColor ) t =
     Html.fromUnstyled <|
         Markdown.toHtml
             [ Attr.class "md-content"
-            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , Attr.style "font-family" ("'" ++ Font.name settings.font ++ "', apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,YuGothicM, メイリオ, Meiryo, sans-serif")
             , Attr.style "color" <| Color.toString foreColor
             , Attr.style "backgroundColor" <| Color.toString backColor
             , Attr.style "cursor" "pointer"

@@ -2,6 +2,7 @@ module Types.Settings exposing
     ( EditorSettings
     , Settings
     , activityBackgroundColor
+    , mainFont
     , activityColor
     , backgroundColor
     , decoder
@@ -46,6 +47,7 @@ import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Types.Color as Color exposing (Color)
+import Types.Font as Font exposing (Font)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme exposing (Theme)
 import Types.Title as Title exposing (Title)
@@ -60,7 +62,7 @@ type alias EditorSettings =
 
 type alias Settings =
     { position : Maybe Int
-    , font : String
+    , font : Font
     , diagramId : Maybe DiagramId
     , diagramSettings : DiagramSettings.Settings
     , text : Maybe Text
@@ -85,10 +87,10 @@ defaultEditorSettings settings =
 defaultSettings : Theme -> Settings
 defaultSettings t =
     { position = Just -10
-    , font = "Nunito Sans"
+    , font = Font.googleFont "Nunito Sans"
     , diagramId = Nothing
     , diagramSettings =
-        { font = "Nunito Sans"
+        { font = Font.googleFont "Nunito Sans"
         , size = { width = CardSize.fromInt 140, height = CardSize.fromInt 65 }
         , color =
             { activity =
@@ -144,7 +146,7 @@ decoder : D.Decoder Settings
 decoder =
     D.succeed Settings
         |> optional "position" (D.map Just D.int) Nothing
-        |> required "font" D.string
+        |> required "font" (D.map Font.googleFont D.string)
         |> optional "diagramId" (D.map Just DiagramId.decoder) Nothing
         |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
         |> optional "text" (D.map Just Text.decoder) Nothing
@@ -159,7 +161,7 @@ encoder : Settings -> E.Value
 encoder settings =
     E.object
         [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
+        , ( "font", E.string <| Font.name settings.font )
         , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
         , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
         , ( "text", maybe Text.encoder settings.text )
@@ -175,7 +177,7 @@ legacyEncoder : Settings -> E.Value
 legacyEncoder settings =
     E.object
         [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
+        , ( "font", E.string <| Font.name settings.font )
         , ( "diagramId", maybe DiagramId.encoder settings.diagramId )
         , ( "storyMap", DiagramSettings.encoder settings.diagramSettings )
         , ( "text", maybe Text.encoder settings.text )
@@ -191,7 +193,7 @@ exportEncoder : Settings -> E.Value
 exportEncoder settings =
     E.object
         [ ( "position", maybe E.int settings.position )
-        , ( "font", E.string settings.font )
+        , ( "font", E.string <| Font.name settings.font )
         , ( "diagramSettings", DiagramSettings.encoder settings.diagramSettings )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
         , ( "location", maybe DiagramLocation.encoder settings.location )
@@ -203,7 +205,7 @@ importDecoder : Settings -> D.Decoder Settings
 importDecoder settings =
     D.succeed Settings
         |> optional "position" (D.map Just D.int) Nothing
-        |> required "font" D.string
+        |> required "font" (D.map Font.googleFont D.string)
         |> hardcoded settings.diagramId
         |> custom (D.oneOf [ D.field "storyMap" DiagramSettings.decoder, D.field "diagramSettings" DiagramSettings.decoder ])
         |> hardcoded settings.text
@@ -275,9 +277,14 @@ backgroundColor =
     Compose.lensWithLens DiagramSettings.backgroundColor diagramSettings
 
 
-font : Lens Settings String
+font : Lens Settings Font
 font =
     Compose.lensWithLens DiagramSettings.font diagramSettings
+
+
+mainFont : Lens Settings Font
+mainFont =
+    Lens .font (\b a -> { a | font = b })
 
 
 fontSize : Optional Settings Int

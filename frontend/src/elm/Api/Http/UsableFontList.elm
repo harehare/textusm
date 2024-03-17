@@ -7,10 +7,11 @@ import Json.Decode as D
 import Message exposing (Lang)
 import Platform exposing (Task)
 import Task
+import Types.Font as Font exposing (Font)
 import Url.Builder
 
 
-usableFontList : Lang -> Task RequestError (List String)
+usableFontList : Lang -> Task RequestError (List Font)
 usableFontList lang =
     HttpRequest.jsonResolver (D.list D.string)
         |> HttpRequest.get
@@ -19,4 +20,5 @@ usableFontList lang =
             , query = [ Url.Builder.string "lang" (Message.toLangString lang) ]
             , headers = []
             }
+        |> Task.map (List.map Font.googleFont)
         |> Task.mapError RequestError.fromHttpError
