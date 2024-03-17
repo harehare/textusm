@@ -10,6 +10,7 @@ import Diagram.Types.Type exposing (DiagramType(..))
 import Fuzz exposing (Fuzzer)
 import Time exposing (Posix)
 import Types.Color as Color exposing (Color)
+import Types.Font as Font
 import Types.FontSize as FontSize exposing (FontSize)
 import Types.Item as Item exposing (Children, Item)
 import Types.Item.Settings as ItemSettings
@@ -281,7 +282,7 @@ colorSettingsFuzzer =
 
 diagramSettingsFuzzer : Fuzzer Diagram.Types.Settings.Settings
 diagramSettingsFuzzer =
-    Fuzz.map Diagram.Types.Settings.Settings Fuzz.string
+    Fuzz.map Diagram.Types.Settings.Settings (Fuzz.map Font.googleFont Fuzz.string)
         |> Fuzz.andMap (Fuzz.map Diagram.Types.Settings.Size cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
         |> Fuzz.andMap colorSettingsFuzzer
         |> Fuzz.andMap colorFuzzer
@@ -295,7 +296,7 @@ diagramSettingsFuzzer =
 settingsFuzzer : Fuzzer Settings
 settingsFuzzer =
     Fuzz.map Settings (Fuzz.maybe Fuzz.int)
-        |> Fuzz.andMap Fuzz.string
+        |> Fuzz.andMap (Fuzz.map Font.googleFont Fuzz.string)
         |> Fuzz.andMap (Fuzz.maybe diagramIdFuzzer)
         |> Fuzz.andMap diagramSettingsFuzzer
         |> Fuzz.andMap (Fuzz.maybe textFuzzer)

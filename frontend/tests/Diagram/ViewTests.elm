@@ -15,6 +15,7 @@ import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, text)
 import Types.Color as Color
+import Types.Font as Font
 import Types.Item as Item
 import Types.Position as Position
 
@@ -633,7 +634,7 @@ defViewport =
 
 defaultSettings : DiagramSettings.Settings
 defaultSettings =
-    { font = "apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
+    { font = Font.googleFont "sans-serif"
     , size =
         { width = CardSize.fromInt 140
         , height = CardSize.fromInt 65
