@@ -22,7 +22,7 @@
   "devDependencies": {
     "@dillonkearns/elm-graphql": "^4.3.1",
     "@sentry/vite-plugin": "^2.16.0",
-    "@size-limit/file": "^11.1.0",
+    "@size-limit/file": "^11.1.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@tsconfig/strictest": "^2.0.3",
