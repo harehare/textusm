@@ -50,7 +50,7 @@
     "stylelint-config-standard": "^36.0.0",
     "terser": "^5.29.2",
     "typescript": "^5.4.3",
-    "vite": "^5.1.6",
+    "vite": "^5.2.2",
     "vite-plugin-elm": "^3.0.0",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-pwa": "^0.19.5",
