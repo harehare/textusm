@@ -435,11 +435,11 @@ view_ m =
                             m.dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    Settings.fontSize.set (Maybe.withDefault 0 <| String.toInt x) m.settings
+                                    Settings.fontSize.set (x |> String.toInt |> Maybe.withDefault 0 |> FontSize.fromInt) m.settings
                                 )
                             )
                             fontSizeItems
-                            (String.fromInt <| (m.settings.editor |> Settings.defaultEditorSettings |> .fontSize))
+                            (String.fromInt <| FontSize.unwrap <| (m.settings.editor |> Settings.defaultEditorSettings |> .fontSize))
                         ]
                     ]
                 , conrtolRowView

@@ -74,7 +74,7 @@ fromString text =
                             _ ->
                                 Nothing
                     , fontSize =
-                        if (getFontSize s1 |> FontSize.toInt) /= (FontSize.default |> FontSize.toInt) then
+                        if (getFontSize s1 |> FontSize.unwrap) /= (FontSize.default |> FontSize.unwrap) then
                             getFontSize s1
 
                         else

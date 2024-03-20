@@ -111,7 +111,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
             in
             Svg.g
                 [ SvgAttr.class "card"
-                , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
+                , Attributes.dataTestId <| "card-" ++ (String.fromInt <| Item.getLineNo item)
                 , if lockEditing then
                     SvgAttr.style ""
 

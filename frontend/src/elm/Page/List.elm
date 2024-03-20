@@ -312,7 +312,7 @@ mainView children =
                     ]
                 ]
             ]
-        , Attributes.dataTest "diagram-list"
+        , Attributes.dataTestId "diagram-list"
         ]
         children
 
@@ -600,7 +600,7 @@ diagramView timezone diagram =
             , Css.hover [ Css.after [ Css.backgroundColor <| Css.rgba 0 0 0 0.2 ] ]
             ]
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
-        , Attributes.dataTest "diagram-list-item"
+        , Attributes.dataTestId "diagram-list-item"
         ]
         ([ Html.div
             [ Attr.css

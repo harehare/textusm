@@ -46,7 +46,7 @@ view =
                         [ Html.div
                             [ Attr.class "new-item"
                             , newItemStyle
-                            , Attributes.dataTest <| "new-" ++ DiagramType.toString item.type_
+                            , Attributes.dataTestId <| "new-" ++ DiagramType.toString item.type_
                             ]
                             [ Html.img [ Asset.src item.image, Attr.css [ Css.property "object-fit" "contain", Style.widthFull, Css.height <| Css.px 100 ] ] []
                             , Html.div

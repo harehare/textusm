@@ -118,7 +118,7 @@ colorCircle color msg =
             ]
         , Attr.class <| String.toLower <| Color.name color
         , Events.onMouseDown <| \_ -> msg
-        , Attributes.dataTest <|
+        , Attributes.dataTestId <|
             "color-"
                 ++ (color
                         |> Color.name
@@ -181,7 +181,7 @@ view : Width -> MenuDisplay -> Props msg -> Svg msg
 view width display props =
     Svg.foreignObject
         [ SvgAttr.class "context-menu"
-        , Attributes.dataTest "context-menu"
+        , Attributes.dataTestId "context-menu"
         , SvgAttr.x <| String.fromInt <| (Position.getX props.position - 8)
         , SvgAttr.y <| String.fromInt <| (Position.getY props.position + 8)
         , SvgAttr.width "320"
@@ -205,7 +205,7 @@ view width display props =
                         , cursor pointer
                         ]
                     , Events.onMouseDown <| \_ -> props.onMenuSelect ColorSelectMenu
-                    , Attributes.dataTest "foreground-color-context-menu"
+                    , Attributes.dataTestId "foreground-color-context-menu"
                     ]
                     [ Html.div []
                         [ Icon.font
@@ -229,7 +229,7 @@ view width display props =
                         , Style.flexCenter
                         , borderRight3 (px 1) solid (rgba 0 0 0 0.1)
                         ]
-                    , Attributes.dataTest "background-color-context-menu"
+                    , Attributes.dataTestId "background-color-context-menu"
                     ]
                     [ colorCircle
                         (Item.getBackgroundColor props.item
@@ -251,7 +251,7 @@ view width display props =
                         , borderRight3 (px 1) solid (rgba 0 0 0 0.1)
                         ]
                     , Events.onMouseDown <| \_ -> props.onMenuSelect CloseMenu
-                    , Attributes.dataTest "font-size-context-menu"
+                    , Attributes.dataTestId "font-size-context-menu"
                     ]
                     [ DropDownList.view props.onToggleDropDownList
                         "fontSize"
@@ -273,7 +273,7 @@ view width display props =
                         , cursor pointer
                         ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Bold
-                    , Attributes.dataTest "font-style-bold-context-menu"
+                    , Attributes.dataTestId "font-style-bold-context-menu"
                     ]
                     [ Html.div
                         [ Attr.style "color"
@@ -297,7 +297,7 @@ view width display props =
                         , cursor pointer
                         ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Italic
-                    , Attributes.dataTest "font-style-italic-context-menu"
+                    , Attributes.dataTestId "font-style-italic-context-menu"
                     ]
                     [ Html.div
                         [ Attr.style "color" <|
@@ -321,7 +321,7 @@ view width display props =
                         , cursor pointer
                         ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Strikethrough
-                    , Attributes.dataTest "font-style-strikethrough-context-menu"
+                    , Attributes.dataTestId "font-style-strikethrough-context-menu"
                     ]
                     [ Html.div
                         [ Attr.style "color" <|

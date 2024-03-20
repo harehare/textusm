@@ -624,7 +624,7 @@ svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
 svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
     Svg.svg
         [ Attr.id "usm"
-        , Attributes.dataTest "diagram"
+        , Attributes.dataTestId "diagram"
         , backgroundImageStyle model.property
         , widthStyle { svgSize = svgSize, windowSize = model.windowSize, isFullscreen = model.diagram.isFullscreen }
         , heightStyle { svgSize = svgSize, windowSize = model.windowSize, isFullscreen = model.diagram.isFullscreen }

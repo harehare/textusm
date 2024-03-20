@@ -62,6 +62,7 @@ import Task
 import Types as M exposing (Model, Msg)
 import Types.Color as Color
 import Types.Export.Diagram as ExportDiagram
+import Types.FontSize as FontSize
 import Types.Hotkey as Hotkey
 import Types.IdToken as IdToken
 import Types.Jwt as Jwt
@@ -275,7 +276,7 @@ editor model =
     Html.div [ Attr.id "editor", Attr.css [ Style.full, Style.paddingTopSm ] ]
         [ Html.node "monaco-editor"
             [ Attr.attribute "value" <| Text.toString model.diagramModel.text
-            , Attr.attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
+            , Attr.attribute "fontSize" <| String.fromInt <| FontSize.unwrap <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
             , Attr.attribute "wordWrap" <|
                 if editorSettings.wordWrap then
                     "true"
@@ -295,7 +296,7 @@ editor model =
                 else
                     "false"
             , Attr.attribute "diagramType" <| DiagramType.toTypeString model.currentDiagram.diagram
-            , Attributes.dataTest "editor"
+            , Attributes.dataTestId "editor"
             ]
             []
         ]

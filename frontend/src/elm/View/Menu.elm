@@ -88,7 +88,7 @@ newMenu lang =
         [ Attr.class "new-menu"
         , Attr.href <| Route.toString <| Route.New
         , Attr.attribute "aria-label" "New"
-        , Attributes.dataTest "new-menu"
+        , Attributes.dataTestId "new-menu"
         , css [ Style.hoverAnimation ]
         ]
         [ Html.div
@@ -125,7 +125,7 @@ editMenu { diagramItem, lang, route, onOpenCurrentFile } =
                         [ Attr.class "edit-menu"
                         , onClick onOpenCurrentFile
                         , Attr.attribute "aria-label" "Edit"
-                        , Attributes.dataTest "edit-menu"
+                        , Attributes.dataTestId "edit-menu"
                         ]
                         [ Html.div [ css [ menuButtonStyle ] ]
                             [ Icon.edit Color.iconColor 20
@@ -182,7 +182,7 @@ menu pos items =
                             ++ "-menu-item"
                             |> String.replace " " ""
                             |> String.toLower
-                            |> Attributes.dataTest
+                            |> Attributes.dataTestId
                         ]
                         [ Html.div
                             [ css
@@ -231,7 +231,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                     ]
                 ]
             ]
-        , Attributes.dataTest "menu"
+        , Attributes.dataTestId "menu"
         ]
         [ editMenu { diagramItem = currentDiagram, lang = lang, route = route, onOpenCurrentFile = onOpenCurrentFile }
         , Html.div
@@ -241,7 +241,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                     Html.div
                         [ Events.onClickPreventDefaultOn onOpenLocalFile
                         , Attr.attribute "aria-label" "List"
-                        , Attributes.dataTest "list-menu"
+                        , Attributes.dataTestId "list-menu"
                         , css [ Style.hoverAnimation ]
                         ]
                         [ Icon.folderOpen (Color.toString Color.iconColor) 18
@@ -253,7 +253,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                         [ Html.a
                             [ Attr.href <| Route.toString Route.DiagramList
                             , Attr.attribute "aria-label" "List"
-                            , Attributes.dataTest "list-menu"
+                            , Attributes.dataTestId "list-menu"
                             ]
                             [ Icon.folderOpen
                                 (if page == Page.List then
@@ -276,7 +276,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                     _ ->
                         onClick onSave
                 , css [ menuButtonStyle ]
-                , Attributes.dataTest "save-menu"
+                , Attributes.dataTestId "save-menu"
                 , css [ Style.hoverAnimation ]
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
@@ -286,7 +286,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
           else
             Html.div
                 [ css [ menuButtonStyle ]
-                , Attributes.dataTest "disabled-save-menu"
+                , Attributes.dataTestId "disabled-save-menu"
                 ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
@@ -298,7 +298,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
               else
                 Attr.style "" ""
             , css [ menuButtonStyle ]
-            , Attributes.dataTest "download-menu"
+            , Attributes.dataTestId "download-menu"
             , css [ Style.hoverAnimation ]
             ]
             [ Icon.download

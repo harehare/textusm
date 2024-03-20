@@ -80,7 +80,7 @@ view props =
                 Page.Main ->
                     Html.div
                         [ css [ Css.width <| Css.px 32, Css.height <| Css.px 32, Css.marginTop <| Css.px 6 ]
-                        , Attributes.dataTest "header-logo"
+                        , Attributes.dataTestId "header-logo"
                         ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
                             [ Html.img
@@ -98,7 +98,7 @@ view props =
                             Html.div
                                 [ css [ Style.flexCenter, Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) (Css.px 12), Css.cursor Css.pointer ]
                                 , Events.onClick <| props.onMoveTo r
-                                , Attributes.dataTest "header-back"
+                                , Attributes.dataTestId "header-back"
                                 ]
                                 [ Icon.arrowLeft Color.iconColor 16 ]
 
@@ -129,7 +129,7 @@ view props =
                             , Events.onBlur props.onEndEditTitle
                             , E.onEnter props.onEndEditTitle
                             , Attr.placeholder "UNTITLED"
-                            , Attributes.dataTest "header-input-title"
+                            , Attributes.dataTestId "header-input-title"
                             ]
                             []
 
@@ -140,7 +140,7 @@ view props =
                                 , Css.hover []
                                 ]
                             , Events.onClick props.onStartEditTitle
-                            , Attributes.dataTest "header-title"
+                            , Attributes.dataTestId "header-title"
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
@@ -154,16 +154,16 @@ view props =
                             ]
 
                 Page.New ->
-                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "New Diagram" ]
+                    viewTitle [ Attributes.dataTestId "header-title" ] [ Html.text "New Diagram" ]
 
                 Page.Help ->
-                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "Help" ]
+                    viewTitle [ Attributes.dataTestId "header-title" ] [ Html.text "Help" ]
 
                 Page.List ->
-                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "All Diagrams" ]
+                    viewTitle [ Attributes.dataTestId "header-title" ] [ Html.text "All Diagrams" ]
 
                 Page.Settings ->
-                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings" ]
+                    viewTitle [ Attributes.dataTestId "header-title" ] [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings" ]
 
                 _ ->
                     Empty.view
@@ -259,7 +259,7 @@ viewHelpButton lang =
         [ Attr.attribute "aria-label" "Help"
         , css [ Css.displayFlex ]
         , Attr.href <| Route.toString Route.Help
-        , Attributes.dataTest "header-help"
+        , Attributes.dataTestId "header-help"
         ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.helpOutline 16
@@ -276,7 +276,7 @@ viewSettingsButton lang diagramType =
         , Attr.href <|
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
-        , Attributes.dataTest "header-settings"
+        , Attributes.dataTestId "header-settings"
         ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.settings Color.iconColor 16
@@ -292,7 +292,7 @@ viewShareButton lang canShare_ =
             [ css [ Css.displayFlex ]
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
-            , Attributes.dataTest "header-share"
+            , Attributes.dataTestId "header-share"
             ]
             [ Html.div [ css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
@@ -303,7 +303,7 @@ viewShareButton lang canShare_ =
     else
         Html.div
             [ css [ Style.button ]
-            , Attributes.dataTest "header-share"
+            , Attributes.dataTestId "header-share"
             ]
             [ Icon.people Color.disabledIconColor 20
             , Tooltip.view <| Message.toolTipShare lang
@@ -333,7 +333,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                     ]
                 ]
             , Events.stopPropagationOn "click" (D.succeed ( onOpenMenu HeaderMenu, True ))
-            , Attributes.dataTest "header-signin"
+            , Attributes.dataTestId "header-signin"
             ]
             [ Html.div
                 [ css [ Text.sm, Css.marginRight <| Css.px 4 ]
@@ -409,7 +409,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
 
                 _ ->
                     Events.stopPropagationOn "click" (D.succeed ( onOpenMenu LoginMenu, True ))
-            , Attributes.dataTest "header-signin"
+            , Attributes.dataTestId "header-signin"
             ]
             [ Html.div
                 [ css

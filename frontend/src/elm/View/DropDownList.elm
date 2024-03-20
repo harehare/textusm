@@ -1,6 +1,6 @@
 module View.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs, loadingView, stringValue, view)
 
-import Attributes exposing (dataTest)
+import Attributes exposing (dataTestId)
 import Css
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
@@ -56,7 +56,7 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
             , Css.color <| Css.hex "#2e2e2e"
             , Css.property "user-select" "none"
             ]
-        , dataTest dropDownId
+        , dataTestId dropDownId
         ]
         [ itemView selectedItem (onToggleDropDownList dropDownId)
         , if dropDownId == Maybe.withDefault "" currentId then
@@ -132,11 +132,12 @@ dropdownView items onChange =
             , Css.paddingLeft <| Css.px 0
             , Css.borderTop <| Css.px 0
             , Css.width <| Css.pct 100
-            , Css.height <| Css.px 192
+            , Css.height <| Css.px 204
             , Css.property "-webkit-overflow-scrolling" "touch"
             , Css.property "-ms-overflow-style" "none"
             , Css.property "scrollbar-width" "none"
             , Css.pseudoElement "-webkit-scrollbar" [ Css.display Css.none ]
+            , Css.borderBottom3 (Css.px 1) Css.solid (Css.hex "#2e2e2e")
             ]
         ]
     <|

@@ -170,7 +170,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                 fontSize =
                     Item.getFontSize item
                         |> Maybe.withDefault FontSize.s
-                        |> FontSize.toInt
+                        |> FontSize.unwrap
                         |> toFloat
 
                 ( foreColor, backColor ) =
@@ -279,7 +279,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                                         , Css.width <| Css.px <| innerWidth + adjustSize (Key.unit key)
                                         , Item.getFontSize item
                                             |> Maybe.withDefault FontSize.s
-                                            |> FontSize.toInt
+                                            |> FontSize.unwrap
                                             |> toFloat
                                             |> Css.px
                                             |> Css.fontSize

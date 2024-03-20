@@ -1,9 +1,9 @@
-module Attributes exposing (dataTest)
+module Attributes exposing (dataTestId)
 
 import Html.Styled as Html
 import Html.Styled.Attributes as Attrs
 
 
-dataTest : String -> Html.Attribute msg
-dataTest name =
-    Attrs.attribute "data-test" name
+dataTestId : String -> Html.Attribute msg
+dataTestId name =
+    Attrs.attribute "data-test-id" name

@@ -48,13 +48,14 @@ import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Types.Color as Color exposing (Color)
 import Types.Font as Font exposing (Font)
+import Types.FontSize as FontSize exposing (FontSize)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme exposing (Theme)
 import Types.Title as Title exposing (Title)
 
 
 type alias EditorSettings =
-    { fontSize : Int
+    { fontSize : FontSize
     , wordWrap : Bool
     , showLineNumber : Bool
     }
@@ -77,7 +78,7 @@ type alias Settings =
 defaultEditorSettings : Maybe EditorSettings -> EditorSettings
 defaultEditorSettings settings =
     Maybe.withDefault
-        { fontSize = 12
+        { fontSize = FontSize.default
         , wordWrap = False
         , showLineNumber = True
         }
@@ -132,7 +133,7 @@ defaultSettings t =
     , title = Nothing
     , editor =
         Just
-            { fontSize = 12
+            { fontSize = FontSize.default
             , wordWrap = False
             , showLineNumber = True
             }
@@ -219,7 +220,7 @@ importDecoder settings =
 editorSettingsDecoder : D.Decoder EditorSettings
 editorSettingsDecoder =
     D.succeed EditorSettings
-        |> required "fontSize" D.int
+        |> required "fontSize" FontSize.decoder
         |> required "wordWrap" D.bool
         |> required "showLineNumber" D.bool
 
@@ -227,7 +228,7 @@ editorSettingsDecoder =
 editorSettingsEncoder : EditorSettings -> E.Value
 editorSettingsEncoder editorSettings =
     E.object
-        [ ( "fontSize", E.int editorSettings.fontSize )
+        [ ( "fontSize", E.int (FontSize.unwrap editorSettings.fontSize) )
         , ( "wordWrap", E.bool editorSettings.wordWrap )
         , ( "showLineNumber", E.bool editorSettings.showLineNumber )
         ]
@@ -242,7 +243,7 @@ diagramSettings =
     Lens .diagramSettings (\b a -> { a | diagramSettings = b })
 
 
-editorOfFontSize : Lens EditorSettings Int
+editorOfFontSize : Lens EditorSettings FontSize
 editorOfFontSize =
     Lens .fontSize (\b a -> { a | fontSize = b })
 
@@ -287,7 +288,7 @@ mainFont =
     Lens .font (\b a -> { a | font = b })
 
 
-fontSize : Optional Settings Int
+fontSize : Optional Settings FontSize
 fontSize =
     Compose.optionalWithLens editorOfFontSize editorOfSettings
 

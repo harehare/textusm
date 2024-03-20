@@ -283,7 +283,7 @@ colorSettingsFuzzer =
 diagramSettingsFuzzer : Fuzzer Diagram.Types.Settings.Settings
 diagramSettingsFuzzer =
     Fuzz.map Diagram.Types.Settings.Settings (Fuzz.map Font.googleFont Fuzz.string)
-        |> Fuzz.andMap (Fuzz.map Diagram.Types.Settings.Size cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
+        |> Fuzz.andMap (Fuzz.map Diagram.Types.Settings.CardRect cardSizeFuzzer |> Fuzz.andMap cardSizeFuzzer)
         |> Fuzz.andMap colorSettingsFuzzer
         |> Fuzz.andMap colorFuzzer
         |> Fuzz.andMap (Fuzz.maybe Fuzz.bool)
@@ -304,7 +304,7 @@ settingsFuzzer =
         |> Fuzz.andMap
             (Fuzz.maybe <|
                 (Fuzz.map EditorSettings
-                    Fuzz.int
+                    (Fuzz.map FontSize.fromInt Fuzz.int)
                     |> Fuzz.andMap Fuzz.bool
                     |> Fuzz.andMap Fuzz.bool
                 )

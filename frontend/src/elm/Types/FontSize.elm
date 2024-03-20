@@ -8,7 +8,6 @@ module Types.FontSize exposing
     , list
     , s
     , svgStyledFontSize
-    , toInt
     , unwrap
     , xs
     )
@@ -65,11 +64,6 @@ list =
 svgStyledFontSize : FontSize -> SvgStyled.Attribute msg
 svgStyledFontSize fontSize =
     SvgStyledAttr.fontSize <| String.fromInt <| unwrap <| fontSize
-
-
-toInt : FontSize -> Int
-toInt (FontSize fontSize) =
-    fontSize
 
 
 unwrap : FontSize -> Int

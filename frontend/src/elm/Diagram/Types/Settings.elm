@@ -1,8 +1,8 @@
 module Diagram.Types.Settings exposing
-    ( ColorSetting
+    ( CardRect
+    , ColorSetting
     , ColorSettings
     , Settings
-    , Size
     , activityBackgroundColor
     , activityColor
     , backgroundColor
@@ -70,7 +70,7 @@ type alias ColorSettings =
 
 type alias Settings =
     { font : Font
-    , size : Size
+    , size : CardRect
     , color : ColorSettings
     , backgroundColor : Color
     , zoomControl : Maybe Bool
@@ -81,7 +81,7 @@ type alias Settings =
     }
 
 
-type alias Size =
+type alias CardRect =
     { width : CardSize
     , height : CardSize
     }
@@ -348,17 +348,17 @@ ofColor =
     Lens .color (\b a -> { a | color = b })
 
 
-ofSize : Lens Settings Size
+ofSize : Lens Settings CardRect
 ofSize =
     Lens .size (\b a -> { a | size = b })
 
 
-sizeOfHeight : Lens Size CardSize
+sizeOfHeight : Lens CardRect CardSize
 sizeOfHeight =
     Lens .height (\b a -> { a | height = b })
 
 
-sizeOfWidth : Lens Size CardSize
+sizeOfWidth : Lens CardRect CardSize
 sizeOfWidth =
     Lens .width (\b a -> { a | width = b })
 
@@ -392,14 +392,14 @@ encoder settings =
         ]
 
 
-sizeDecoder : D.Decoder Size
+sizeDecoder : D.Decoder CardRect
 sizeDecoder =
-    D.succeed Size
+    D.succeed CardRect
         |> required "width" CardSize.decoder
         |> required "height" CardSize.decoder
 
 
-sizeEncoder : Size -> E.Value
+sizeEncoder : CardRect -> E.Value
 sizeEncoder size =
     E.object
         [ ( "width", CardSize.encoder size.width )
