@@ -46,7 +46,7 @@
     "rimraf": "^5.0.5",
     "size-limit": "^11.0.2",
     "start-server-and-test": "^2.0.3",
-    "stylelint": "^16.3.0",
+    "stylelint": "^16.3.1",
     "stylelint-config-standard": "^36.0.0",
     "terser": "^5.29.2",
     "typescript": "^5.4.3",
