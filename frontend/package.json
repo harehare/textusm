@@ -48,7 +48,7 @@
     "start-server-and-test": "^2.0.3",
     "stylelint": "^16.3.1",
     "stylelint-config-standard": "^36.0.0",
-    "terser": "^5.29.2",
+    "terser": "^5.30.0",
     "typescript": "^5.4.3",
     "vite": "^5.2.6",
     "vite-plugin-elm": "^3.0.0",
