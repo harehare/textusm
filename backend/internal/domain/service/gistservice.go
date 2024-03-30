@@ -6,16 +6,17 @@ import (
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
+	"github.com/harehare/textusm/internal/github"
 	"github.com/samber/mo"
 )
 
 type GistService struct {
 	repo         itemRepo.GistItemRepository
-	clientID     string
-	clientSecret string
+	clientID     github.ClientID
+	clientSecret github.ClientSecret
 }
 
-func NewGistService(r itemRepo.GistItemRepository, clientID, clientSecret string) *GistService {
+func NewGistService(r itemRepo.GistItemRepository, clientID github.ClientID, clientSecret github.ClientSecret) *GistService {
 	return &GistService{
 		repo:         r,
 		clientID:     clientID,
@@ -62,5 +63,5 @@ func (g *GistService) RevokeToken(ctx context.Context, accessToken string) error
 		return err
 	}
 
-	return g.repo.RevokeToken(ctx, g.clientID, g.clientSecret, accessToken)
+	return g.repo.RevokeToken(ctx, string(g.clientID), string(g.clientSecret), accessToken)
 }

@@ -5,6 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/v4/storage"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
@@ -30,8 +31,8 @@ type FirestoreItemRepository struct {
 	storage   *storage.Client
 }
 
-func NewFirestoreItemRepository(firestore *firestore.Client, storage *storage.Client) itemRepo.ItemRepository {
-	return &FirestoreItemRepository{firestore: firestore, storage: storage}
+func NewFirestoreItemRepository(config *config.Config) itemRepo.ItemRepository {
+	return &FirestoreItemRepository{firestore: config.FirestoreClient, storage: config.StorageClient}
 }
 
 func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {

@@ -7,16 +7,17 @@ import (
 	settingsModel "github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
 	v "github.com/harehare/textusm/internal/domain/values"
+	"github.com/harehare/textusm/internal/github"
 	"github.com/samber/mo"
 )
 
 type SettingsService struct {
 	repo         settingsRepo.SettingsRepository
-	clientID     string
-	clientSecret string
+	clientID     github.ClientID
+	clientSecret github.ClientSecret
 }
 
-func NewSettingsService(r settingsRepo.SettingsRepository, clientID, clientSecret string) *SettingsService {
+func NewSettingsService(r settingsRepo.SettingsRepository, clientID github.ClientID, clientSecret github.ClientSecret) *SettingsService {
 	return &SettingsService{
 		repo:         r,
 		clientID:     clientID,

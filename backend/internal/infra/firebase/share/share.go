@@ -5,6 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/v4/storage"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
@@ -28,8 +29,8 @@ type FirestoreShareRepository struct {
 	storage *storage.Client
 }
 
-func NewFirestoreShareRepository(client *firestore.Client, storage *storage.Client) shareRepo.ShareRepository {
-	return &FirestoreShareRepository{client: client, storage: storage}
+func NewFirestoreShareRepository(config *config.Config) shareRepo.ShareRepository {
+	return &FirestoreShareRepository{client: config.FirestoreClient, storage: config.StorageClient}
 }
 
 func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareValue] {

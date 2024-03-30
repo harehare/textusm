@@ -9,11 +9,11 @@ import (
 )
 
 type Api struct {
-	gistService     service.GistService
-	settingsService service.SettingsService
+	gistService     *service.GistService
+	settingsService *service.SettingsService
 }
 
-func New(gistService service.GistService, settingsService service.SettingsService) *Api {
+func New(gistService *service.GistService, settingsService *service.SettingsService) *Api {
 	api := Api{gistService: gistService, settingsService: settingsService}
 	return &api
 }

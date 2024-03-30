@@ -11,6 +11,7 @@ setup:
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
   go install github.com/cosmtrek/air@latest
   go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
+  go install github.com/google/wire/cmd/wire@latest
 
 docker-up:
   #!/usr/bin/env bash
@@ -44,6 +45,9 @@ generate:
 	go get golang.org/x/tools/imports
 	go get github.com/urfave/cli/v2
 	go generate {{ target }}
+
+wire:
+	wire gen ./internal/app/wire.go
 
 test:
 	go test {{ target }}
