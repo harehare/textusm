@@ -7,8 +7,8 @@
 package app
 
 import (
-	"github.com/go-chi/chi/v5"
 	"github.com/harehare/textusm/internal/app/handler"
+	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
@@ -18,11 +18,12 @@ import (
 	"github.com/harehare/textusm/internal/infra/firebase/user"
 	"github.com/harehare/textusm/internal/presentation/api"
 	"github.com/harehare/textusm/internal/presentation/graphql"
+	"net/http"
 )
 
 // Injectors from wire.go:
 
-func InitializeHandler() (*chi.Mux, error) {
+func InitializeServer() (*http.Server, error) {
 	env, err := config.NewEnv()
 	if err != nil {
 		return nil, err
@@ -43,11 +44,13 @@ func InitializeHandler() (*chi.Mux, error) {
 	settingsService := service.NewSettingsService(settingsRepository, clientID, clientSecret)
 	resolver := graphql.New(serviceService, gistService, settingsService, configConfig)
 	apiApi := api.New(gistService, settingsService)
-	mux, err := handler.NewHandler(env, configConfig, resolver, apiApi)
+	logger := config.NewLogger(env)
+	mux, err := handler.NewHandler(env, configConfig, resolver, apiApi, logger)
 	if err != nil {
 		return nil, err
 	}
-	return mux, nil
+	httpServer := server.NewServer(mux, env)
+	return httpServer, nil
 }
 
 // wire.go:

@@ -22,6 +22,7 @@ type Config struct {
 
 var Set = wire.NewSet(
 	NewEnv,
+	NewLogger,
 	NewConfig,
 )
 

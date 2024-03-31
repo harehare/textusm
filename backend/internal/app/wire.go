@@ -4,9 +4,11 @@
 package app
 
 import (
-	"github.com/go-chi/chi/v5"
+	"net/http"
+
 	"github.com/google/wire"
 	"github.com/harehare/textusm/internal/app/handler"
+	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
@@ -26,7 +28,7 @@ func provideGithubClientSecret(env *config.Env) github.ClientSecret {
 	return github.ClientSecret(env.GithubClientSecret)
 }
 
-func InitializeHandler() (*chi.Mux, error) {
+func InitializeServer() (*http.Server, error) {
 	wire.Build(
 		config.Set,
 		provideGithubClientID,
@@ -42,6 +44,7 @@ func InitializeHandler() (*chi.Mux, error) {
 		resolver.New,
 		api.New,
 		handler.NewHandler,
+		server.NewServer,
 	)
-	return &chi.Mux{}, nil
+	return &http.Server{}, nil
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -19,8 +20,7 @@ import (
 	resolver "github.com/harehare/textusm/internal/presentation/graphql"
 )
 
-func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Resolver, restApi *api.Api) (*chi.Mux, error) {
-
+func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Resolver, restApi *api.Api, logger *slog.Logger) (*chi.Mux, error) {
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
 	r.Use(chiMiddleware.RequestID)
@@ -78,6 +78,8 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 		}
 		r.Handle("/", graphql)
 	})
+
+	slog.SetDefault(logger)
 
 	return r, nil
 }
