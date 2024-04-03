@@ -4,6 +4,7 @@ import (
 	"context"
 
 	firebase "firebase.google.com/go/v4"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/model/user"
 	userRepo "github.com/harehare/textusm/internal/domain/repository/user"
 	"github.com/samber/mo"
@@ -13,8 +14,8 @@ type FirebaseUserRepository struct {
 	app *firebase.App
 }
 
-func NewFirebaseUserRepository(app *firebase.App) userRepo.UserRepository {
-	return &FirebaseUserRepository{app: app}
+func NewFirebaseUserRepository(config *config.Config) userRepo.UserRepository {
+	return &FirebaseUserRepository{app: config.FirebaseApp}
 }
 
 func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) mo.Result[*user.User] {

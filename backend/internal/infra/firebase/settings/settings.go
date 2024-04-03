@@ -10,6 +10,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/v4/storage"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
 	"github.com/harehare/textusm/internal/domain/values"
@@ -32,8 +33,8 @@ type FirestoreSettingsRepository struct {
 	redis   *redis.Client
 }
 
-func NewFirestoreSettingsRepository(client *firestore.Client, storage *storage.Client, redis *redis.Client) settingsRepo.SettingsRepository {
-	return &FirestoreSettingsRepository{client: client, storage: storage, redis: redis}
+func NewFirestoreSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
+	return &FirestoreSettingsRepository{client: config.FirestoreClient, storage: config.StorageClient, redis: config.RedisClient}
 }
 
 func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, diagram values.Diagram) mo.Result[*settings.Settings] {

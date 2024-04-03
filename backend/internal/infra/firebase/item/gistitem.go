@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
 	e "github.com/harehare/textusm/internal/error"
@@ -25,8 +26,8 @@ type FirestoreGistItemRepository struct {
 	client *firestore.Client
 }
 
-func NewFirestoreGistItemRepository(client *firestore.Client) itemRepo.GistItemRepository {
-	return &FirestoreGistItemRepository{client: client}
+func NewFirestoreGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
+	return &FirestoreGistItemRepository{client: config.FirestoreClient}
 }
 
 func (r *FirestoreGistItemRepository) FindByID(ctx context.Context, userID string, itemID string) mo.Result[*gistitem.GistItem] {

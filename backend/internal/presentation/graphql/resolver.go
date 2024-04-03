@@ -5,6 +5,7 @@ package graphql
 
 import (
 	"cloud.google.com/go/firestore"
+	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/domain/service"
 )
 
@@ -15,7 +16,7 @@ type Resolver struct {
 	client          *firestore.Client
 }
 
-func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService, client *firestore.Client) *Resolver {
-	r := Resolver{service: service, gistService: gistService, settingsService: settingsService, client: client}
+func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService, config *config.Config) *Resolver {
+	r := Resolver{service: service, gistService: gistService, settingsService: settingsService, client: config.FirestoreClient}
 	return &r
 }
