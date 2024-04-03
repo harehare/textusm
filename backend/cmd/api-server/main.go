@@ -7,5 +7,24 @@ import (
 )
 
 func main() {
-	os.Exit(backend.Run())
+	tlsCertFile := os.Getenv("TLS_CERT_FILE")
+	tlsKeyFile := os.Getenv("TLS_KEY_FILE")
+
+	server, err := backend.Server()
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	if tlsCertFile != "" && tlsKeyFile != "" {
+		err = server.ListenAndServeTLS(tlsCertFile, tlsKeyFile)
+	} else {
+		err = server.ListenAndServe()
+	}
+
+	if err != nil {
+		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
 }

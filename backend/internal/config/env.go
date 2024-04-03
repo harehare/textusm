@@ -12,8 +12,6 @@ type Env struct {
 	Port                string `required:"true" envconfig:"PORT"`
 	Credentials         string `required:"true" envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	DatabaseCredentials string `required:"true" envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
-	TlsCertFile         string `envconfig:"TLS_CERT_FILE" default:""`
-	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
 	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
