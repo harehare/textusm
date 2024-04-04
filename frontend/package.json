@@ -41,7 +41,7 @@
     "elm-optimize-level-2": "^0.3.5",
     "elm-review": "^2.11.1",
     "elm-test": "^0.19.1-revision12",
-    "firebase-tools": "^13.6.1",
+    "firebase-tools": "^13.7.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "size-limit": "^11.0.2",
