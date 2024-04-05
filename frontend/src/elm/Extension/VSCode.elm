@@ -17,6 +17,7 @@ import Json.Decode as D
 import Return exposing (Return)
 import Task
 import Types.Color as Color
+import Types.Font as Font
 import Types.Item as Item
 import Types.Property as Property
 import Types.Size as Size exposing (Size)
@@ -112,7 +113,7 @@ init flags =
             , contextMenu = Nothing
             , diagramType = DiagramType.fromString flags.diagramType
             , settings =
-                { font = flags.fontName
+                { font = Font.googleFont flags.fontName
                 , size =
                     { width = CardSize.fromInt flags.cardWidth
                     , height = CardSize.fromInt flags.cardHeight
