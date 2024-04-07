@@ -53,7 +53,6 @@ const showQuickPick = (
   const options = diagrams;
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map((item) => ({ label: item.label }));
-  // @ts-except-error
   quickPick.onDidChangeSelection((selection) => {
     if (selection.length > 0) {
       const label = selection[0].label;
@@ -75,7 +74,6 @@ const setText = (editor: vscode.TextEditor, text: string) => {
   return editor.edit((builder) => {
     const document = editor.document;
     const lastLine = document.lineAt(document.lineCount - 1);
-
     const start = new vscode.Position(0, 0);
     const end = new vscode.Position(
       document.lineCount - 1,
@@ -433,24 +431,16 @@ class DiagramPanel {
   private static addTextChangedEvent(editor: vscode.TextEditor | undefined) {
     let updated: null | NodeJS.Timeout = null;
     vscode.workspace.onDidChangeTextDocument((e) => {
-      if (editor) {
-        if (
-          e &&
-          e.document &&
-          editor &&
-          editor.document &&
-          e?.document?.uri === editor?.document?.uri
-        ) {
-          if (updated) {
-            clearTimeout(updated);
-          }
-          updated = setTimeout(() => {
-            DiagramPanel.activePanel?._panel.webview.postMessage({
-              command: "textChanged",
-              text: e.document.getText(),
-            });
-          }, 300);
+      if (e?.document?.uri === editor?.document?.uri) {
+        if (updated) {
+          clearTimeout(updated);
         }
+        updated = setTimeout(() => {
+          DiagramPanel.activePanel?._panel.webview.postMessage({
+            command: "textChanged",
+            text: e.document.getText(),
+          });
+        }, 300);
       }
     });
   }
