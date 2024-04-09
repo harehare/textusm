@@ -4,7 +4,7 @@ const settingsKey = 'textusm:settings';
 
 const getSettingsKey = (diagram: string) => `${settingsKey}:${diagram}`;
 
-const getDefaultSettings = (isDarkMode: boolean) => ({
+const getDefaultSettings: (isDarkMode: boolean) => Settings = (isDarkMode: boolean) => ({
   font: 'Nunito Sans',
   diagramSettings: {
     font: 'Nunito Sans',
@@ -47,6 +47,7 @@ const getDefaultSettings = (isDarkMode: boolean) => ({
   diagram: undefined,
   location: undefined,
   theme: undefined,
+  splitDirection: 'vertical',
 });
 
 export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings => {
@@ -69,7 +70,7 @@ export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings =>
           ...settingsObject.storyMap,
           ...diagramSettings,
           color: {
-            ...defaultSettings.diagramSettings.color,
+            ...defaultSettings.diagramSettings?.color,
             ...settingsObject.storyMap.color,
             ...diagramSettings.color,
           },
@@ -86,7 +87,7 @@ export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings =>
           ...settingsObject.diagramSettings,
           ...diagramSettings,
           color: {
-            ...defaultSettings.diagramSettings.color,
+            ...defaultSettings.diagramSettings?.color,
             ...settingsObject.diagramSettings.color,
             ...diagramSettings.color,
           },

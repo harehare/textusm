@@ -72,6 +72,7 @@ export type Settings = {
     wordWrap: boolean;
     showLineNumber: boolean;
   };
+  splitDirection: 'vertical' | 'horizontal';
 };
 
 export type DiagramSettings = {

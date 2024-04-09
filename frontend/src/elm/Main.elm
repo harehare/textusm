@@ -1031,6 +1031,7 @@ update model message =
                     , diagram = Just model.currentDiagram
                     , location = model.settingsModel.settings.location
                     , theme = model.settingsModel.settings.theme
+                    , splitDirection = model.settingsModel.settings.splitDirection
                     }
             in
             Return.map

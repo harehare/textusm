@@ -21,6 +21,7 @@ module Types.Settings exposing
     , mainFont
     , showGrid
     , showLineNumber
+    , splitDirection
     , storyBackgroundColor
     , storyColor
     , taskBackgroundColor
@@ -49,6 +50,7 @@ import Monocle.Optional exposing (Optional)
 import Types.Color as Color exposing (Color)
 import Types.Font as Font exposing (Font)
 import Types.FontSize as FontSize exposing (FontSize)
+import Types.SplitDirection as SplitDirection exposing (SplitDirection)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme exposing (Theme)
 import Types.Title as Title exposing (Title)
@@ -72,6 +74,7 @@ type alias Settings =
     , diagram : Maybe DiagramItem
     , location : Maybe Location
     , theme : Maybe Theme
+    , splitDirection : Maybe SplitDirection
     }
 
 
@@ -140,6 +143,7 @@ defaultSettings t =
     , diagram = Nothing
     , location = Nothing
     , theme = Nothing
+    , splitDirection = Nothing
     }
 
 
@@ -156,6 +160,7 @@ decoder =
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> optional "theme" (D.map Just Theme.decoder) Nothing
+        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Vertical)
 
 
 encoder : Settings -> E.Value
@@ -171,6 +176,7 @@ encoder settings =
         , ( "diagram", maybe DiagramItem.encoder settings.diagram )
         , ( "location", maybe DiagramLocation.encoder settings.location )
         , ( "theme", maybe Theme.encoder settings.theme )
+        , ( "splitDirection", maybe SplitDirection.encoder settings.splitDirection )
         ]
 
 
@@ -215,6 +221,7 @@ importDecoder settings =
         |> hardcoded settings.diagram
         |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
         |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
+        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Vertical)
 
 
 editorSettingsDecoder : D.Decoder EditorSettings
@@ -316,6 +323,11 @@ location =
 theme : Optional Settings Theme
 theme =
     Optional .theme (\b a -> { a | theme = Just b })
+
+
+splitDirection : Optional Settings SplitDirection
+splitDirection =
+    Optional .splitDirection (\b a -> { a | splitDirection = Just b })
 
 
 showLineNumber : Optional Settings Bool
