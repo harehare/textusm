@@ -20,6 +20,7 @@ import Message exposing (Lang)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Return
+import String.Extra
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
@@ -31,6 +32,7 @@ import Types.Font as Font exposing (Font)
 import Types.FontSize as FontSize
 import Types.Session as Session exposing (Session)
 import Types.Settings as Settings exposing (Settings)
+import Types.SplitDirection as SplitDirection
 import Types.Theme as Theme
 import View.DropDownList as DropDownList exposing (DropDownValue)
 import View.Icon as Icon
@@ -393,6 +395,23 @@ view_ m =
                             , { name = Theme.toDisplayString Theme.Dark, value = DropDownList.stringValue <| Theme.toString Theme.Dark }
                             ]
                             (m.settings.theme |> Maybe.map Theme.toString |> Maybe.withDefault (Theme.toString <| Theme.System True))
+                        ]
+                    ]
+                , conrtolView
+                    [ nameView [ Html.text "Panel split direction" ]
+                    , inputAreaView
+                        [ DropDownList.view ToggleDropDownList
+                            "split-direction"
+                            m.dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    Settings.splitDirection.set (SplitDirection.fromString x) m.settings
+                                )
+                            )
+                            ([ SplitDirection.Horizontal, SplitDirection.Vertical ]
+                                |> List.map (\item -> { name = String.Extra.toSentenceCase <| SplitDirection.toString item, value = DropDownList.stringValue <| SplitDirection.toString item })
+                            )
+                            (m.settings.splitDirection |> Maybe.withDefault SplitDirection.Horizontal |> SplitDirection.toString)
                         ]
                     ]
                 , conrtolRowView

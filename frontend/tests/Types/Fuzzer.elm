@@ -16,6 +16,7 @@ import Types.Item as Item exposing (Children, Item)
 import Types.Item.Settings as ItemSettings
 import Types.Position exposing (Position)
 import Types.Settings exposing (EditorSettings, Settings)
+import Types.SplitDirection as SplitDirection exposing (SplitDirection)
 import Types.Text as Text exposing (Text)
 import Types.Theme as Theme exposing (Theme)
 import Types.Title as Title exposing (Title)
@@ -218,6 +219,14 @@ themeFuzzer =
         ]
 
 
+splitDirectionFuzzer : Fuzzer SplitDirection
+splitDirectionFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant SplitDirection.Vertical
+        , Fuzz.constant SplitDirection.Horizontal
+        ]
+
+
 positionFuzzer : Fuzzer Position
 positionFuzzer =
     Fuzz.pair
@@ -312,3 +321,4 @@ settingsFuzzer =
         |> Fuzz.andMap (Fuzz.maybe diagramItemFuzzer)
         |> Fuzz.andMap (Fuzz.maybe diagramLocationFuzzer)
         |> Fuzz.andMap (Fuzz.maybe themeFuzzer)
+        |> Fuzz.andMap (Fuzz.maybe splitDirectionFuzzer)
