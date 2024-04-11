@@ -160,7 +160,7 @@ decoder =
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> optional "theme" (D.map Just Theme.decoder) Nothing
-        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Horizontal)
+        |> optional "splitDirection" (D.map Just SplitDirection.decoder) Nothing
 
 
 encoder : Settings -> E.Value
@@ -193,6 +193,7 @@ legacyEncoder settings =
         , ( "diagram", maybe DiagramItem.encoder settings.diagram )
         , ( "location", maybe DiagramLocation.encoder settings.location )
         , ( "theme", maybe Theme.encoder settings.theme )
+        , ( "splitDirection", maybe SplitDirection.encoder settings.splitDirection )
         ]
 
 
@@ -205,6 +206,7 @@ exportEncoder settings =
         , ( "editor", maybe editorSettingsEncoder settings.editor )
         , ( "location", maybe DiagramLocation.encoder settings.location )
         , ( "theme", maybe Theme.encoder settings.theme )
+        , ( "splitDirection", maybe SplitDirection.encoder settings.splitDirection )
         ]
 
 
