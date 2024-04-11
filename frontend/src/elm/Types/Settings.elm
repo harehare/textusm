@@ -160,7 +160,7 @@ decoder =
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> optional "theme" (D.map Just Theme.decoder) Nothing
-        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Vertical)
+        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Horizontal)
 
 
 encoder : Settings -> E.Value
@@ -221,7 +221,7 @@ importDecoder settings =
         |> hardcoded settings.diagram
         |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
         |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
-        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Vertical)
+        |> optional "splitDirection" (D.map Just SplitDirection.decoder) (Just SplitDirection.Horizontal)
 
 
 editorSettingsDecoder : D.Decoder EditorSettings

@@ -80,6 +80,7 @@ import Types.ShareState as ShareState
 import Types.ShareToken as ShareToken
 import Types.Size as Size exposing (Size)
 import Types.Snackbar as SnackbarModel
+import Types.SplitDirection as SplitDirection
 import Types.Text as Text
 import Types.Theme as Theme
 import Types.Title as Title
@@ -758,7 +759,12 @@ subscriptions model =
          ]
             ++ (if Window.isResizing model.window then
                     [ onMouseUp <| D.succeed M.MoveStop
-                    , onMouseMove <| D.map M.HandleWindowResize (D.field "pageX" D.int)
+                    , case model.settingsModel.settings.splitDirection of
+                        Just SplitDirection.Vertical ->
+                            onMouseMove <| D.map M.HandleWindowResize (D.field "pageY" D.int)
+
+                        _ ->
+                            onMouseMove <| D.map M.HandleWindowResize (D.field "pageX" D.int)
                     ]
 
                 else
@@ -1577,13 +1583,19 @@ mainView model =
                 Lazy.lazy3 SplitWindow.view
                     { bgColor = Css.hex <| Color.toString model.diagramModel.settings.backgroundColor
                     , window = model.window
+                    , splitDirection = model.settingsModel.settings.splitDirection |> Maybe.withDefault SplitDirection.Horizontal
                     , onToggleEditor = M.ShowEditor
                     , onResize = M.HandleStartWindowResize
                     }
                     (Html.div
                         [ Attr.css
                             [ Breakpoint.style
-                                [ Style.hMain
+                                [ case model.settingsModel.settings.splitDirection of
+                                    Just SplitDirection.Horizontal ->
+                                        Style.hMain
+
+                                    _ ->
+                                        Css.batch []
                                 , Style.widthFull
                                 , Style.Color.bgMain
                                 ]

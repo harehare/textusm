@@ -47,7 +47,7 @@ const getDefaultSettings: (isDarkMode: boolean) => Settings = (isDarkMode: boole
   diagram: undefined,
   location: undefined,
   theme: undefined,
-  splitDirection: 'vertical',
+  splitDirection: 'horizontal',
 });
 
 export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings => {

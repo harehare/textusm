@@ -408,10 +408,10 @@ view_ m =
                                     Settings.splitDirection.set (SplitDirection.fromString x) m.settings
                                 )
                             )
-                            ([ SplitDirection.Vertical, SplitDirection.Horizontal ]
+                            ([ SplitDirection.Horizontal, SplitDirection.Vertical ]
                                 |> List.map (\item -> { name = String.Extra.toSentenceCase <| SplitDirection.toString item, value = DropDownList.stringValue <| SplitDirection.toString item })
                             )
-                            (m.settings.splitDirection |> Maybe.withDefault SplitDirection.Vertical |> SplitDirection.toString)
+                            (m.settings.splitDirection |> Maybe.withDefault SplitDirection.Horizontal |> SplitDirection.toString)
                         ]
                     ]
                 , conrtolRowView
