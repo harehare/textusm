@@ -55,7 +55,7 @@ view props =
             ]
             [ Html.text Env.appVersion ]
         , Html.iframe
-            [ Attr.src "https://ghbtns.com/github-btn.html?user=harehare&repo=textusm&type=star&count=true"
+            [ Attr.src Env.repoButtonUrl
             , Attr.attribute "frameborder" "0"
             , Attr.attribute "scrolling" "0"
             , Attr.width 90

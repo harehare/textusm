@@ -7,7 +7,6 @@ module Types.Color exposing
     , black
     , blue
     , colors
-    , darkIconColor
     , decoder
     , disabledIconColor
     , encoder
@@ -102,11 +101,6 @@ colors =
     , purple2
     , yellow2
     ]
-
-
-darkIconColor : Color
-darkIconColor =
-    Color "Icon color" "#b9b9b9"
 
 
 decoder : D.Decoder Color

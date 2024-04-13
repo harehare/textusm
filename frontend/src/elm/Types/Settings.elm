@@ -7,7 +7,6 @@ module Types.Settings exposing
     , decoder
     , defaultEditorSettings
     , defaultSettings
-    , diagramSettings
     , encoder
     , exportEncoder
     , font

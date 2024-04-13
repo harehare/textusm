@@ -3,12 +3,9 @@ module Types exposing
     , Menu(..)
     , Model
     , Msg(..)
-    , isOnline
     , currentDiagram
-    , diagramListModel
     , diagramModel
-    , shareModel
-    , settingsModel
+    , isOnline
     )
 
 import Api.RequestError exposing (RequestError)
@@ -145,7 +142,10 @@ type Msg
     | SaveLocalFile
     | SavedLocalFile String
 
+
+
 -- Lens
+
 
 currentDiagram : Lens Model DiagramItem
 currentDiagram =
@@ -155,21 +155,6 @@ currentDiagram =
 diagramModel : Lens Model Diagram.Model
 diagramModel =
     Lens .diagramModel (\b a -> { a | diagramModel = b })
-
-
-diagramListModel : Lens Model DiagramList.Model
-diagramListModel =
-    Lens .diagramListModel (\b a -> { a | diagramListModel = b })
-
-
-settingsModel : Lens Model Settings.Model
-settingsModel =
-    Lens .settingsModel (\b a -> { a | settingsModel = b })
-
-
-shareModel : Lens Model Share.Model
-shareModel =
-    Lens .shareModel (\b a -> { a | shareModel = b })
 
 
 isOnline : Lens BrowserStatus Bool

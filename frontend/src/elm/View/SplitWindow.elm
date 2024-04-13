@@ -10,7 +10,6 @@ import Json.Decode as D
 import Style.Color as Color
 import Style.Style as Style
 import Types.Color as Color
-import Types.Settings exposing (splitDirection)
 import Types.SplitDirection as SplitDirection exposing (SplitDirection)
 import Types.Window as Window exposing (Window)
 import View.Icon as Icon

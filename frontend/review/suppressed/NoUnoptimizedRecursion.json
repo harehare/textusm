@@ -3,11 +3,25 @@
   "automatically created by": "elm-review suppress",
   "learn more": "elm-review suppress --help",
   "suppressions": [
-    { "count": 7, "filePath": "src/elm/Types/Item.elm" },
-    { "count": 4, "filePath": "src/elm/Diagram/UseCaseDiagram/Types.elm" },
-    { "count": 3, "filePath": "src/elm/Diagram/SequenceDiagram/Types.elm" },
-    { "count": 1, "filePath": "src/elm/Diagram/MindMap/View.elm" },
-    { "count": 1, "filePath": "src/elm/Diagram/SiteMap/View.elm" },
-    { "count": 1, "filePath": "src/elm/Page/List.elm" }
+    {
+      "count": 7,
+      "filePath": "src/elm/Types/Item.elm"
+    },
+    {
+      "count": 4,
+      "filePath": "src/elm/Diagram/UseCaseDiagram/Types.elm"
+    },
+    {
+      "count": 3,
+      "filePath": "src/elm/Diagram/SequenceDiagram/Types.elm"
+    },
+    {
+      "count": 1,
+      "filePath": "src/elm/Diagram/MindMap/View.elm"
+    },
+    {
+      "count": 1,
+      "filePath": "src/elm/Diagram/SiteMap/View.elm"
+    }
   ]
 }

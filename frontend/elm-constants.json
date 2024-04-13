@@ -1,5 +1,10 @@
 {
-    "path": "./src/elm/",
-    "moduleName": "Env",
-    "values": ["API_ROOT", "WEB_ROOT", "APP_VERSION", "REPO_URL"]
+  "path": "./src/elm/",
+  "moduleName": "Env",
+  "values": [
+    "API_ROOT",
+    "WEB_ROOT",
+    "APP_VERSION",
+    "REPO_BUTTON_URL"
+  ]
 }
