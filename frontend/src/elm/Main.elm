@@ -565,27 +565,12 @@ loadDiagram : DiagramItem -> Return.ReturnF Msg Model
 loadDiagram diagram =
     Return.andThen <|
         \m ->
-            let
-                diagramModel : Diagram.Types.Model
-                diagramModel =
-                    m.diagramModel
-
-                newDiagramModel : Diagram.Types.Model
-                newDiagramModel =
-                    { diagramModel
-                        | diagramType = diagram.diagram
-                        , text = diagram.text
-                    }
-            in
-            Return.singleton newDiagramModel
+            m.diagramModel
+                |> Diagram.Types.diagramType.set diagram.diagram
+                |> Diagram.Types.text.set diagram.text
+                |> Return.singleton
                 |> Diagram.State.update m.diagramModel (Diagram.Types.ChangeText <| Text.toString diagram.text)
-                |> Return.mapBoth M.UpdateDiagram
-                    (\m_ ->
-                        { m
-                            | diagramModel = m_
-                            , currentDiagram = diagram
-                        }
-                    )
+                |> Return.mapBoth M.UpdateDiagram (\m_ -> m |> M.currentDiagram.set diagram |> M.diagramModel.set m_)
                 |> stopProgress
 
 

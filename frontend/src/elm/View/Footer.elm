@@ -45,14 +45,6 @@ view props =
         ]
         [ diagramTypeSelect props
         , Lazy.lazy2 viewLocationButton props.session props.currentDiagram.location
-        , Html.div [ Attr.css [ Css.padding <| Css.rem 1, Css.cursor Css.pointer, Css.marginTop <| Css.px 6 ] ]
-            [ Html.a
-                [ Attr.href Env.repoUrl
-                , Attr.target "_blank"
-                , Attr.rel "noopener noreferrer"
-                ]
-                [ Icon.github Color.darkIconColor 16 ]
-            ]
         , Html.div
             [ Attr.css
                 [ ColorStyle.textSecondaryColor
@@ -62,6 +54,16 @@ view props =
                 ]
             ]
             [ Html.text Env.appVersion ]
+        , Html.iframe
+            [ Attr.src "https://ghbtns.com/github-btn.html?user=harehare&repo=textusm&type=star&count=true"
+            , Attr.attribute "frameborder" "0"
+            , Attr.attribute "scrolling" "0"
+            , Attr.width 90
+            , Attr.height 20
+            , Attr.title "GitHub"
+            , Attr.css [ Css.marginLeft <| Css.px 8 ]
+            ]
+            []
         ]
 
 
