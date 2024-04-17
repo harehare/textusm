@@ -51,7 +51,7 @@
     "terser": "^5.30.3",
     "typescript": "^5.4.5",
     "vite": "^5.2.9",
-    "vite-plugin-elm": "^3.0.0",
+    "vite-plugin-elm": "^3.0.1",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-pwa": "^0.19.8",
     "xo": "^0.58.0"
