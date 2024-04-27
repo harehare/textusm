@@ -73,7 +73,9 @@ jobs:
         working-directory: frontend
         run: npm run test
       - name: Run E2E Tests
-        run: npm run test:e2e:run
+        run:
+          - npm run test:e2e:init
+          - npm run test:e2e
         working-directory: frontend
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
