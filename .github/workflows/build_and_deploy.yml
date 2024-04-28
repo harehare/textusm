@@ -81,6 +81,7 @@ jobs:
         with:
           name: dist
           path: frontend/dist
+          retention-days: 3
 
   deploy-frontend:
     name: deploy-frontend

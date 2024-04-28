@@ -10,6 +10,7 @@ module Types.Text exposing
     , isChanged
     , isEmpty
     , lines
+    , map
     , saved
     , toString
     )
@@ -23,6 +24,11 @@ type Text
     = Empty
     | Changed String
     | Saved String
+
+
+map : (String -> String) -> Text -> Text
+map f text_ =
+    text_ |> toString |> f |> fromString
 
 
 change : Text -> Text

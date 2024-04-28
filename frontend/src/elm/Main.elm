@@ -84,6 +84,7 @@ import Types.SplitDirection as SplitDirection
 import Types.Text as Text
 import Types.Theme as Theme
 import Types.Title as Title
+import Types.UrlEncodedText as UrlEncodedText
 import Types.Window as Window exposing (Window)
 import Url
 import Utils.Common as Utils
@@ -262,6 +263,18 @@ changeRouteTo route =
                                 >> Effect.changeRouteInit M.Init
                     )
                 |> Maybe.withDefault (switchPage Page.NotFound)
+
+        Route.Preview type_ text_ ->
+            loadDiagram
+                (DiagramItem.new type_
+                    |> DiagramItem.text.set
+                        (UrlEncodedText.toText text_
+                            |> Text.map (\t -> "# zoom_control: false\n# toolbar: false\n" ++ t)
+                        )
+                )
+                >> fullscreen
+                >> switchPage Page.Main
+                >> Effect.changeRouteInit M.Init
 
         Route.NotFound ->
             switchPage Page.NotFound
@@ -589,6 +602,11 @@ setDiagramSettings settings =
 setDiagramSettingsCache : DiagramSettings.Settings -> Return.ReturnF Msg Model
 setDiagramSettingsCache settings =
     Return.map <| \m -> { m | settingsCache = SettingsCache.set m.settingsCache m.currentDiagram.diagram settings }
+
+
+fullscreen : Return.ReturnF Msg Model
+fullscreen =
+    Return.map <| \m -> { m | window = m.window |> Window.fullscreen }
 
 
 updateWindowState : Return.ReturnF Msg Model
