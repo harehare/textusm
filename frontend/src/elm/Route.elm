@@ -5,6 +5,7 @@ import Browser.Navigation as Nav
 import Diagram.Types.Id as DiagramId exposing (DiagramId)
 import Diagram.Types.Type as DiagramType exposing (DiagramType)
 import Types.ShareToken as ShareToken exposing (ShareToken)
+import Types.UrlEncodedText as UrlEncodedText exposing (UrlEncodedText)
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, parse, s, string)
@@ -20,19 +21,20 @@ type alias IsRemote =
 
 
 type Route
-    = Home
-    | New
+    = DiagramList
     | Edit DiagramType CopyDiagramId IsRemote
     | EditFile DiagramType DiagramId
     | EditLocalFile DiagramType DiagramId
-    | ViewPublic DiagramType DiagramId
-    | DiagramList
-    | Settings DiagramType
-    | Help
-    | Share
     | Embed DiagramType Title ShareToken (Maybe Int) (Maybe Int)
-    | ViewFile DiagramType ShareToken
+    | Help
+    | Home
+    | New
     | NotFound
+    | Preview DiagramType UrlEncodedText
+    | Settings DiagramType
+    | Share
+    | ViewFile DiagramType ShareToken
+    | ViewPublic DiagramType DiagramId
 
 
 type alias Title =
@@ -121,6 +123,9 @@ toString route =
         NotFound ->
             absolute [ "notfound" ] []
 
+        Preview type_ text_ ->
+            absolute [ "preview", DiagramType.toString type_, UrlEncodedText.toString text_ ] []
+
 
 diagramId : Parser (DiagramId -> a) a
 diagramId =
@@ -140,6 +145,13 @@ diagramType =
             DiagramType.toDiagram segment
 
 
+urlEncodedText : Parser (UrlEncodedText -> a) a
+urlEncodedText =
+    custom "URL_ENCODED_TEXT" <|
+        \segment ->
+            UrlEncodedText.fromString segment
+
+
 parser : Parser (Route -> a) a
 parser =
     oneOf
@@ -155,6 +167,7 @@ parser =
         , map EditLocalFile (s "edit" </> diagramType </> s "local" </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)
         , map ViewPublic (s "public" </> diagramType </> diagramId)
+        , map Preview (s "preview" </> diagramType </> urlEncodedText)
         ]
 
 

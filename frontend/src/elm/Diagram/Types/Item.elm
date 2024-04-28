@@ -152,17 +152,7 @@ mapToDateTime =
 
 empty : DiagramItem
 empty =
-    { id = Nothing
-    , text = Text.empty
-    , diagram = DiagramType.UserStoryMap
-    , title = Title.untitled
-    , thumbnail = Nothing
-    , isPublic = False
-    , isBookmark = False
-    , location = Nothing
-    , createdAt = Time.millisToPosix 0
-    , updatedAt = Time.millisToPosix 0
-    }
+    new DiagramType.UserStoryMap
 
 
 new : DiagramType -> DiagramItem

@@ -1,19 +1,27 @@
 import { test, expect } from '@playwright/test';
 
+test('Create new diagram', async ({ page }) => {
+  await page.goto('http://localhost:3000');
+
+  await page.locator('[data-test-id="new-menu"]').click();
+  await page.locator('[data-test-id="new-usm"]').click();
+
+  await expect(await page.locator('monaco-editor').getAttribute('value')).toContain(
+    `# user_activities: USER ACTIVITIES`
+  );
+});
+
 test('Save the diagram to local and load it', async ({ page }) => {
   await page.goto('http://localhost:3000');
 
   await page.locator('[data-test-id="header-title"]').click();
   await page.locator('[data-test-id="header-input-title"]').fill('test');
+  await page.locator('[data-test-id="header-input-title"]').press('Enter');
 
-  const monacoEditor = await page.locator('#editor');
-  await monacoEditor.click();
-  await page.keyboard.press('Meta+KeyA');
-  await page.keyboard.type('test1\n');
-  await page.keyboard.type('    test2\n');
-  await page.keyboard.type('test3');
+  const monacoEditor = await page.$('monaco-editor');
+  await monacoEditor?.evaluate((node) => node.setAttribute('value', 'test1\n    test2\n    test3'));
+  await page.waitForTimeout(500);
 
-  await page.keyboard.press('Enter');
   await page.locator('[data-test-id="save-menu"]').click();
   await page.locator('[data-test-id="list-menu"]').click();
   await page.locator('[data-test-id="diagram-list-item"]').first().click();
