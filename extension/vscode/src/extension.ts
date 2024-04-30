@@ -278,6 +278,11 @@ class DiagramPanel {
       path.join(context.extensionPath, "images", "icon.png")
     );
 
+    if (editor) {
+      editor.options.tabSize = 4;
+      editor.options.insertSpaces = true;
+    }
+
     // @ts-expect-error
     const onReceiveMessage = async (message) => {
       if (message.command === "setText") {
