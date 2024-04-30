@@ -52,7 +52,7 @@
     "vite": "^5.2.10",
     "vite-plugin-elm": "^3.0.1",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-pwa": "^0.19.8",
+    "vite-plugin-pwa": "^0.20.0",
     "xo": "^0.58.0"
   },
   "homepage": "https://github.com/harehare/textusm",
