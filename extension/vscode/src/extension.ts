@@ -116,7 +116,7 @@ export function activate(context: vscode.ExtensionContext) {
       language: ENABLED_LANG_DIAGRAM_TYPE[diagramType],
       content: text,
     });
-    const editor = await vscode.window.showTextDocument(doc, -1, true);
+    const editor = await vscode.window.showTextDocument(doc, -1);
     await setText(editor, text);
     setTimeout(() => DiagramPanel.createOrShow(context, diagramType), 300);
   };
@@ -281,6 +281,7 @@ class DiagramPanel {
     if (editor) {
       editor.options.tabSize = 4;
       editor.options.insertSpaces = true;
+      editor;
     }
 
     // @ts-expect-error

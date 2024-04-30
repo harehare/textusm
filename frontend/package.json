@@ -45,7 +45,6 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "size-limit": "^11.0.2",
-    "start-server-and-test": "^2.0.3",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^36.0.0",
     "terser": "^5.31.0",
