@@ -197,7 +197,6 @@ textNodeInput { settings, pos, size, item, onEditSelectedItem, onEndEditSelected
             [ Html.input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
-                , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
                 , css

@@ -226,7 +226,6 @@ inputBase { settings, fontSize, position, size, color, item, fontWeight, onEditS
         [ Html.input
             [ Attr.id "edit-item"
             , Attr.type_ "text"
-            , Attr.autofocus True
             , Attr.autocomplete False
             , css
                 [ padding4 (px 8) (px 8) (px 8) zero

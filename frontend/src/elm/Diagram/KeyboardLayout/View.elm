@@ -267,7 +267,6 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                                 [ Html.input
                                     [ Attr.id "edit-item"
                                     , Attr.type_ "text"
-                                    , Attr.autofocus True
                                     , Attr.autocomplete False
                                     , css
                                         [ Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) Css.zero

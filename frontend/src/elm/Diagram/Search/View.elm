@@ -4,7 +4,7 @@ import Css
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (autofocus, css, id, placeholder, value)
+import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events as Events
 import Style.Color as ColorStyle
 import Style.Style as Style
@@ -36,7 +36,6 @@ view { query, searchMsg, count, closeMsg } =
             , Events.onInput searchMsg
             , placeholder "Search"
             , value query
-            , autofocus True
             ]
             []
         , Html.div
