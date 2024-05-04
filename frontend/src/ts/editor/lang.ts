@@ -109,6 +109,7 @@ export const registerLang = () => {
     ['UserStoryMap', tokenizerForMap],
     ['UserPersona', tokenizerForMap],
     ['MindMap', tokenizerForMap],
+    ['ImpactMap', tokenizerForMap],
     ['EmpathyMap', tokenizerForMap],
     ['ErDiagram', tokenizerForMap],
     ['Kanban', tokenizerForMap],
