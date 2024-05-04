@@ -182,6 +182,7 @@ class MonacoEditor extends HTMLElement {
   set diagramType(value: DiagramType) {
     const model = this.editor?.getModel();
     if (model) {
+      console.log(value);
       monaco.editor.setModelLanguage(model, value);
     }
   }

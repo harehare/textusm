@@ -319,15 +319,6 @@ const writeResult = (output: string | null, result: string): void => {
         }
       );
 
-      if (
-        optimizedSvg.error !== undefined &&
-        optimizedSvg.modernError !== undefined
-      ) {
-        console.error("Failed to optimize svg");
-        return;
-      }
-
-      // @ts-ignore
       writeResult(output, optimizedSvg.data.split("&quot;").join("'"));
     } else if (output.endsWith(".png")) {
       const clip = await page.$eval("#usm", (svg) => {

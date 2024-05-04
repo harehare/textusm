@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import type { Settings } from '../model';
+import type { Settings, DiagramType } from '../model';
 import { isDarkMode } from '../utils';
 
 export const loadEditor = (settings: Settings) => {
@@ -52,12 +52,8 @@ export const loadEditor = (settings: Settings) => {
   });
 };
 
-const addUserStoryMap = () => {
-  monaco.languages.register({
-    id: 'UserStoryMap',
-  });
-
-  monaco.languages.setMonarchTokensProvider('UserStoryMap', {
+export const registerLang = () => {
+  const tokenizerForMap: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
         [/#[^.*#[^:]+:.+$/, 'property'],
@@ -71,32 +67,8 @@ const addUserStoryMap = () => {
         [/\|[^|]+/, 'hidden'],
       ],
     },
-  });
-};
-
-const addGanttChart = () => {
-  monaco.languages.register({
-    id: 'GanttChart',
-  });
-
-  monaco.languages.setMonarchTokensProvider('GanttChart', {
-    tokenizer: {
-      root: [
-        [/#[^#|]+/, 'comment'],
-        [/^ {8}[^#:|]+/, 'indent3'],
-        [/^ {4}[^#:|]+/, 'indent2'],
-        [/\d{4}-\d{2}-\d{2}.*/, 'attribute'],
-      ],
-    },
-  });
-};
-
-const addBusinessModelCanvas = () => {
-  monaco.languages.register({
-    id: 'BusinessModelCanvas',
-  });
-
-  monaco.languages.setMonarchTokensProvider('BusinessModelCanvas', {
+  };
+  const tokenizerForCanvas: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
         [/#[^.*#[^:]+:[^:]+$/, 'property'],
@@ -105,15 +77,18 @@ const addBusinessModelCanvas = () => {
         [/\|[^|]+/, 'hidden'],
       ],
     },
-  });
-};
-
-const addKeyboardLayout = () => {
-  monaco.languages.register({
-    id: 'KeyboardLayout',
-  });
-
-  monaco.languages.setMonarchTokensProvider('KeyboardLayout', {
+  };
+  const tokenizerForGantt: monaco.languages.IMonarchLanguage = {
+    tokenizer: {
+      root: [
+        [/#[^#|]+/, 'comment'],
+        [/^ {8}[^#:|]+/, 'indent3'],
+        [/^ {4}[^#:|]+/, 'indent2'],
+        [/\d{4}-\d{2}-\d{2}.*/, 'attribute'],
+      ],
+    },
+  };
+  const tokenizerForKeyboardLayout: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
         [/#[^.*#[^:]+:.+$/, 'property'],
@@ -123,12 +98,32 @@ const addKeyboardLayout = () => {
         [/\|[^|]+/, 'hidden'],
       ],
     },
-  });
-};
+  };
 
-export const registerLang = () => {
-  addUserStoryMap();
-  addGanttChart();
-  addBusinessModelCanvas();
-  addKeyboardLayout();
+  const map: ReadonlyArray<[DiagramType, monaco.languages.IMonarchLanguage]> = [
+    ['BusinessModelCanvas', tokenizerForCanvas],
+    ['OpportunityCanvas', tokenizerForCanvas],
+    ['Fourls', tokenizerForCanvas],
+    ['StartStopContinue', tokenizerForCanvas],
+    ['Kpt', tokenizerForCanvas],
+    ['UserStoryMap', tokenizerForMap],
+    ['UserPersona', tokenizerForMap],
+    ['MindMap', tokenizerForMap],
+    ['EmpathyMap', tokenizerForMap],
+    ['ErDiagram', tokenizerForMap],
+    ['Kanban', tokenizerForMap],
+    ['UseCaseDiagram', tokenizerForMap],
+    ['SequenceDiagram', tokenizerForMap],
+    ['Freeform', tokenizerForMap],
+    ['GanttChart', tokenizerForGantt],
+    ['KeyboardLayout', tokenizerForKeyboardLayout],
+  ];
+
+  for (const [type, tokenizer] of map) {
+    monaco.languages.register({
+      id: type,
+    });
+
+    monaco.languages.setMonarchTokensProvider(type, tokenizer);
+  }
 };

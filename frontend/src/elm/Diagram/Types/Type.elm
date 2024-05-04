@@ -82,13 +82,13 @@ defaultText diagram =
             "[Customer]\n    Sign In\n    Buy Products\n(Buy Products)\n    >Browse Products\n    >Checkout\n(Checkout)\n    <Add New Credit Card\n[Staff]\n    Processs Order\n"
 
         MindMap ->
-            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+            "USER ACTIVITY\n    USER TASK\n    USER STORY"
 
         ImpactMap ->
-            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+            "USER ACTIVITY\n    USER TASK\n    USER STORY"
 
         SiteMap ->
-            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+            "USER ACTIVITY\n    USER TASK\n    USER STORY"
 
         Freeform ->
             ""

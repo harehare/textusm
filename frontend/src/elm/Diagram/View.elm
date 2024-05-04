@@ -727,6 +727,10 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
         , case ( model.selectedItem, model.contextMenu ) of
             ( Just item_, Just { contextMenu, position, displayAllMenu } ) ->
                 let
+                    pos : Position
+                    pos =
+                        Item.getPosition item_ <| Position.concat position centerPosition
+
                     contextMenuPosition : ( Int, Int )
                     contextMenuPosition =
                         if Item.isVerticalLine item_ then
@@ -751,10 +755,6 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
 
                     ( _, h ) =
                         Item.getSize item_ ( CardSize.toInt model.settings.size.width, CardSize.toInt model.settings.size.height )
-
-                    pos : Position
-                    pos =
-                        Item.getPosition item_ <| Position.concat position centerPosition
                 in
                 (if displayAllMenu then
                     ContextMenu.viewAllMenu
