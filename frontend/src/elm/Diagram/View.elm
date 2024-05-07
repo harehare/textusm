@@ -23,7 +23,7 @@ import Diagram.SiteMap.Types as SiteMap
 import Diagram.SiteMap.View as SiteMap
 import Diagram.StartStopContinue.View as StartStopContinue
 import Diagram.Table.View as Table
-import Diagram.Types as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
+import Diagram.Types as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, diagramType, dragStart)
 import Diagram.Types.BackgroundImage as BackgroundImage
 import Diagram.Types.CardSize as CardSize
 import Diagram.Types.Data as DiagramData
@@ -731,6 +731,9 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                     pos =
                         Item.getPosition item_ <| Position.concat position centerPosition
 
+                    ( _, h ) =
+                        Item.getSize item_ ( CardSize.toInt model.settings.size.width, CardSize.toInt model.settings.size.height )
+
                     contextMenuPosition : ( Int, Int )
                     contextMenuPosition =
                         if Item.isVerticalLine item_ then
@@ -752,9 +755,6 @@ svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
                             ( floor <| toFloat (Position.getX pos) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             , floor <| toFloat (Position.getY pos + h) * Scale.toFloat (model.settings.scale |> Maybe.withDefault Scale.default)
                             )
-
-                    ( _, h ) =
-                        Item.getSize item_ ( CardSize.toInt model.settings.size.width, CardSize.toInt model.settings.size.height )
                 in
                 (if displayAllMenu then
                     ContextMenu.viewAllMenu
