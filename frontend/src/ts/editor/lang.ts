@@ -65,6 +65,7 @@ export const registerLang = () => {
         [/^ {8}[^#:|]+/, 'indent3'],
         [/^ {4}[^#:|]+/, 'indent2'],
         [/\|[^|]+/, 'hidden'],
+        [/: \|[^|]+/, 'hidden'],
       ],
     },
   };
@@ -75,6 +76,7 @@ export const registerLang = () => {
         [/#[^#|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/\|[^|]+/, 'hidden'],
+        [/: \|[^|]+/, 'hidden'],
       ],
     },
   };
@@ -96,6 +98,7 @@ export const registerLang = () => {
         [/^[^ ][^#:|]+/, 'indent1'],
         [/^ {4}[^#:|]+/, 'indent3'],
         [/\|[^|]+/, 'hidden'],
+        [/: \|[^|]+/, 'hidden'],
       ],
     },
   };
