@@ -1,5 +1,5 @@
 module Types.Item.Value exposing
-    ( Value
+    ( Value(..)
     , empty
     , fromString
     , getIndent
@@ -16,6 +16,7 @@ module Types.Item.Value exposing
 import Constants
 import DataUrl exposing (DataUrl)
 import List.Extra as ListEx
+import Types.Item.Constants as ItemConstants
 import Types.Text as Text exposing (Text)
 import Url exposing (Url)
 
@@ -28,26 +29,6 @@ type Value
     | Comment Int Text
 
 
-markdownPrefix : String
-markdownPrefix =
-    "md:"
-
-
-imagePrefix : String
-imagePrefix =
-    "image:"
-
-
-imageDataPrefix : String
-imageDataPrefix =
-    "data:image/"
-
-
-commentPrefix : String
-commentPrefix =
-    "#"
-
-
 hasPrefix : String -> String -> Bool
 hasPrefix text p =
     text |> String.trim |> String.toLower |> String.startsWith p
@@ -55,22 +36,22 @@ hasPrefix text p =
 
 hasImagePrefix : String -> Bool
 hasImagePrefix text =
-    hasPrefix text imagePrefix
+    hasPrefix text ItemConstants.imagePrefix
 
 
 hasImageDataPrefix : String -> Bool
 hasImageDataPrefix text =
-    hasPrefix text imageDataPrefix
+    hasPrefix text ItemConstants.imageDataPrefix
 
 
 hasMarkdownPrefix : String -> Bool
 hasMarkdownPrefix text =
-    hasPrefix text markdownPrefix
+    hasPrefix text ItemConstants.markdownPrefix
 
 
 hasCommentPrefix : String -> Bool
 hasCommentPrefix text =
-    hasPrefix text commentPrefix
+    hasPrefix text ItemConstants.commentPrefix
 
 
 isImage : Value -> Bool
@@ -174,13 +155,13 @@ fromString text =
             (getSpacePrefix text |> String.length) // Constants.indentSpace
     in
     if hasMarkdownPrefix text then
-        Markdown indent <| Text.fromString <| String.replace "\n" "\\n" <| dropPrefix markdownPrefix <| String.trim text
+        Markdown indent <| Text.fromString <| String.replace "\n" "\\n" <| dropPrefix ItemConstants.markdownPrefix <| String.trim text
 
     else if hasImagePrefix text then
         let
             url : String
             url =
-                String.trim <| dropPrefix imagePrefix <| String.trim text
+                String.trim <| dropPrefix ItemConstants.imagePrefix <| String.trim text
         in
         case Url.fromString url of
             Just u ->
@@ -193,7 +174,7 @@ fromString text =
         let
             url : String
             url =
-                String.trim <| dropPrefix imageDataPrefix <| String.trim text
+                String.trim <| dropPrefix ItemConstants.imageDataPrefix <| String.trim text
         in
         case DataUrl.fromString url of
             Just u ->
@@ -203,7 +184,7 @@ fromString text =
                 PlainText indent <| Text.fromString <| String.trim text
 
     else if hasCommentPrefix text then
-        Comment indent <| Text.fromString <| dropPrefix commentPrefix <| String.trim text
+        Comment indent <| Text.fromString <| dropPrefix ItemConstants.commentPrefix <| String.trim text
 
     else
         PlainText indent <| Text.fromString <| String.trim text
@@ -213,16 +194,16 @@ toFullString : Value -> String
 toFullString value =
     case value of
         Markdown indent text ->
-            space indent ++ markdownPrefix ++ Text.toString text
+            space indent ++ ItemConstants.markdownPrefix ++ Text.toString text
 
         Image indent text ->
-            space indent ++ imagePrefix ++ Url.toString text
+            space indent ++ ItemConstants.imagePrefix ++ Url.toString text
 
         ImageData indent text ->
-            space indent ++ imageDataPrefix ++ DataUrl.toString text
+            space indent ++ ItemConstants.imageDataPrefix ++ DataUrl.toString text
 
         Comment indent text ->
-            space indent ++ commentPrefix ++ Text.toString text
+            space indent ++ ItemConstants.commentPrefix ++ Text.toString text
 
         PlainText indent text ->
             space indent ++ Text.toString text
@@ -232,16 +213,16 @@ toTrimedString : Value -> String
 toTrimedString value =
     case value of
         Markdown _ text ->
-            markdownPrefix ++ Text.toString text
+            ItemConstants.markdownPrefix ++ Text.toString text
 
         Image _ text ->
-            imagePrefix ++ Url.toString text
+            ItemConstants.imagePrefix ++ Url.toString text
 
         ImageData _ text ->
-            imageDataPrefix ++ DataUrl.toString text
+            ItemConstants.imageDataPrefix ++ DataUrl.toString text
 
         Comment _ text ->
-            commentPrefix ++ Text.toString text
+            ItemConstants.commentPrefix ++ Text.toString text
 
         PlainText _ text ->
             Text.toString text
