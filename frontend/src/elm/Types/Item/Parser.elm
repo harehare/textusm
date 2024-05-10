@@ -53,9 +53,9 @@ parse =
         |. end
 
 
-indent : Parser Int
+indent : Parser ( Int, Int )
 indent =
-    succeed (\indent_ -> indent_ // Constants.indentSpace)
+    succeed (\indent_ -> ( indent_ // Constants.indentSpace, modBy Constants.indentSpace (indent_ - 1) ))
         |. spaces
         |= getCol
 
@@ -73,7 +73,7 @@ item =
 
 markdown : Parser Value
 markdown =
-    succeed (\indent_ text -> Markdown indent_ (Text.fromString text))
+    succeed (\( indent_, spaces_ ) text -> Markdown indent_ (Text.fromString (String.repeat spaces_ " " ++ text)))
         |. spaces
         |= indent
         |. symbol ItemConstants.markdownPrefix
@@ -83,13 +83,13 @@ markdown =
 image : Parser Value
 image =
     succeed
-        (\indent_ text ->
+        (\( indent_, spaces_ ) text ->
             case Url.fromString text of
                 Just u ->
                     Image indent_ u
 
                 Nothing ->
-                    PlainText indent_ <| Text.fromString text
+                    PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)
         )
         |. spaces
         |= indent
@@ -100,8 +100,8 @@ image =
 commentLine : Parser Value
 commentLine =
     succeed
-        (\indent_ text ->
-            Comment indent_ (Text.fromString text)
+        (\( indent_, spaces_ ) text ->
+            Comment indent_ (Text.fromString (String.repeat spaces_ " " ++ text))
         )
         |. spaces
         |= indent
@@ -111,13 +111,13 @@ commentLine =
 imageData : Parser Value
 imageData =
     succeed
-        (\indent_ text ->
+        (\( indent_, spaces_ ) text ->
             case DataUrl.fromString (ItemConstants.imageDataPrefix ++ text) of
                 Just u ->
                     ImageData indent_ <| u
 
                 Nothing ->
-                    PlainText indent_ <| Text.fromString text
+                    PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)
         )
         |. spaces
         |= indent
@@ -128,8 +128,8 @@ imageData =
 plainText : Parser Value
 plainText =
     succeed
-        (\indent_ text ->
-            PlainText indent_ (Text.fromString text)
+        (\( indent_, spaces_ ) text ->
+            PlainText indent_ (Text.fromString (String.repeat spaces_ " " ++ text))
         )
         |. spaces
         |= indent
