@@ -7,6 +7,7 @@ import Parser
         ( (|.)
         , (|=)
         , Parser
+        , backtrackable
         , chompUntilEndOr
         , end
         , getChompedString
@@ -17,6 +18,7 @@ import Parser
         , succeed
         , symbol
         )
+import Types.Item as Item
 import Types.Item.Constants as ItemConstants
 import Types.Item.Settings as Settings exposing (Settings)
 import Types.Item.Value exposing (Value(..))
@@ -32,14 +34,20 @@ type Parsed
     = Parsed Value Comment (Maybe Settings)
 
 
-parse : Parser Parsed
+parse : Parser Item.Item
 parse =
-    succeed Parsed
+    succeed
+        (\value comment_ settings_ ->
+            Item.new
+                |> Item.withValue value
+                |> Item.withComments comment_
+                |> Item.withSettings settings_
+        )
         |= oneOf
-            [ markdown
-            , image
-            , imageData
-            , commentLine
+            [ backtrackable markdown
+            , backtrackable image
+            , backtrackable imageData
+            , backtrackable commentLine
             , plainText
             ]
         |= oneOf
@@ -84,7 +92,7 @@ image : Parser Value
 image =
     succeed
         (\( indent_, spaces_ ) text ->
-            case Url.fromString text of
+            case text |> String.trim |> Url.fromString of
                 Just u ->
                     Image indent_ u
 
@@ -112,7 +120,7 @@ imageData : Parser Value
 imageData =
     succeed
         (\( indent_, spaces_ ) text ->
-            case DataUrl.fromString (ItemConstants.imageDataPrefix ++ text) of
+            case DataUrl.fromString (ItemConstants.imageDataPrefix ++ text |> String.trim) of
                 Just u ->
                     ImageData indent_ <| u
 

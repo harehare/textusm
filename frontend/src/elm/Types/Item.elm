@@ -67,6 +67,7 @@ module Types.Item exposing
     , withSettings
     , withText
     , withTextOnly
+    , withValue
     )
 
 import Constants exposing (indentSpace, inputPrefix)
@@ -601,6 +602,11 @@ withText text (Item item) =
                     ( text_, Nothing, comments_ )
     in
     Item { item | value = ItemValue.fromString displayText, comments = comments, settings = settings }
+
+
+withValue : ItemValue.Value -> Item -> Item
+withValue value (Item item) =
+    Item { item | value = value }
 
 
 withTextOnly : String -> Item -> Item
