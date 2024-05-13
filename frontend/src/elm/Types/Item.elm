@@ -73,9 +73,11 @@ module Types.Item exposing
 import Constants exposing (indentSpace, inputPrefix)
 import List.Extra as ListEx
 import Maybe
+import Parser
 import Simple.Fuzzy as Fuzzy
 import Types.Color exposing (Color)
 import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item.Parser as ItemParser
 import Types.Item.Settings as ItemSettings
 import Types.Item.Value as ItemValue
 import Types.Position exposing (Position)
@@ -516,19 +518,24 @@ withChildren children (Item item) =
 
 withComments : Maybe String -> Item -> Item
 withComments comments (Item item) =
-    Item
-        { item
-            | comments =
-                comments
-                    |> Maybe.andThen
-                        (\c ->
-                            if c |> String.trim |> String.isEmpty then
-                                Nothing
+    case item.value of
+        ItemValue.Comment _ _ ->
+            Item { item | comments = Nothing }
 
-                            else
-                                Just c
-                        )
-        }
+        _ ->
+            Item
+                { item
+                    | comments =
+                        comments
+                            |> Maybe.andThen
+                                (\c ->
+                                    if c |> String.trim |> String.isEmpty then
+                                        Nothing
+
+                                    else
+                                        Just c
+                                )
+                }
 
 
 withHighlight : Bool -> Item -> Item
@@ -538,7 +545,12 @@ withHighlight h (Item item) =
 
 withSettings : Maybe ItemSettings.Settings -> Item -> Item
 withSettings itemSettings (Item item) =
-    Item { item | settings = itemSettings }
+    case item.value of
+        ItemValue.Comment _ _ ->
+            Item { item | settings = Nothing }
+
+        _ ->
+            Item { item | settings = itemSettings }
 
 
 withLineNo : Int -> Item -> Item
@@ -558,50 +570,12 @@ withOffsetSize newSize item =
 
 withText : String -> Item -> Item
 withText text (Item item) =
-    let
-        ( displayText, settings, comments ) =
-            let
-                ( sep, tokens ) =
-                    splitText text
-                        |> Tuple.mapSecond (List.map String.toList)
-
-                tuple : ( String, Maybe String )
-                tuple =
-                    case tokens of
-                        [ x, '{' :: xs ] ->
-                            ( String.fromList x, Just <| String.fromList <| '{' :: xs )
-
-                        _ :: _ :: _ ->
-                            ( List.take (List.length tokens - 1) tokens
-                                |> List.map String.fromList
-                                |> String.join sep
-                            , ListEx.last tokens |> Maybe.map String.fromList
-                            )
-
-                        _ ->
-                            ( text, Nothing )
-            in
-            case tuple of
-                ( t, Just s ) ->
-                    let
-                        ( text_, comments_ ) =
-                            splitLine t
-                    in
-                    case ItemSettings.fromString s of
-                        Just settings_ ->
-                            ( text_, Just settings_, comments_ )
-
-                        Nothing ->
-                            ( text_ ++ sep ++ s, Nothing, comments_ )
-
-                ( _, Nothing ) ->
-                    let
-                        ( text_, comments_ ) =
-                            splitLine text
-                    in
-                    ( text_, Nothing, comments_ )
-    in
-    Item { item | value = ItemValue.fromString displayText, comments = comments, settings = settings }
+    Parser.run ItemParser.parse text
+        |> Result.map
+            (\(ItemParser.Parsed value_ comment_ settings_) ->
+                Item { item | value = value_, comments = comment_, settings = settings_ }
+            )
+        |> Result.withDefault (Item { item | value = ItemValue.fromString text, comments = Nothing, settings = Nothing })
 
 
 withValue : ItemValue.Value -> Item -> Item

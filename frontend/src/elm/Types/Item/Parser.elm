@@ -8,7 +8,9 @@ import Parser
         , (|=)
         , Parser
         , backtrackable
+        , chompUntil
         , chompUntilEndOr
+        , chompWhile
         , end
         , getChompedString
         , getCol
@@ -18,7 +20,6 @@ import Parser
         , succeed
         , symbol
         )
-import Types.Item as Item
 import Types.Item.Constants as ItemConstants
 import Types.Item.Settings as Settings exposing (Settings)
 import Types.Item.Value exposing (Value(..))
@@ -34,25 +35,50 @@ type Parsed
     = Parsed Value Comment (Maybe Settings)
 
 
-parse : Parser Item.Item
+parse : Parser Parsed
 parse =
-    succeed
-        (\value comment_ settings_ ->
-            Item.new
-                |> Item.withValue value
-                |> Item.withComments comment_
-                |> Item.withSettings settings_
-        )
-        |= oneOf
-            [ backtrackable markdown
-            , backtrackable image
-            , backtrackable imageData
-            , backtrackable commentLine
-            , plainText
+    oneOf
+        [ backtrackable image
+        , backtrackable imageData
+        , backtrackable commentLine
+        , backtrackable markdown
+        , plainText
+        ]
+
+
+indent : Parser ( Int, Int )
+indent =
+    succeed (\indent_ -> ( max 0 (indent_ - 1) // Constants.indentSpace, modBy Constants.indentSpace (indent_ - 1) ))
+        |. spaces
+        |= getCol
+
+
+item : Parser String
+item =
+    (succeed identity
+        |. oneOf
+            [ backtrackable <| chompWhile (\c -> c /= '#' && c /= '|' && c /= ':')
+            , backtrackable <| chompUntil ItemConstants.settingsPrefix
+            , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+            , backtrackable <| chompUntilEndOr "\n"
             ]
+    )
+        |> getChompedString
+
+
+markdown : Parser Parsed
+markdown =
+    succeed
+        (\( indent_, spaces_ ) text comment_ settings_ ->
+            Parsed (Markdown indent_ (Text.fromString (String.repeat spaces_ " " ++ text))) comment_ settings_
+        )
+        |. spaces
+        |= indent
+        |. symbol ItemConstants.markdownPrefix
+        |= item
         |= oneOf
             [ map Just comment
-            , map (\_ -> Nothing) spaces
+            , map (\_ -> Nothing) Parser.spaces
             ]
         |= oneOf
             [ settings
@@ -61,87 +87,89 @@ parse =
         |. end
 
 
-indent : Parser ( Int, Int )
-indent =
-    succeed (\indent_ -> ( indent_ // Constants.indentSpace, modBy Constants.indentSpace (indent_ - 1) ))
-        |. spaces
-        |= getCol
-
-
-item : Parser String
-item =
-    succeed identity
-        |. oneOf
-            [ chompUntilEndOr ItemConstants.commentPrefix
-            , chompUntilEndOr ItemConstants.settingsPrefix
-            , chompUntilEndOr ItemConstants.legacySettingsPrefix
-            ]
-        |> getChompedString
-
-
-markdown : Parser Value
-markdown =
-    succeed (\( indent_, spaces_ ) text -> Markdown indent_ (Text.fromString (String.repeat spaces_ " " ++ text)))
-        |. spaces
-        |= indent
-        |. symbol ItemConstants.markdownPrefix
-        |= item
-
-
-image : Parser Value
+image : Parser Parsed
 image =
     succeed
-        (\( indent_, spaces_ ) text ->
+        (\( indent_, spaces_ ) text settings_ ->
             case text |> String.trim |> Url.fromString of
                 Just u ->
-                    Image indent_ u
+                    Parsed (Image indent_ u) Nothing settings_
 
                 Nothing ->
-                    PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)
+                    Parsed (PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)) Nothing settings_
         )
         |. spaces
         |= indent
         |. symbol ItemConstants.imagePrefix
-        |= item
+        |= getChompedString
+            (oneOf
+                [ backtrackable <| chompUntil ItemConstants.settingsPrefix
+                , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+                , backtrackable <| chompUntilEndOr "\n"
+                ]
+            )
+        |= oneOf
+            [ settings
+            , map (\_ -> Nothing) spaces
+            ]
 
 
-commentLine : Parser Value
+commentLine : Parser Parsed
 commentLine =
     succeed
-        (\( indent_, spaces_ ) text ->
-            Comment indent_ (Text.fromString (String.repeat spaces_ " " ++ text))
+        (\( indent_, _ ) text ->
+            Parsed (Comment indent_ (Text.fromString text)) Nothing Nothing
         )
         |. spaces
         |= indent
         |= comment
 
 
-imageData : Parser Value
+imageData : Parser Parsed
 imageData =
     succeed
-        (\( indent_, spaces_ ) text ->
+        (\( indent_, spaces_ ) text settings_ ->
             case DataUrl.fromString (ItemConstants.imageDataPrefix ++ text |> String.trim) of
                 Just u ->
-                    ImageData indent_ <| u
+                    Parsed (ImageData indent_ <| u) Nothing settings_
 
                 Nothing ->
-                    PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)
+                    Parsed (PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)) Nothing settings_
         )
         |. spaces
         |= indent
         |. symbol ItemConstants.imageDataPrefix
-        |= item
+        |= getChompedString
+            (oneOf
+                [ backtrackable <| chompUntil ItemConstants.settingsPrefix
+                , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+                , backtrackable <| chompUntilEndOr "\n"
+                ]
+            )
+        |= oneOf
+            [ settings
+            , map (\_ -> Nothing) spaces
+            ]
 
 
-plainText : Parser Value
+plainText : Parser Parsed
 plainText =
     succeed
-        (\( indent_, spaces_ ) text ->
-            PlainText indent_ (Text.fromString (String.repeat spaces_ " " ++ text))
+        (\( indent_, spaces_ ) text comment_ settings_ ->
+            Parsed (PlainText indent_ (Text.fromString (String.repeat spaces_ " " ++ text))) comment_ settings_
         )
         |. spaces
         |= indent
         |= item
+        |= oneOf
+            [ map Just comment
+            , map (\_ -> Nothing) Parser.spaces
+            ]
+        |= oneOf
+            [ settings
+            , map (\_ -> Nothing) spaces
+            ]
+        |. end
 
 
 settings : Parser (Maybe Settings)
@@ -161,8 +189,9 @@ comment : Parser String
 comment =
     symbol ItemConstants.commentPrefix
         |. oneOf
-            [ chompUntilEndOr ItemConstants.settingsPrefix
-            , chompUntilEndOr ItemConstants.legacySettingsPrefix
+            [ backtrackable <| chompUntil ItemConstants.settingsPrefix
+            , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+            , backtrackable <| chompUntilEndOr "\n"
             ]
         |> getChompedString
         |> map (String.dropLeft 1)

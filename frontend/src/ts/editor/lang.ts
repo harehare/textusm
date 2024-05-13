@@ -56,24 +56,24 @@ export const registerLang = () => {
   const tokenizerForMap: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
-        [/#[^.*#[^:]+:.+$/, 'property'],
-        [/#[^#|]+/, 'comment'],
+        [/#[^#:|]+:[^#:|]+$/, 'property'],
+        [/(\|[^|]+)/, 'hidden'],
+        [/(: \|[^|]+)/, 'hidden'],
+        [/#[^#:|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/^ {20}[^#:|]+/, 'indent3'],
         [/^ {12}[^#:|]+/, 'indent1'],
         [/^ {16}[^#:|]+/, 'indent2'],
         [/^ {8}[^#:|]+/, 'indent3'],
         [/^ {4}[^#:|]+/, 'indent2'],
-        [/\|[^|]+/, 'hidden'],
-        [/: \|[^|]+/, 'hidden'],
       ],
     },
   };
   const tokenizerForCanvas: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
-        [/#[^.*#[^:]+:[^:]+$/, 'property'],
-        [/#[^#|]+/, 'comment'],
+        [/#[^#:|]+:[^#:|]+$/, 'property'],
+        [/#[^#:|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/\|[^|]+/, 'hidden'],
         [/: \|[^|]+/, 'hidden'],
@@ -83,7 +83,7 @@ export const registerLang = () => {
   const tokenizerForGantt: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
-        [/#[^#|]+/, 'comment'],
+        [/#[^#:|]+/, 'comment'],
         [/^ {8}[^#:|]+/, 'indent3'],
         [/^ {4}[^#:|]+/, 'indent2'],
         [/\d{4}-\d{2}-\d{2}.*/, 'attribute'],
@@ -93,8 +93,8 @@ export const registerLang = () => {
   const tokenizerForKeyboardLayout: monaco.languages.IMonarchLanguage = {
     tokenizer: {
       root: [
-        [/#[^.*#[^:]+:.+$/, 'property'],
-        [/#[^#|]+/, 'comment'],
+        [/#[^#:|]+:[^#:|]+$/, 'property'],
+        [/#[^#:|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/^ {4}[^#:|]+/, 'indent3'],
         [/\|[^|]+/, 'hidden'],

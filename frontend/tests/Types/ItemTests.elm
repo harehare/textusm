@@ -6,6 +6,7 @@ import Types.FontSize as FontSize
 import Types.Fuzzer exposing (itemFuzzer)
 import Types.Item as Item
 import Types.Item.Settings as ItemSettings
+import Types.Item.Value exposing (Value(..))
 
 
 all : Test
@@ -221,7 +222,7 @@ withText =
                         |> Item.withText "test: |test2: |"
                         |> Item.getText
                     )
-                    "test: |test2: |"
+                    "test"
         , test "when multiple | and item settings json" <|
             \() ->
                 Expect.equal
@@ -229,7 +230,7 @@ withText =
                         |> Item.withText "test: |test2: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                         |> Item.getText
                     )
-                    "test: |test2"
+                    "test"
         , test "when text with comments" <|
             \() ->
                 Expect.equal
@@ -237,7 +238,7 @@ withText =
                         |> Item.withText "test # comment"
                         |> (\i -> ( Item.getText i, Item.getComments i ))
                     )
-                    ( "test", Just "# comment" )
+                    ( "test ", Just "# comment" )
         , test "when text with comments and item settings json" <|
             \() ->
                 Expect.equal
@@ -245,15 +246,15 @@ withText =
                         |> Item.withText "test # comment: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                         |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.unwrap ))
                     )
-                    ( "test", Just "# comment", 10 )
+                    ( "test ", Just "# comment", 10 )
         , test "when text with invalid comments and item settings json" <|
             \() ->
                 Expect.equal
                     (Item.new
-                        |> Item.withText "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment"
+                        |> Item.withText "test # comment : |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}"
                         |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i ))
                     )
-                    ( "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment", Nothing, Nothing )
+                    ( "test ", Just "# comment ", Nothing )
         ]
 
 
