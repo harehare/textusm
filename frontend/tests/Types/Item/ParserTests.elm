@@ -5,6 +5,7 @@ import Expect
 import Parser
 import Test exposing (Test, describe, test)
 import Types.Color as Color
+import Types.FontSize as FontSize
 import Types.Fuzzer exposing (itemSettingsFuzzer)
 import Types.Item.Constants as ItemConstants
 import Types.Item.Parser as ItemParser exposing (Parsed(..))
@@ -17,7 +18,7 @@ import Url
 all : Test
 all =
     describe "parser test"
-        [ parse
+        [ parser
         , markdown
         , image
         , imageData
@@ -27,8 +28,8 @@ all =
         ]
 
 
-parse : Test
-parse =
+parser : Test
+parser =
     describe "parse test"
         ([ ( "text only", "test ", Parsed (PlainText 0 (Text.fromString "test ")) Nothing Nothing )
          , ( "text only 1 indent", "    test ", Parsed (PlainText 1 (Text.fromString "test ")) Nothing Nothing )
@@ -42,6 +43,12 @@ parse =
          , ( "text and comment", "test # comment", Parsed (PlainText 0 (Text.fromString "test ")) (Just " comment") Nothing )
          , ( "text and empty comment", "test # ", Parsed (PlainText 0 (Text.fromString "test ")) (Just " ") Nothing )
          , ( "text, comment and empty settings", "test # comment : |", Parsed (PlainText 0 (Text.fromString "test ")) (Just " comment ") Nothing )
+         , ( "colon, comment and empty settings"
+           , "\\: #test : |{\"font_size\":8}"
+           , Parsed (PlainText 0 (Text.fromString "\\: "))
+                (Just "test ")
+                (Just (ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 8)))
+           )
          , ( "text, comment and settings"
            , "test # comment : |{\"bg\":\"#8C9FAE\"}"
            , Parsed (PlainText 0 (Text.fromString "test "))
@@ -60,7 +67,7 @@ parse =
                     test title <|
                         \_ ->
                             Expect.equal
-                                (Parser.run ItemParser.parse data |> Result.withDefault (Parsed (PlainText 0 Text.empty) Nothing Nothing))
+                                (ItemParser.parse data |> Result.withDefault (Parsed (PlainText 0 Text.empty) Nothing Nothing))
                                 expect
                 )
         )

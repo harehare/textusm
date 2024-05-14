@@ -261,7 +261,7 @@ text props =
                   else
                     Color.transparent
                 )
-                (Item.getText props.item)
+                (Item.getDisplayText props.item)
             ]
 
     else if Item.isImage props.item then
@@ -307,7 +307,7 @@ text props =
             , size = props.size
             , foreColor = props.color
             , fontSize = props.fontSize
-            , text = Item.getText <| props.item
+            , text = Item.getDisplayText <| props.item
             , isHighlight = Item.isHighlight props.item
             }
 

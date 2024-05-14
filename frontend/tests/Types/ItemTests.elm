@@ -25,7 +25,6 @@ all =
         , getChildrenCount
         , getHierarchyCount
         , withText
-        , split
         , fuzzer
         , mapWithRecursive
         , getTextOnly
@@ -255,33 +254,6 @@ withText =
                         |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i ))
                     )
                     ( "test ", Just "# comment ", Nothing )
-        ]
-
-
-split : Test
-split =
-    describe
-        "split test"
-        [ test "when text only" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test")
-                    ( "test", ItemSettings.new, Nothing )
-        , test "when text and comments" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment")
-                    ( "test ", ItemSettings.new, Just "comment" )
-        , test "when text, comments and item settings" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
-                    ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
-        , test "when text, comments and legacy item settings" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
-                    ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
         ]
 
 

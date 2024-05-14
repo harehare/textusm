@@ -1,4 +1,14 @@
-module Types.Item.Parser exposing (Parsed(..), commentLine, image, imageData, markdown, parse, plainText, settings)
+module Types.Item.Parser exposing
+    ( Parsed(..)
+    , commentLine
+    , image
+    , imageData
+    , markdown
+    , parse
+    , parser
+    , plainText
+    , settings
+    )
 
 import Constants
 import DataUrl
@@ -6,6 +16,7 @@ import Parser
     exposing
         ( (|.)
         , (|=)
+        , DeadEnd
         , Parser
         , backtrackable
         , chompUntil
@@ -16,13 +27,14 @@ import Parser
         , getCol
         , map
         , oneOf
+        , run
         , spaces
         , succeed
         , symbol
         )
 import Types.Item.Constants as ItemConstants
 import Types.Item.Settings as Settings exposing (Settings)
-import Types.Item.Value exposing (Value(..))
+import Types.Item.Value as Value exposing (Value(..))
 import Types.Text as Text
 import Url
 
@@ -35,8 +47,36 @@ type Parsed
     = Parsed Value Comment (Maybe Settings)
 
 
-parse : Parser Parsed
-parse =
+colon : String
+colon =
+    "{colon}"
+
+
+parse : String -> Result (List DeadEnd) Parsed
+parse text =
+    text
+        |> String.replace "\\:" colon
+        |> String.replace (colon ++ " |") ItemConstants.settingsPrefix
+        |> run parser
+        |> Result.map
+            (\(Parsed value_ comment_ settings_) ->
+                Parsed
+                    (value_
+                        |> Value.map
+                            (\text_ ->
+                                text_
+                                    |> Text.toString
+                                    |> String.replace colon "\\:"
+                                    |> Text.fromString
+                            )
+                    )
+                    comment_
+                    settings_
+            )
+
+
+parser : Parser Parsed
+parser =
     oneOf
         [ backtrackable image
         , backtrackable imageData
@@ -57,10 +97,10 @@ item : Parser String
 item =
     (succeed identity
         |. oneOf
-            [ backtrackable <| chompWhile (\c -> c /= '#' && c /= '|' && c /= ':')
-            , backtrackable <| chompUntil ItemConstants.settingsPrefix
-            , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
-            , backtrackable <| chompUntilEndOr "\n"
+            [ chompWhile (\c -> c /= '#' && c /= '|' && c /= ':')
+            , chompUntil ItemConstants.settingsPrefix
+            , chompUntil ItemConstants.legacySettingsPrefix
+            , chompUntilEndOr "\n"
             ]
     )
         |> getChompedString

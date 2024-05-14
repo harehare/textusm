@@ -1,12 +1,13 @@
 module Types.Item.Value exposing
     ( Value(..)
     , empty
-    , fromString
     , getIndent
     , isComment
     , isImage
     , isImageData
     , isMarkdown
+    , map
+    , toDisplayString
     , toFullString
     , toString
     , toTrimedString
@@ -15,7 +16,6 @@ module Types.Item.Value exposing
 
 import Constants
 import DataUrl exposing (DataUrl)
-import List.Extra as ListEx
 import Types.Item.Constants as ItemConstants
 import Types.Text as Text exposing (Text)
 import Url exposing (Url)
@@ -29,29 +29,17 @@ type Value
     | Comment Int Text
 
 
-hasPrefix : String -> String -> Bool
-hasPrefix text p =
-    text |> String.trim |> String.toLower |> String.startsWith p
+map : (Text -> Text) -> Value -> Value
+map f value =
+    case value of
+        Markdown indent text ->
+            Markdown indent (f text)
 
+        PlainText indent text ->
+            PlainText indent (f text)
 
-hasImagePrefix : String -> Bool
-hasImagePrefix text =
-    hasPrefix text ItemConstants.imagePrefix
-
-
-hasImageDataPrefix : String -> Bool
-hasImageDataPrefix text =
-    hasPrefix text ItemConstants.imageDataPrefix
-
-
-hasMarkdownPrefix : String -> Bool
-hasMarkdownPrefix text =
-    hasPrefix text ItemConstants.markdownPrefix
-
-
-hasCommentPrefix : String -> Bool
-hasCommentPrefix text =
-    hasPrefix text ItemConstants.commentPrefix
+        _ ->
+            value
 
 
 isImage : Value -> Bool
@@ -99,11 +87,6 @@ empty =
     PlainText 0 Text.empty
 
 
-dropPrefix : String -> String -> String
-dropPrefix p text =
-    String.dropLeft (String.length p) text
-
-
 space : Int -> String
 space indent =
     String.repeat indent Constants.inputPrefix
@@ -147,49 +130,6 @@ update value text =
             PlainText indent <| Text.fromString text
 
 
-fromString : String -> Value
-fromString text =
-    let
-        indent : Int
-        indent =
-            (getSpacePrefix text |> String.length) // Constants.indentSpace
-    in
-    if hasMarkdownPrefix text then
-        Markdown indent <| Text.fromString <| String.replace "\n" "\\n" <| dropPrefix ItemConstants.markdownPrefix <| String.trim text
-
-    else if hasImagePrefix text then
-        let
-            url : String
-            url =
-                String.trim <| dropPrefix ItemConstants.imagePrefix <| String.trim text
-        in
-        case Url.fromString url of
-            Just u ->
-                Image indent u
-
-            Nothing ->
-                PlainText indent <| Text.fromString <| String.trim text
-
-    else if hasImageDataPrefix text then
-        let
-            url : String
-            url =
-                String.trim <| dropPrefix ItemConstants.imageDataPrefix <| String.trim text
-        in
-        case DataUrl.fromString url of
-            Just u ->
-                ImageData indent u
-
-            Nothing ->
-                PlainText indent <| Text.fromString <| String.trim text
-
-    else if hasCommentPrefix text then
-        Comment indent <| Text.fromString <| dropPrefix ItemConstants.commentPrefix <| String.trim text
-
-    else
-        PlainText indent <| Text.fromString <| String.trim text
-
-
 toFullString : Value -> String
 toFullString value =
     case value of
@@ -213,7 +153,7 @@ toTrimedString : Value -> String
 toTrimedString value =
     case value of
         Markdown _ text ->
-            ItemConstants.markdownPrefix ++ Text.toString text
+            ItemConstants.markdownPrefix ++ (Text.toString text |> String.trim)
 
         Image _ text ->
             ItemConstants.imagePrefix ++ Url.toString text
@@ -247,6 +187,11 @@ toString value =
             Text.toString text
 
 
+toDisplayString : Value -> String
+toDisplayString value =
+    toString value |> String.replace "\\:" ":"
+
+
 getIndent : Value -> Int
 getIndent value =
     case value of
@@ -264,14 +209,3 @@ getIndent value =
 
         PlainText i _ ->
             i
-
-
-getSpacePrefix : String -> String
-getSpacePrefix text =
-    (text
-        |> String.toList
-        |> ListEx.takeWhile (\c -> c == ' ')
-        |> List.length
-        |> String.repeat
-    )
-        " "

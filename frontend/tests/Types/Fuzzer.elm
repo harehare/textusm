@@ -130,6 +130,8 @@ itemFuzzer =
                         s
                     )
                         |> String.replace "|" ""
+                        |> String.replace ":" ""
+                        |> String.replace "\\" ""
                         |> String.trim
                 )
                 Fuzz.string
@@ -142,7 +144,12 @@ itemFuzzer =
                             Nothing
 
                         else
-                            Just (String.replace "#" "" s |> String.replace "|" "" |> String.replace "\n" "")
+                            Just
+                                (String.replace "#" "" s
+                                    |> String.replace "|" ""
+                                    |> String.replace "\n" ""
+                                    |> String.replace "\\" ""
+                                )
                     )
             )
         |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)

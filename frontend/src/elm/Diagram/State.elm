@@ -34,8 +34,9 @@ import Return exposing (Return)
 import Task
 import Types.FontStyle as FontStyle
 import Types.Item as Item exposing (Item, Items)
+import Types.Item.Parser as ItemParser
 import Types.Item.Settings as ItemSettings
-import Types.Item.Value as ItemValue
+import Types.Item.Value as ItemValue exposing (Value(..))
 import Types.Position as Position exposing (Position)
 import Types.Property as Property
 import Types.Size as Size exposing (Size)
@@ -190,8 +191,8 @@ update model message =
                             currentText =
                                 Text.getLine (Item.getLineNo item) model.text
 
-                            ( mainText, settings, comment ) =
-                                Item.split currentText
+                            (ItemParser.Parsed mainText comment settings) =
+                                currentText |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentText)) Nothing Nothing)
                         in
                         model.contextMenu
                             |> Maybe.map
@@ -200,8 +201,8 @@ update model message =
                                         >> setText
                                             (ListEx.setAt (Item.getLineNo item)
                                                 (item
-                                                    |> Item.withText mainText
-                                                    |> Item.withSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
+                                                    |> Item.withValue mainText
+                                                    |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withForegroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
                                                 )
@@ -219,8 +220,11 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            ( mainText, settings, comment ) =
-                                Text.getLine (Item.getLineNo item) model.text |> Item.split
+                            currentText =
+                                Text.getLine (Item.getLineNo item) model.text
+
+                            (ItemParser.Parsed mainText comment settings) =
+                                currentText |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentText)) Nothing Nothing)
                         in
                         model.contextMenu
                             |> Maybe.map
@@ -229,8 +233,8 @@ update model message =
                                         >> setText
                                             (ListEx.setAt (Item.getLineNo item)
                                                 (item
-                                                    |> Item.withText mainText
-                                                    |> Item.withSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
+                                                    |> Item.withValue mainText
+                                                    |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withBackgroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
                                                 )
@@ -251,23 +255,22 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            ( text, settings, comment ) =
-                                Text.getLine (Item.getLineNo item) model.text |> Item.split
+                            currentLine =
+                                Text.getLine (Item.getLineNo item) model.text
+
+                            (ItemParser.Parsed value_ comment_ settings_) =
+                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
 
                             lines : List String
                             lines =
                                 Text.lines model.text
 
-                            value : ItemValue.Value
-                            value =
-                                ItemValue.fromString text
-
                             updateLine : String
                             updateLine =
                                 item
-                                    |> Item.withText (ItemValue.update value (ItemValue.toTrimedString value |> FontStyle.apply style) |> ItemValue.toFullString)
-                                    |> Item.withSettings (Just settings)
-                                    |> Item.withComments comment
+                                    |> Item.withText (ItemValue.update value_ (ItemValue.toTrimedString value_ |> FontStyle.apply style) |> ItemValue.toFullString)
+                                    |> Item.withSettings settings_
+                                    |> Item.withComments comment_
                                     |> Item.toLineString
                         in
                         setText (ListEx.setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
@@ -300,8 +303,11 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            ( mainText, settings, comment ) =
-                                Text.getLine (Item.getLineNo item) model.text |> Item.split
+                            currentLine =
+                                Text.getLine (Item.getLineNo item) model.text
+
+                            (ItemParser.Parsed mainText comment settings) =
+                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
 
                             lines : List String
                             lines =
@@ -310,8 +316,8 @@ update model message =
                             text : String
                             text =
                                 item
-                                    |> Item.withText mainText
-                                    |> Item.withSettings (Just (settings |> ItemSettings.withFontSize size))
+                                    |> Item.withValue mainText
+                                    |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withFontSize size))
                                     |> Item.withComments comment
                                     |> Item.toLineString
 
