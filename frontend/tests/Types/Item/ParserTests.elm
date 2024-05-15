@@ -1,5 +1,6 @@
 module Types.Item.ParserTests exposing (all)
 
+import Constants
 import DataUrl
 import Expect
 import Parser
@@ -7,7 +8,6 @@ import Test exposing (Test, describe, test)
 import Types.Color as Color
 import Types.FontSize as FontSize
 import Types.Fuzzer exposing (itemSettingsFuzzer)
-import Types.Item.Constants as ItemConstants
 import Types.Item.Parser as ItemParser exposing (Parsed(..))
 import Types.Item.Settings as ItemSettings
 import Types.Item.Value exposing (Value(..))
@@ -213,6 +213,6 @@ settings : Test
 settings =
     Test.fuzz itemSettingsFuzzer "settings test" <|
         \i ->
-            (ItemConstants.settingsPrefix ++ ItemSettings.toString i)
+            (Constants.settingsPrefix ++ ItemSettings.toString i)
                 |> Parser.run ItemParser.settings
                 |> Expect.equal (Ok (Just i))

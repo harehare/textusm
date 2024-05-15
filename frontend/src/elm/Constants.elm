@@ -3,6 +3,8 @@ module Constants exposing
     , fontSize
     , fragmentOffset
     , ganttItemSize
+    , imageDataPrefix
+    , imagePrefix
     , indentSpace
     , inputPrefix
     , itemHeight
@@ -12,11 +14,15 @@ module Constants exposing
     , largeItemHeight
     , largeItemWidth
     , leftMargin
+    , legacySettingsPrefix
+    , markdownPrefix
     , messageMargin
     , participantMargin
+    , settingsPrefix
     , space
     , tableMargin
     , tableRowHeight
+    , commentPrefix
     )
 
 
@@ -108,3 +114,33 @@ tableMargin =
 tableRowHeight : Int
 tableRowHeight =
     40
+
+
+settingsPrefix : String
+settingsPrefix =
+    ": |"
+
+
+legacySettingsPrefix : String
+legacySettingsPrefix =
+    "|"
+
+
+markdownPrefix : String
+markdownPrefix =
+    "md:"
+
+
+imagePrefix : String
+imagePrefix =
+    "image:"
+
+
+imageDataPrefix : String
+imageDataPrefix =
+    "data:image/"
+
+
+commentPrefix : String
+commentPrefix =
+    "#"

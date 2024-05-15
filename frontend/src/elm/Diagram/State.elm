@@ -220,11 +220,11 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            currentText =
+                            currentLine =
                                 Text.getLine (Item.getLineNo item) model.text
 
                             (ItemParser.Parsed mainText comment settings) =
-                                currentText |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentText)) Nothing Nothing)
+                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
                         in
                         model.contextMenu
                             |> Maybe.map
@@ -261,10 +261,6 @@ update model message =
                             (ItemParser.Parsed value_ comment_ settings_) =
                                 currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
 
-                            lines : List String
-                            lines =
-                                Text.lines model.text
-
                             updateLine : String
                             updateLine =
                                 item
@@ -273,7 +269,7 @@ update model message =
                                     |> Item.withComments comment_
                                     |> Item.toLineString
                         in
-                        setText (ListEx.setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
+                        setText (ListEx.setAt (Item.getLineNo item) updateLine (Text.lines model.text) |> String.join "\n")
                             >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
@@ -309,10 +305,6 @@ update model message =
                             (ItemParser.Parsed mainText comment settings) =
                                 currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
 
-                            lines : List String
-                            lines =
-                                Text.lines model.text
-
                             text : String
                             text =
                                 item
@@ -323,7 +315,7 @@ update model message =
 
                             updateText : String
                             updateText =
-                                ListEx.setAt (Item.getLineNo item) text lines
+                                ListEx.setAt (Item.getLineNo item) text (Text.lines model.text)
                                     |> String.join "\n"
                         in
                         closeDropDown

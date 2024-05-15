@@ -16,7 +16,6 @@ module Types.Item.Value exposing
 
 import Constants
 import DataUrl exposing (DataUrl)
-import Types.Item.Constants as ItemConstants
 import Types.Text as Text exposing (Text)
 import Url exposing (Url)
 
@@ -99,7 +98,7 @@ update value text =
             let
                 rawText : String
                 rawText =
-                    if String.startsWith "md:" text then
+                    if String.startsWith Constants.markdownPrefix text then
                         String.dropLeft 3 text
 
                     else
@@ -134,16 +133,16 @@ toFullString : Value -> String
 toFullString value =
     case value of
         Markdown indent text ->
-            space indent ++ ItemConstants.markdownPrefix ++ Text.toString text
+            space indent ++ Constants.markdownPrefix ++ Text.toString text
 
         Image indent text ->
-            space indent ++ ItemConstants.imagePrefix ++ Url.toString text
+            space indent ++ Constants.imagePrefix ++ Url.toString text
 
         ImageData indent text ->
-            space indent ++ ItemConstants.imageDataPrefix ++ DataUrl.toString text
+            space indent ++ Constants.imageDataPrefix ++ DataUrl.toString text
 
         Comment indent text ->
-            space indent ++ ItemConstants.commentPrefix ++ Text.toString text
+            space indent ++ Constants.commentPrefix ++ Text.toString text
 
         PlainText indent text ->
             space indent ++ Text.toString text
@@ -153,16 +152,16 @@ toTrimedString : Value -> String
 toTrimedString value =
     case value of
         Markdown _ text ->
-            ItemConstants.markdownPrefix ++ (Text.toString text |> String.trim)
+            Constants.markdownPrefix ++ (Text.toString text |> String.trim)
 
         Image _ text ->
-            ItemConstants.imagePrefix ++ Url.toString text
+            Constants.imagePrefix ++ Url.toString text
 
         ImageData _ text ->
-            ItemConstants.imageDataPrefix ++ DataUrl.toString text
+            Constants.imageDataPrefix ++ DataUrl.toString text
 
         Comment _ text ->
-            ItemConstants.commentPrefix ++ Text.toString text
+            Constants.commentPrefix ++ Text.toString text
 
         PlainText _ text ->
             Text.toString text

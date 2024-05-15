@@ -32,7 +32,6 @@ import Parser
         , succeed
         , symbol
         )
-import Types.Item.Constants as ItemConstants
 import Types.Item.Settings as Settings exposing (Settings)
 import Types.Item.Value as Value exposing (Value(..))
 import Types.Text as Text
@@ -56,7 +55,7 @@ parse : String -> Result (List DeadEnd) Parsed
 parse text =
     text
         |> String.replace "\\:" colon
-        |> String.replace (colon ++ " |") ItemConstants.settingsPrefix
+        |> String.replace (colon ++ " |") Constants.settingsPrefix
         |> run parser
         |> Result.map
             (\(Parsed value_ comment_ settings_) ->
@@ -98,8 +97,8 @@ item =
     (succeed identity
         |. oneOf
             [ chompWhile (\c -> c /= '#' && c /= '|' && c /= ':')
-            , chompUntil ItemConstants.settingsPrefix
-            , chompUntil ItemConstants.legacySettingsPrefix
+            , chompUntil Constants.settingsPrefix
+            , chompUntil Constants.legacySettingsPrefix
             , chompUntilEndOr "\n"
             ]
     )
@@ -114,7 +113,7 @@ markdown =
         )
         |. spaces
         |= indent
-        |. symbol ItemConstants.markdownPrefix
+        |. symbol Constants.markdownPrefix
         |= item
         |= oneOf
             [ map Just comment
@@ -140,11 +139,11 @@ image =
         )
         |. spaces
         |= indent
-        |. symbol ItemConstants.imagePrefix
+        |. symbol Constants.imagePrefix
         |= getChompedString
             (oneOf
-                [ backtrackable <| chompUntil ItemConstants.settingsPrefix
-                , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+                [ backtrackable <| chompUntil Constants.settingsPrefix
+                , backtrackable <| chompUntil Constants.legacySettingsPrefix
                 , backtrackable <| chompUntilEndOr "\n"
                 ]
             )
@@ -169,7 +168,7 @@ imageData : Parser Parsed
 imageData =
     succeed
         (\( indent_, spaces_ ) text settings_ ->
-            case DataUrl.fromString (ItemConstants.imageDataPrefix ++ text |> String.trim) of
+            case DataUrl.fromString (Constants.imageDataPrefix ++ text |> String.trim) of
                 Just u ->
                     Parsed (ImageData indent_ <| u) Nothing settings_
 
@@ -178,11 +177,11 @@ imageData =
         )
         |. spaces
         |= indent
-        |. symbol ItemConstants.imageDataPrefix
+        |. symbol Constants.imageDataPrefix
         |= getChompedString
             (oneOf
-                [ backtrackable <| chompUntil ItemConstants.settingsPrefix
-                , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+                [ backtrackable <| chompUntil Constants.settingsPrefix
+                , backtrackable <| chompUntil Constants.legacySettingsPrefix
                 , backtrackable <| chompUntilEndOr "\n"
                 ]
             )
@@ -219,18 +218,18 @@ settings =
             text |> Settings.fromString
         )
         |. oneOf
-            [ symbol ItemConstants.settingsPrefix
-            , symbol ItemConstants.legacySettingsPrefix
+            [ symbol Constants.settingsPrefix
+            , symbol Constants.legacySettingsPrefix
             ]
         |= (chompUntilEndOr "\n" |> getChompedString)
 
 
 comment : Parser String
 comment =
-    symbol ItemConstants.commentPrefix
+    symbol Constants.commentPrefix
         |. oneOf
-            [ backtrackable <| chompUntil ItemConstants.settingsPrefix
-            , backtrackable <| chompUntil ItemConstants.legacySettingsPrefix
+            [ backtrackable <| chompUntil Constants.settingsPrefix
+            , backtrackable <| chompUntil Constants.legacySettingsPrefix
             , backtrackable <| chompUntilEndOr "\n"
             ]
         |> getChompedString

@@ -70,13 +70,12 @@ module Types.Item exposing
     , withValue
     )
 
-import Constants exposing (indentSpace, inputPrefix)
+import Constants
 import List.Extra as ListEx
 import Maybe
 import Simple.Fuzzy as Fuzzy
 import Types.Color exposing (Color)
 import Types.FontSize as FontSize exposing (FontSize)
-import Types.Item.Constants as ItemConstants
 import Types.Item.Parser as ItemParser
 import Types.Item.Settings as ItemSettings
 import Types.Item.Value as ItemValue exposing (Value(..))
@@ -215,7 +214,7 @@ getChildrenItems (Item i) =
 
 getComments : Item -> Maybe String
 getComments (Item i) =
-    Maybe.map (\c -> ItemConstants.commentPrefix ++ c) i.comments
+    Maybe.map (\c -> Constants.commentPrefix ++ c) i.comments
 
 
 getFontSize : Item -> Maybe FontSize
@@ -471,7 +470,7 @@ toLineString item =
     in
     case getSettings item of
         Just s ->
-            getFullText item ++ comment ++ ItemConstants.settingsPrefix ++ ItemSettings.toString s
+            getFullText item ++ comment ++ Constants.settingsPrefix ++ ItemSettings.toString s
 
         Nothing ->
             getFullText item ++ comment
@@ -579,7 +578,7 @@ childrenCount (Items items) =
 
 isCommentLine : String -> Bool
 isCommentLine text =
-    text |> String.trim |> String.startsWith ItemConstants.commentPrefix
+    text |> String.trim |> String.startsWith Constants.commentPrefix
 
 
 filter : (Item -> Bool) -> Items -> Items
@@ -596,10 +595,10 @@ hasIndent indent text =
         let
             lineinputPrefix : String
             lineinputPrefix =
-                String.repeat indent inputPrefix
+                String.repeat indent Constants.inputPrefix
         in
         String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+            && (String.slice (indent * Constants.indentSpace) (indent * Constants.indentSpace + 1) text /= " ")
 
 
 hierarchyCount : Items -> List Int

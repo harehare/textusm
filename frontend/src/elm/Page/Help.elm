@@ -1,6 +1,7 @@
 module Page.Help exposing (view)
 
 import Asset
+import Constants
 import Css
 import Html.Styled exposing (Html, div, img, span, text)
 import Html.Styled.Attributes as Attr
@@ -37,51 +38,51 @@ view =
         -- Text Syntax
         , section (Just "Text Syntax")
         , textActivityView
-            [ activityView [ text "md: **Markdown Text**" ]
+            [ activityView [ text <| Constants.markdownPrefix ++ "**Markdown Text**" ]
             , taskView [ indentedText "User Task" 1 ]
             , storyView [ indentedText "User Story Release 1" 2 ]
             , storyView [ indentedText "User Story Release 2..." 3 ]
             , storyView [ indentedText "Add Images" 4 ]
-            , storyView [ indentedText "image:https://app.textusm.com/images/logo.svg" 5 ]
+            , storyView [ indentedText (Constants.imagePrefix ++ "https://app.textusm.com/images/logo.svg") 5 ]
             , storyView [ indentedText "Change font size, font color or background color." 1 ]
-            , storyView [ indentedText "test|{\"bg\":\"#CEE5F2\",\"fg\":\"#EE8A8B\",\"pos\":[0,0],\"font_size\":9}" 2 ]
+            , storyView [ indentedText "test: |{\"bg\":\"#CEE5F2\",\"fg\":\"#EE8A8B\",\"pos\":[0,0],\"font_size\":9}" 2 ]
             ]
 
         -- Comment Syntax
         , section (Just "Comment Syntax")
-        , textCommentView [ text "# Comment..." ]
-        , textPropertyView [ text "# backgroundColor: #FFFFFF" ]
-        , textPropertyView [ text "# background_image: https://app.textusm.com/images/logo.svg" ]
-        , textPropertyView [ text "# zoom_control: true" ]
-        , textPropertyView [ text "# line_color: #FF0000" ]
-        , textPropertyView [ text "# line_size: 4" ]
-        , textPropertyView [ text "# toolbar: true" ]
-        , textPropertyView [ text "# card_foreground_color1: #FFFFFF" ]
-        , textPropertyView [ text "# card_foreground_color2: #FFFFFF" ]
-        , textPropertyView [ text "# card_foreground_color3: #333333" ]
-        , textPropertyView [ text "# card_background_color1: #266B9A" ]
-        , textPropertyView [ text "# card_background_color2: #3E9BCD" ]
-        , textPropertyView [ text "# card_background_color3: #FFFFFF" ]
-        , textPropertyView [ text "# canvas_background_color: #434343" ]
-        , textPropertyView [ text "# card_height: 120" ]
-        , textPropertyView [ text "# card_height: 70" ]
-        , textPropertyView [ text "# text_color: #111111" ]
-        , textPropertyView [ text "# font_size: 14" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " Comment..." ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " backgroundColor: #FFFFFF" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " background_image: https://app.textusm.com/images/logo.svg" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " zoom_control: true" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " line_color: #FF0000" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " line_size: 4" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " toolbar: true" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_foreground_color1: #FFFFFF" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_foreground_color2: #FFFFFF" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_foreground_color3: #333333" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_background_color1: #266B9A" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_background_color2: #3E9BCD" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_background_color3: #FFFFFF" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " canvas_background_color: #434343" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_height: 120" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " card_height: 70" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " text_color: #111111" ]
+        , textPropertyView [ text <| Constants.commentPrefix ++ " font_size: 14" ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")
-        , textCommentView [ text "# user_activities: Changed text" ]
-        , textCommentView [ text "# user_tasks: Changed text" ]
-        , textCommentView [ text "# user_stories: Changed text" ]
-        , textCommentView [ text "# release1: Changed text" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " user_activities: Changed text" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " user_tasks: Changed text" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " user_stories: Changed text" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " release1: Changed text" ]
 
         -- Free form
         , section (Just "Freeform")
-        , textCommentView [ text "# Vertical line" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " Vertical line" ]
         , textView [ text "/" ]
-        , textCommentView [ text "# Horizontal line" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " Horizontal line" ]
         , textView [ text "---" ]
-        , textCommentView [ text "# Item" ]
+        , textCommentView [ text <| Constants.commentPrefix ++ " Item" ]
         , textView [ text "freeform" ]
 
         -- Use Case Diagram
@@ -108,11 +109,11 @@ view =
 
         -- relations
         , textActivityView [ text "relations" ]
-        , textCommentView [ indentedText "# one to one" 1 ]
+        , textCommentView [ indentedText (Constants.commentPrefix ++ " one to one") 1 ]
         , textView [ indentedText "table1 - table2" 1 ]
-        , textCommentView [ indentedText "# one to many" 1 ]
+        , textCommentView [ indentedText (Constants.commentPrefix ++ " one to many") 1 ]
         , textView [ indentedText "table1 < table2" 1 ]
-        , textCommentView [ indentedText "# meny to many" 1 ]
+        , textCommentView [ indentedText (Constants.commentPrefix ++ " meny to many") 1 ]
         , textView [ indentedText "table1 = table2" 1 ]
 
         -- tables
