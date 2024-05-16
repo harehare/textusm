@@ -167,6 +167,8 @@ commentLine =
     describe "comment test"
         ([ ( "no indent", "# test", Parsed (Comment 0 (Text.fromString " test")) Nothing Nothing )
          , ( "1 indent", "    # test", Parsed (Comment 1 (Text.fromString " test")) Nothing Nothing )
+         , ( "comment", "    # test #test", Parsed (Comment 1 (Text.fromString " test #test")) Nothing Nothing )
+         , ( "settings", "    # test: |{\"bg\":\"#8C9FAE\"}", Parsed (Comment 1 (Text.fromString " test")) Nothing Nothing )
          ]
             |> List.map
                 (\( title, data, expect ) ->
