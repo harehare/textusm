@@ -167,7 +167,7 @@ nodeWidth =
 
 nodeHeight : String
 nodeHeight =
-    "node_heigh"
+    "node_height"
 
 
 release : String

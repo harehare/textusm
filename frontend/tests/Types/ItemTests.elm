@@ -1,4 +1,4 @@
-module Types.ItemTests exposing (all)
+module Types.ItemTests exposing (suite)
 
 import Expect
 import Test exposing (Test, describe, fuzz, test)
@@ -6,11 +6,10 @@ import Types.FontSize as FontSize
 import Types.Fuzzer exposing (itemFuzzer)
 import Types.Item as Item
 import Types.Item.Settings as ItemSettings
-import Types.Item.Value exposing (Value(..))
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Item test"
         [ getAt
         , head

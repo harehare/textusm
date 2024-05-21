@@ -1,11 +1,11 @@
 module Types.Item.Parser exposing
-    ( Parsed(..)
+    ( Comment
+    , Parsed(..)
     , commentLine
     , image
     , imageData
     , markdown
     , parse
-    , parser
     , plainText
     , settings
     )
