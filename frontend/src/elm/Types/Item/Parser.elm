@@ -77,10 +77,10 @@ parse text =
 parser : Parser Parsed
 parser =
     oneOf
-        [ backtrackable image
-        , backtrackable imageData
-        , backtrackable commentLine
-        , backtrackable markdown
+        [ image
+        , imageData
+        , commentLine
+        , markdown
         , plainText
         ]
 
@@ -111,13 +111,13 @@ markdown =
         (\( indent_, spaces_ ) text comment_ settings_ ->
             Parsed (Markdown indent_ (Text.fromString (String.repeat spaces_ " " ++ text))) comment_ settings_
         )
-        |. spaces
+        |. backtrackable spaces
         |= indent
         |. symbol Constants.markdownPrefix
         |= item
         |= oneOf
             [ map Just comment
-            , map (\_ -> Nothing) Parser.spaces
+            , map (\_ -> Nothing) spaces
             ]
         |= oneOf
             [ settings
@@ -137,7 +137,7 @@ image =
                 Nothing ->
                     Parsed (PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)) Nothing settings_
         )
-        |. spaces
+        |. backtrackable spaces
         |= indent
         |. symbol Constants.imagePrefix
         |= getChompedString
@@ -159,7 +159,7 @@ commentLine =
         (\( indent_, _ ) text ->
             Parsed (Comment indent_ (Text.fromString text)) Nothing Nothing
         )
-        |. spaces
+        |. backtrackable spaces
         |= indent
         |= comment
 
@@ -175,7 +175,7 @@ imageData =
                 Nothing ->
                     Parsed (PlainText indent_ <| Text.fromString (String.repeat spaces_ " " ++ text)) Nothing settings_
         )
-        |. spaces
+        |. backtrackable spaces
         |= indent
         |. symbol Constants.imageDataPrefix
         |= getChompedString
@@ -202,7 +202,7 @@ plainText =
         |= item
         |= oneOf
             [ map Just comment
-            , map (\_ -> Nothing) Parser.spaces
+            , map (\_ -> Nothing) spaces
             ]
         |= oneOf
             [ settings
