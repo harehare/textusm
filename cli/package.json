@@ -1,7 +1,7 @@
 {
   "name": "textusm.cli",
   "description": "Generate a User Story Mapping from indented text.",
-  "version": "0.14.5",
+  "version": "0.14.8",
   "author": "Takahiro Sato",
   "bin": {
     "textusm": "dist/index.js"
@@ -54,7 +54,7 @@
   "scripts": {
     "build": "tsup index.ts js/textusm.js",
     "prepublish": "tsc index.ts --outDir dist",
-    "prebuild": "cd ../extension/lib && npm run prod && cp dist/index.js ../../cli/js/textusm.js"
+    "prebuild": "cd ../extension/lib && npm run build && cp dist/index.js ../../cli/js/textusm.js"
   },
   "tsup": {
     "entry": [
