@@ -18,6 +18,7 @@ module Types.Item exposing
     , getChildrenCount
     , getChildrenItems
     , getComments
+    , getDisplayText
     , getFontSize
     , getFontSizeWithProperty
     , getForegroundColor
@@ -52,7 +53,6 @@ module Types.Item exposing
     , new
     , search
     , searchClear
-    , split
     , splitAt
     , tail
     , toLineString
@@ -67,19 +67,22 @@ module Types.Item exposing
     , withSettings
     , withText
     , withTextOnly
+    , withValue
     )
 
-import Constants exposing (indentSpace, inputPrefix)
+import Constants
 import List.Extra as ListEx
 import Maybe
 import Simple.Fuzzy as Fuzzy
 import Types.Color exposing (Color)
 import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item.Parser as ItemParser
 import Types.Item.Settings as ItemSettings
-import Types.Item.Value as ItemValue
+import Types.Item.Value as ItemValue exposing (Value(..))
 import Types.Position exposing (Position)
 import Types.Property as Property exposing (Property)
 import Types.Size as Size exposing (Size)
+import Types.Text as Text
 
 
 type Children
@@ -211,7 +214,7 @@ getChildrenItems (Item i) =
 
 getComments : Item -> Maybe String
 getComments (Item i) =
-    Maybe.map (\c -> commentPrefix ++ c) i.comments
+    Maybe.map (\c -> Constants.commentPrefix ++ c) i.comments
 
 
 getFontSize : Item -> Maybe FontSize
@@ -302,6 +305,11 @@ getSize item baseSize =
 getText : Item -> String
 getText (Item i) =
     ItemValue.toString i.value
+
+
+getDisplayText : Item -> String
+getDisplayText (Item i) =
+    ItemValue.toDisplayString i.value
 
 
 getMultiLineText : Item -> String
@@ -438,36 +446,6 @@ searchClear items =
     mapWithRecursive (withHighlight False) items
 
 
-split : String -> ( String, ItemSettings.Settings, Maybe String )
-split text =
-    let
-        ( _, tokens ) =
-            splitText text
-    in
-    case tokens of
-        [ text_ ] ->
-            let
-                ( t, comment ) =
-                    splitLine text_
-            in
-            ( t, ItemSettings.new, comment )
-
-        [ text_, settingsString ] ->
-            let
-                ( t, comment ) =
-                    splitLine text_
-            in
-            case ItemSettings.fromString settingsString of
-                Just settings ->
-                    ( t, settings, comment )
-
-                Nothing ->
-                    ( t, ItemSettings.new, comment )
-
-        _ ->
-            ( text, ItemSettings.new, Nothing )
-
-
 splitAt : Int -> Items -> ( Items, Items )
 splitAt i (Items items) =
     let
@@ -492,7 +470,7 @@ toLineString item =
     in
     case getSettings item of
         Just s ->
-            getFullText item ++ comment ++ textSeparator ++ ItemSettings.toString s
+            getFullText item ++ comment ++ Constants.settingsPrefix ++ ItemSettings.toString s
 
         Nothing ->
             getFullText item ++ comment
@@ -515,19 +493,24 @@ withChildren children (Item item) =
 
 withComments : Maybe String -> Item -> Item
 withComments comments (Item item) =
-    Item
-        { item
-            | comments =
-                comments
-                    |> Maybe.andThen
-                        (\c ->
-                            if c |> String.trim |> String.isEmpty then
-                                Nothing
+    case item.value of
+        ItemValue.Comment _ _ ->
+            Item { item | comments = Nothing }
 
-                            else
-                                Just c
-                        )
-        }
+        _ ->
+            Item
+                { item
+                    | comments =
+                        comments
+                            |> Maybe.andThen
+                                (\c ->
+                                    if c |> String.trim |> String.isEmpty then
+                                        Nothing
+
+                                    else
+                                        Just c
+                                )
+                }
 
 
 withHighlight : Bool -> Item -> Item
@@ -537,7 +520,12 @@ withHighlight h (Item item) =
 
 withSettings : Maybe ItemSettings.Settings -> Item -> Item
 withSettings itemSettings (Item item) =
-    Item { item | settings = itemSettings }
+    case item.value of
+        ItemValue.Comment _ _ ->
+            Item { item | settings = Nothing }
+
+        _ ->
+            Item { item | settings = itemSettings }
 
 
 withLineNo : Int -> Item -> Item
@@ -557,50 +545,17 @@ withOffsetSize newSize item =
 
 withText : String -> Item -> Item
 withText text (Item item) =
-    let
-        ( displayText, settings, comments ) =
-            let
-                ( sep, tokens ) =
-                    splitText text
-                        |> Tuple.mapSecond (List.map String.toList)
+    ItemParser.parse text
+        |> Result.map
+            (\(ItemParser.Parsed value_ comment_ settings_) ->
+                Item { item | value = value_, comments = comment_, settings = settings_ }
+            )
+        |> Result.withDefault (Item { item | value = PlainText 0 (Text.fromString text), comments = Nothing, settings = Nothing })
 
-                tuple : ( String, Maybe String )
-                tuple =
-                    case tokens of
-                        [ x, '{' :: xs ] ->
-                            ( String.fromList x, Just <| String.fromList <| '{' :: xs )
 
-                        _ :: _ :: _ ->
-                            ( List.take (List.length tokens - 1) tokens
-                                |> List.map String.fromList
-                                |> String.join sep
-                            , ListEx.last tokens |> Maybe.map String.fromList
-                            )
-
-                        _ ->
-                            ( text, Nothing )
-            in
-            case tuple of
-                ( t, Just s ) ->
-                    let
-                        ( text_, comments_ ) =
-                            splitLine t
-                    in
-                    case ItemSettings.fromString s of
-                        Just settings_ ->
-                            ( text_, Just settings_, comments_ )
-
-                        Nothing ->
-                            ( text_ ++ sep ++ s, Nothing, comments_ )
-
-                ( _, Nothing ) ->
-                    let
-                        ( text_, comments_ ) =
-                            splitLine text
-                    in
-                    ( text_, Nothing, comments_ )
-    in
-    Item { item | value = ItemValue.fromString displayText, comments = comments, settings = settings }
+withValue : ItemValue.Value -> Item -> Item
+withValue value (Item item) =
+    Item { item | value = value }
 
 
 withTextOnly : String -> Item -> Item
@@ -617,18 +572,13 @@ childrenCount (Items items) =
         List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
 
 
-commentPrefix : String
-commentPrefix =
-    "#"
-
-
 
 -- private
 
 
 isCommentLine : String -> Bool
 isCommentLine text =
-    text |> String.trim |> String.startsWith commentPrefix
+    text |> String.trim |> String.startsWith Constants.commentPrefix
 
 
 filter : (Item -> Bool) -> Items -> Items
@@ -645,10 +595,10 @@ hasIndent indent text =
         let
             lineinputPrefix : String
             lineinputPrefix =
-                String.repeat indent inputPrefix
+                String.repeat indent Constants.inputPrefix
         in
         String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+            && (String.slice (indent * Constants.indentSpace) (indent * Constants.indentSpace + 1) text /= " ")
 
 
 hierarchyCount : Items -> List Int
@@ -730,40 +680,3 @@ parse indent text =
 
         Nothing ->
             ( [], [] )
-
-
-splitLine : String -> ( String, Maybe String )
-splitLine text =
-    case String.split commentPrefix text of
-        [ _ ] ->
-            ( text, Nothing )
-
-        [ text_, comments ] ->
-            ( text_, Just comments )
-
-        _ ->
-            ( "", Nothing )
-
-
-splitText : String -> ( String, List String )
-splitText text =
-    let
-        tokens : List String
-        tokens =
-            String.split textSeparator text
-    in
-    if List.length tokens > 1 then
-        ( textSeparator, tokens )
-
-    else
-        ( legacyTextSeparator, String.split legacyTextSeparator text )
-
-
-textSeparator : String
-textSeparator =
-    ": |"
-
-
-legacyTextSeparator : String
-legacyTextSeparator =
-    "|"

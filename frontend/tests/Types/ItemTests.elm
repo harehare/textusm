@@ -1,4 +1,4 @@
-module Types.ItemTests exposing (all)
+module Types.ItemTests exposing (suite)
 
 import Expect
 import Test exposing (Test, describe, fuzz, test)
@@ -8,8 +8,8 @@ import Types.Item as Item
 import Types.Item.Settings as ItemSettings
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Item test"
         [ getAt
         , head
@@ -24,7 +24,6 @@ all =
         , getChildrenCount
         , getHierarchyCount
         , withText
-        , split
         , fuzzer
         , mapWithRecursive
         , getTextOnly
@@ -221,7 +220,7 @@ withText =
                         |> Item.withText "test: |test2: |"
                         |> Item.getText
                     )
-                    "test: |test2: |"
+                    "test"
         , test "when multiple | and item settings json" <|
             \() ->
                 Expect.equal
@@ -229,7 +228,7 @@ withText =
                         |> Item.withText "test: |test2: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                         |> Item.getText
                     )
-                    "test: |test2"
+                    "test"
         , test "when text with comments" <|
             \() ->
                 Expect.equal
@@ -237,7 +236,7 @@ withText =
                         |> Item.withText "test # comment"
                         |> (\i -> ( Item.getText i, Item.getComments i ))
                     )
-                    ( "test", Just "# comment" )
+                    ( "test ", Just "# comment" )
         , test "when text with comments and item settings json" <|
             \() ->
                 Expect.equal
@@ -245,42 +244,15 @@ withText =
                         |> Item.withText "test # comment: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                         |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.unwrap ))
                     )
-                    ( "test", Just "# comment", 10 )
+                    ( "test ", Just "# comment", 10 )
         , test "when text with invalid comments and item settings json" <|
             \() ->
                 Expect.equal
                     (Item.new
-                        |> Item.withText "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment"
+                        |> Item.withText "test # comment : |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}"
                         |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i ))
                     )
-                    ( "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment", Nothing, Nothing )
-        ]
-
-
-split : Test
-split =
-    describe
-        "split test"
-        [ test "when text only" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test")
-                    ( "test", ItemSettings.new, Nothing )
-        , test "when text and comments" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment")
-                    ( "test ", ItemSettings.new, Just "comment" )
-        , test "when text, comments and item settings" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
-                    ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
-        , test "when text, comments and legacy item settings" <|
-            \() ->
-                Expect.equal
-                    (Item.split "test #comment|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
-                    ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
+                    ( "test ", Just "# comment ", Nothing )
         ]
 
 

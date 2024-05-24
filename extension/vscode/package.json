@@ -6,9 +6,9 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.14.7",
+  "version": "0.14.8",
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.89.0"
   },
   "homepage": "https://textusm.com",
   "galleryBanner": {
@@ -212,10 +212,10 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.12",
     "@types/svgo": "^2.6.4",
     "@types/uuid": "^9.0.8",
-    "@types/vscode": "^1.88.0",
+    "@types/vscode": "^1.89.0",
     "clean-webpack-plugin": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.1",
@@ -232,7 +232,7 @@
     "url": "https://github.com/harehare/textusm.git"
   },
   "dependencies": {
-    "svgo": "^3.2.0",
+    "svgo": "^3.3.2",
     "uuid": "^9.0.1"
   }
 }

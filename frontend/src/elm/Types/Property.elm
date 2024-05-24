@@ -30,8 +30,10 @@ module Types.Property exposing
 
 import Diagram.Types.BackgroundImage as BgImage
 import Dict exposing (Dict)
+import Parser
 import Types.Color as Color exposing (Color)
 import Types.FontSize as FontSize exposing (FontSize)
+import Types.Property.Parser as PropertyParser
 
 
 type alias Property =
@@ -48,25 +50,7 @@ fromString text =
     String.lines text
         |> List.filterMap
             (\line ->
-                if line |> String.trim |> String.startsWith "#" then
-                    case String.split ":" line of
-                        [ name, value ] ->
-                            String.replace "#" "" name
-                                |> String.trim
-                                |> enabledKey
-                                |> Maybe.map (\v -> ( toKeyString v, String.trim value ))
-
-                        name :: rest ->
-                            String.replace "#" "" name
-                                |> String.trim
-                                |> enabledKey
-                                |> Maybe.map (\v -> ( toKeyString v, String.trim <| String.join ":" rest ))
-
-                        _ ->
-                            Nothing
-
-                else
-                    Nothing
+                Parser.run PropertyParser.parser line |> Result.toMaybe |> Maybe.map (\(PropertyParser.Parsed name value) -> ( name, value ))
             )
         |> Dict.fromList
 
@@ -191,86 +175,6 @@ getZoomControl property =
     Dict.get (toKeyString ZoomControl) property |> Maybe.map (\b -> String.toLower b == "true")
 
 
-enabledKey : String -> Maybe Key
-enabledKey s =
-    case s of
-        "background_color" ->
-            Just BackgroundColor
-
-        "background_image" ->
-            Just BackgroundImage
-
-        "canvas_background_color" ->
-            Just CanvasBackgroundColor
-
-        "card_background_color1" ->
-            Just CardBackgroundColor1
-
-        "card_background_color2" ->
-            Just CardBackgroundColor2
-
-        "card_background_color3" ->
-            Just CardBackgroundColor3
-
-        "card_foreground_color1" ->
-            Just CardForegroundColor1
-
-        "card_foreground_color2" ->
-            Just CardForegroundColor2
-
-        "card_foreground_color3" ->
-            Just CardForegroundColor3
-
-        "card_height" ->
-            Just CardHeight
-
-        "card_width" ->
-            Just CardWidth
-
-        "font_size" ->
-            Just FontSize
-
-        "line_color" ->
-            Just LineColor
-
-        "line_size" ->
-            Just LineSize
-
-        "node_height" ->
-            Just NodeHeight
-
-        "node_width" ->
-            Just NodeWidth
-
-        "text_color" ->
-            Just TextColor
-
-        "title" ->
-            Just Title
-
-        "toolbar" ->
-            Just Toolbar
-
-        "user_activities" ->
-            Just UserActivity
-
-        "user_stories" ->
-            Just UserStory
-
-        "user_tasks" ->
-            Just UserTask
-
-        "zoom_control" ->
-            Just ZoomControl
-
-        _ ->
-            if String.startsWith "release" s then
-                String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
-
-            else
-                Nothing
-
-
 type Key
     = BackgroundColor
     | BackgroundImage
@@ -302,73 +206,73 @@ toKeyString : Key -> String
 toKeyString key =
     case key of
         BackgroundColor ->
-            "background_color"
+            PropertyParser.backgroundColor
 
         BackgroundImage ->
-            "background_image"
+            PropertyParser.backgroundImage
 
         CardForegroundColor1 ->
-            "card_foreground_color1"
+            PropertyParser.cardForegroundColor1
 
         CardBackgroundColor1 ->
-            "card_background_color1"
+            PropertyParser.cardBackgroundColor1
 
         CardForegroundColor2 ->
-            "card_foreground_color2"
+            PropertyParser.cardForegroundColor2
 
         CardBackgroundColor2 ->
-            "card_background_color2"
+            PropertyParser.cardBackgroundColor2
 
         CardForegroundColor3 ->
-            "card_foreground_color3"
+            PropertyParser.cardForegroundColor3
 
         CardBackgroundColor3 ->
-            "card_background_color3"
+            PropertyParser.cardBackgroundColor3
 
         CanvasBackgroundColor ->
-            "canvas_background_color"
+            PropertyParser.canvasBackgroundColor
 
         CardWidth ->
-            "card_width"
+            PropertyParser.cardWidth
 
         CardHeight ->
-            "card_height"
+            PropertyParser.cardHeight
 
         FontSize ->
-            "font_size"
+            PropertyParser.fontSize
 
         LineColor ->
-            "line_color"
+            PropertyParser.lineColor
 
         LineSize ->
-            "line_size"
+            PropertyParser.lineSize
 
         NodeWidth ->
-            "node_width"
+            PropertyParser.nodeWidth
 
         NodeHeight ->
-            "node_heigh"
+            PropertyParser.nodeHeight
 
         ReleaseLevel level ->
-            "release" ++ String.fromInt level
+            PropertyParser.releaseLevel level
 
         Title ->
-            "title"
+            PropertyParser.title
 
         UserActivity ->
-            "user_activities"
+            PropertyParser.userActivities
 
         UserTask ->
-            "user_tasks"
+            PropertyParser.userTasks
 
         UserStory ->
-            "user_stories"
+            PropertyParser.userStories
 
         Toolbar ->
-            "toolbar"
+            PropertyParser.toolbar
 
         TextColor ->
-            "text_color"
+            PropertyParser.textColor
 
         ZoomControl ->
-            "zoom_control"
+            PropertyParser.zoomControl

@@ -1,5 +1,7 @@
 module Types.FontStyle exposing (FontStyle(..), apply)
 
+import Constants
+
 
 type FontStyle
     = Bold
@@ -12,7 +14,7 @@ apply fontStyle text =
     let
         rawText : String
         rawText =
-            if String.startsWith "md:" text then
+            if String.startsWith Constants.markdownPrefix text then
                 String.dropLeft 3 text
                     |> String.replace "*" ""
                     |> String.replace "~" ""
@@ -22,10 +24,10 @@ apply fontStyle text =
     in
     case fontStyle of
         Bold ->
-            "md:**" ++ rawText ++ "**"
+            Constants.markdownPrefix ++ "**" ++ rawText ++ "**"
 
         Italic ->
-            "md:*" ++ rawText ++ "*"
+            Constants.markdownPrefix ++ "*" ++ rawText ++ "*"
 
         Strikethrough ->
-            "md:~~" ++ rawText ++ "~~"
+            Constants.markdownPrefix ++ "~~" ++ rawText ++ "~~"

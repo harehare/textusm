@@ -191,7 +191,7 @@ const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.14.5")
+  .version("0.14.8")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -288,9 +288,11 @@ const writeResult = (output: string | null, result: string): void => {
     });
 
     if (!output || output.endsWith(".svg")) {
-      const svg = await page.$eval("#usm", (items) => {
-        return items.outerHTML;
-      });
+      const svg =
+        (await page.evaluate(
+          () => document.querySelector("#usm")?.outerHTML
+        )) || "";
+
       const optimizedSvg = optimize(
         svg
           .replace("<div></div>", "")

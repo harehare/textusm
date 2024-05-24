@@ -90,10 +90,19 @@ itemFuzzer : Fuzzer Item
 itemFuzzer =
     Fuzz.map
         (\lineNo text comments itemSettings children ->
+            let
+                comments_ : Maybe String
+                comments_ =
+                    if String.isEmpty text || String.contains "#" text then
+                        Nothing
+
+                    else
+                        comments
+            in
             Item.new
                 |> Item.withLineNo lineNo
                 |> Item.withText text
-                |> Item.withComments comments
+                |> Item.withComments comments_
                 |> Item.withSettings itemSettings
                 |> Item.withChildren children
         )
@@ -122,6 +131,9 @@ itemFuzzer =
                         s
                     )
                         |> String.replace "|" ""
+                        |> String.replace "\\" ""
+                        |> String.replace ":" "\\:"
+                        |> String.replace "\\: |" ": |"
                         |> String.trim
                 )
                 Fuzz.string
@@ -134,7 +146,12 @@ itemFuzzer =
                             Nothing
 
                         else
-                            Just (String.replace "#" "" s |> String.replace "|" "")
+                            Just
+                                (String.replace "#" "" s
+                                    |> String.replace "|" ""
+                                    |> String.replace "\n" ""
+                                    |> String.replace "\\" ""
+                                )
                     )
             )
         |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
