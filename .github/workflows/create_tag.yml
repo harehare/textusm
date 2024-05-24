@@ -1,13 +1,15 @@
+name: create tag
 on:
   pull_request:
     branches:
       - master
     types: [closed]
+  workflow_dispatch:
 
 jobs:
   create-tag:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -38,5 +40,6 @@ jobs:
         if: env.TAG_IS_EXISTING == 'false'
         uses: marvinpinto/action-automatic-releases@latest
         with:
+          automatic_release_tag: v${{ steps.package-version.outputs.current-version }}
           prerelease: false
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
