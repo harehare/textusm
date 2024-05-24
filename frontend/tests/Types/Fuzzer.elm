@@ -91,6 +91,7 @@ itemFuzzer =
     Fuzz.map
         (\lineNo text comments itemSettings children ->
             let
+                comments_ : Maybe String
                 comments_ =
                     if String.isEmpty text || String.contains "#" text then
                         Nothing
@@ -130,8 +131,9 @@ itemFuzzer =
                         s
                     )
                         |> String.replace "|" ""
-                        |> String.replace ":" ""
                         |> String.replace "\\" ""
+                        |> String.replace ":" "\\:"
+                        |> String.replace "\\: |" ": |"
                         |> String.trim
                 )
                 Fuzz.string

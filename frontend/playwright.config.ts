@@ -10,27 +10,12 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
   },
-  projects: process.env.CI
-    ? [
-        {
-          name: 'chromium',
-          use: { ...devices['Desktop Chrome'] },
-        },
-      ]
-    : [
-        {
-          name: 'chromium',
-          use: { ...devices['Desktop Chrome'] },
-        },
-        {
-          name: 'Microsoft Edge',
-          use: { ...devices['Desktop Edge'], channel: 'msedge' },
-        },
-        // {
-        //   name: 'firefox',
-        //   use: { ...devices['Desktop Firefox'] },
-        // },
-      ],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
   webServer: {
     command: 'FIREBASE_AUTH_EMULATOR_HOST="localhost:9099" USE_HTTPS=0 npm run dev:frontend',
     url: 'http://127.0.0.1:3000',
