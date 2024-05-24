@@ -20,11 +20,11 @@
   ],
   "repository": {
     "properties": {
-      "match": "(#[^#:|]+:[^#:|]+)",
+      "match": "#[^#:|]+:[^#:|\n]+$",
       "name": "constant.language.usm"
     },
     "comments": {
-      "match": "(#[^#:|]*)",
+      "match": " *#[^#:|]+(:|\n)$",
       "name": "comment.usm"
     },
     "activity": {
@@ -37,7 +37,7 @@
     },
     "settings": {
       "match": "(: \\|[^|]+)|(\\|[^|]+)",
-      "name": "settings.usm"
+      "name": "comment.line.usm"
     }
   },
   "scopeName": "text.usm"

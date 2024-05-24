@@ -207,8 +207,8 @@
   },
   "scripts": {
     "vscode:prepublish": "NODE_ENV=production webpack --mode production",
-    "dev": "webpack --mode development --watch",
-    "prod": "NODE_ENV=production webpack --mode production"
+    "watch": "webpack --mode development --watch",
+    "build": "NODE_ENV=production webpack --mode production"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
