@@ -51,6 +51,14 @@ parser =
                     (Just (ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 8)))
                 )
            )
+         , ( "pipe, comment and legacy settings"
+           , "\\| # comment : |{\"bg\":\"#8C9FAE\"}"
+           , Just
+                (Parsed (PlainText 0 (Text.fromString "\\| "))
+                    (Just " comment ")
+                    (Just (ItemSettings.new |> ItemSettings.withBackgroundColor (Just Color.labelDefalut)))
+                )
+           )
          , ( "text, comment and settings"
            , "test # comment : |{\"bg\":\"#8C9FAE\"}"
            , Just

@@ -51,10 +51,16 @@ colon =
     "{colon}"
 
 
+pipe : String
+pipe =
+    "{pipe}"
+
+
 parse : String -> Result (List DeadEnd) Parsed
 parse text =
     text
         |> String.replace "\\:" colon
+        |> String.replace "\\|" pipe
         |> String.replace (colon ++ " |") Constants.settingsPrefix
         |> run parser
         |> Result.map
@@ -66,6 +72,7 @@ parse text =
                                 text_
                                     |> Text.toString
                                     |> String.replace colon "\\:"
+                                    |> String.replace pipe "\\|"
                                     |> Text.fromString
                             )
                     )

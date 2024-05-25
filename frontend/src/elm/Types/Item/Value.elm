@@ -188,7 +188,7 @@ toString value =
 
 toDisplayString : Value -> String
 toDisplayString value =
-    toString value |> String.replace "\\:" ":"
+    toString value |> String.replace "\\:" ":" |> String.replace "\\|" "|"
 
 
 getIndent : Value -> Int
