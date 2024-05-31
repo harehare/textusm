@@ -78,6 +78,9 @@ isEditFile route =
         Route.EditLocalFile _ _ ->
             True
 
+        Route.Home ->
+            True
+
         _ ->
             False
 

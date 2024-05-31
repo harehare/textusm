@@ -291,9 +291,12 @@ class DiagramPanel {
           await setText(editor, message.text);
         }
       } else if (message.command === "exportPng") {
-        const dir: string | undefined = vscode.workspace
-          .getConfiguration()
-          .get("textusm.exportDir");
+        const dir: string =
+          vscode.workspace.getConfiguration().get("textusm.exportDir") ??
+          (vscode.workspace.workspaceFolders &&
+          vscode.workspace.workspaceFolders.length > 0
+            ? vscode.workspace.workspaceFolders[0].uri.path
+            : ".");
         const title = DiagramPanel.activePanel?._panel.title;
         const filePath = path.join(
           dir ??
@@ -321,9 +324,12 @@ class DiagramPanel {
           .getConfiguration()
           .get("textusm.backgroundColor");
         const title = DiagramPanel.activePanel?._panel.title;
-        const dir: string | undefined = vscode.workspace
-          .getConfiguration()
-          .get("textusm.exportDir");
+        const dir: string =
+          vscode.workspace.getConfiguration().get("textusm.exportDir") ??
+          (vscode.workspace.workspaceFolders &&
+          vscode.workspace.workspaceFolders.length > 0
+            ? vscode.workspace.workspaceFolders[0].uri.path
+            : ".");
         const filePath = path.join(
           dir ??
             `${
@@ -577,7 +583,7 @@ class DiagramPanel {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextUSM</title>
-    				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${
+    				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: ${
               this._panel.webview.cspSource
             }; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'nonce-${nonce}';">
     <script nonce="${nonce}" src="${scriptSrc}"/>
