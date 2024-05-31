@@ -28,7 +28,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@tsconfig/strictest": "^2.0.5",
     "@types/jspdf": "^2.0.0",
-    "@types/node": "^20.12.13",
+    "@types/node": "^20.13.0",
     "@types/requestidlecallback": "^0.3.7",
     "@types/uuid": "^9.0.8",
     "@types/wicg-file-system-access": "^2023.10.5",
