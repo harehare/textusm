@@ -27,7 +27,6 @@ import Diagram.UserPersona.View as UserPersonaModel
 import Diagram.UserStoryMap.Types as UserStoryMapModel
 import File
 import List
-import List.Extra as ListEx
 import Maybe
 import Ports
 import Return exposing (Return)
@@ -40,7 +39,7 @@ import Types.Item.Value as ItemValue exposing (Value(..))
 import Types.Position as Position exposing (Position)
 import Types.Property as Property
 import Types.Size as Size exposing (Size)
-import Types.Text as Text
+import Types.Text as Text exposing (Text)
 
 
 init : DiagramSettings.Settings -> Return Msg Model
@@ -119,41 +118,15 @@ update model message =
             model.selectedItem
                 |> Maybe.map
                     (\selectedItem ->
-                        let
-                            lines : List String
-                            lines =
-                                Text.lines model.text
-
-                            beforeText : String
-                            beforeText =
-                                Item.new
-                                    |> (ListEx.getAt (Item.getLineNo item) lines
-                                            |> Maybe.map String.trim
-                                            |> Maybe.withDefault ""
-                                            |> Item.withText
-                                       )
-                                    |> Item.getTextOnly
-
-                            afterText : String
-                            afterText =
-                                Item.getTextOnly selectedItem
-                        in
-                        if beforeText == afterText then
-                            clearSelectedItem
-
-                        else
-                            let
-                                text : String
-                                text =
-                                    ListEx.setAt (Item.getLineNo item)
-                                        (item
-                                            |> Item.withSettings (Item.getSettings selectedItem)
-                                            |> Item.toLineString
-                                        )
-                                        lines
-                                        |> String.join "\n"
-                            in
-                            setText text >> clearSelectedItem
+                        setText
+                            (Text.replaceLine (Item.getLineNo item)
+                                model.text
+                                (item
+                                    |> Item.withSettings (Item.getSettings selectedItem)
+                                    |> Item.toLineString
+                                )
+                            )
+                            >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
 
@@ -187,27 +160,29 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
-                            currentText : String
+                            currentText : Text
                             currentText =
                                 Text.getLine (Item.getLineNo item) model.text
 
                             (ItemParser.Parsed mainText comment settings) =
-                                currentText |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentText)) Nothing Nothing)
+                                currentText
+                                    |> Text.toString
+                                    |> ItemParser.parse
+                                    |> Result.withDefault (ItemParser.Parsed (PlainText 0 currentText) Nothing Nothing)
                         in
                         model.contextMenu
                             |> Maybe.map
                                 (\menu ->
                                     Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
                                         >> setText
-                                            (ListEx.setAt (Item.getLineNo item)
+                                            (Text.replaceLine (Item.getLineNo item)
+                                                model.text
                                                 (item
                                                     |> Item.withValue mainText
                                                     |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withForegroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
                                                 )
-                                                (Text.lines model.text)
-                                                |> String.join "\n"
                                             )
                                         >> clearSelectedItem
                                 )
@@ -220,26 +195,29 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
+                            currentLine : Text
                             currentLine =
                                 Text.getLine (Item.getLineNo item) model.text
 
                             (ItemParser.Parsed mainText comment settings) =
-                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
+                                currentLine
+                                    |> Text.toString
+                                    |> ItemParser.parse
+                                    |> Result.withDefault (ItemParser.Parsed (PlainText 0 currentLine) Nothing Nothing)
                         in
                         model.contextMenu
                             |> Maybe.map
                                 (\menu ->
                                     Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
                                         >> setText
-                                            (ListEx.setAt (Item.getLineNo item)
+                                            (Text.replaceLine (Item.getLineNo item)
+                                                model.text
                                                 (item
                                                     |> Item.withValue mainText
                                                     |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withBackgroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
                                                 )
-                                                (Text.lines model.text)
-                                                |> String.join "\n"
                                             )
                                         >> clearSelectedItem
                                 )
@@ -255,21 +233,26 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
+                            currentLine : Text
                             currentLine =
                                 Text.getLine (Item.getLineNo item) model.text
 
                             (ItemParser.Parsed value_ comment_ settings_) =
-                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
-
-                            updateLine : String
-                            updateLine =
-                                item
+                                currentLine
+                                    |> Text.toString
+                                    |> ItemParser.parse
+                                    |> Result.withDefault (ItemParser.Parsed (PlainText 0 currentLine) Nothing Nothing)
+                        in
+                        setText
+                            (Text.replaceLine (Item.getLineNo item)
+                                model.text
+                                (item
                                     |> Item.withText (ItemValue.update value_ (ItemValue.toTrimedString value_ |> FontStyle.apply style) |> ItemValue.toFullString)
                                     |> Item.withSettings settings_
                                     |> Item.withComments comment_
                                     |> Item.toLineString
-                        in
-                        setText (ListEx.setAt (Item.getLineNo item) updateLine (Text.lines model.text) |> String.join "\n")
+                                )
+                            )
                             >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
@@ -299,27 +282,27 @@ update model message =
                 |> Maybe.map
                     (\item ->
                         let
+                            currentLine : Text
                             currentLine =
                                 Text.getLine (Item.getLineNo item) model.text
 
                             (ItemParser.Parsed mainText comment settings) =
-                                currentLine |> ItemParser.parse |> Result.withDefault (ItemParser.Parsed (PlainText 0 (Text.fromString currentLine)) Nothing Nothing)
-
-                            text : String
-                            text =
-                                item
-                                    |> Item.withValue mainText
-                                    |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withFontSize size))
-                                    |> Item.withComments comment
-                                    |> Item.toLineString
-
-                            updateText : String
-                            updateText =
-                                ListEx.setAt (Item.getLineNo item) text (Text.lines model.text)
-                                    |> String.join "\n"
+                                currentLine
+                                    |> Text.toString
+                                    |> ItemParser.parse
+                                    |> Result.withDefault (ItemParser.Parsed (PlainText 0 currentLine) Nothing Nothing)
                         in
                         closeDropDown
-                            >> setText updateText
+                            >> setText
+                                (Text.replaceLine (Item.getLineNo item)
+                                    model.text
+                                    (item
+                                        |> Item.withValue mainText
+                                        |> Item.withSettings (Just (settings |> Maybe.withDefault ItemSettings.new |> ItemSettings.withFontSize size))
+                                        |> Item.withComments comment
+                                        |> Item.toLineString
+                                    )
+                                )
                             >> clearSelectedItem
                     )
                 |> Maybe.withDefault Return.zero
@@ -404,13 +387,13 @@ update model message =
                                 (ErDiagramModel.Table _ _ _ lineNo) =
                                     table
                             in
-                            setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table)
+                            setText <| Text.replaceLine lineNo model.text (ErDiagramModel.tableToLineString table)
 
                         Diagram.ItemTarget item ->
-                            setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item)
+                            setText <| Text.replaceLine (Item.getLineNo item) model.text (Item.toLineString item)
 
                 Diagram.ItemResize item _ ->
-                    setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item)
+                    setText <| Text.replaceLine (Item.getLineNo item) model.text (Item.toLineString item)
 
                 _ ->
                     Return.zero
@@ -640,17 +623,9 @@ setFocus id =
     Return.command (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
-setLine : Int -> List String -> String -> Return.ReturnF Msg Model
-setLine lineNo lines line =
-    setText
-        (ListEx.setAt lineNo line lines
-            |> String.join "\n"
-        )
-
-
-setText : String -> Return.ReturnF Msg Model
+setText : Text -> Return.ReturnF Msg Model
 setText text =
-    Return.map <| \m -> { m | text = Text.change <| Text.fromString text }
+    Return.map <| \m -> { m | text = text }
 
 
 setTouchDistance : Maybe Float -> Return.ReturnF Msg Model

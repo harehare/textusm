@@ -9,15 +9,16 @@ module Types.Text exposing
     , getLine
     , isChanged
     , isEmpty
-    , lines
     , map
+    , replaceLine
     , saved
     , toString
     )
 
 import Json.Decode as D exposing (Decoder)
 import Json.Encode as E
-import List.Extra exposing (getAt)
+import Monocle.Common exposing (list)
+import Monocle.Optional exposing (modifyOption)
 
 
 type Text
@@ -95,13 +96,6 @@ fromString text =
         Saved text
 
 
-getLine : Int -> Text -> String
-getLine lineNo text =
-    lines text
-        |> getAt lineNo
-        |> Maybe.withDefault ""
-
-
 isChanged : Text -> Bool
 isChanged text =
     case text of
@@ -115,11 +109,6 @@ isChanged text =
 isEmpty : Text -> Bool
 isEmpty text =
     text == Empty
-
-
-lines : Text -> List String
-lines text =
-    toString text |> String.lines
 
 
 saved : Text -> Text
@@ -146,3 +135,18 @@ toString text =
 
         Saved t ->
             t
+
+
+getLine : Int -> Text -> Text
+getLine index text =
+    .getOption (list index) (toString text |> String.lines)
+        |> Maybe.withDefault ""
+        |> fromString
+
+
+replaceLine : Int -> Text -> String -> Text
+replaceLine index text line =
+    modifyOption (list index) (\_ -> line) (toString text |> String.lines)
+        |> Maybe.map (\l -> String.join "\n" l |> fromString)
+        |> Maybe.withDefault text
+        |> change
