@@ -112,6 +112,17 @@
     "rules": {
       "import/extensions": "off",
       "n/prefer-global/process": "off",
+      "unicorn/prevent-abbreviations": [
+        "error",
+        {
+          "extendDefaultReplacements": false,
+          "replacements": {
+            "e": {
+              "event": false
+            }
+          }
+        }
+      ],
       "@typescript-eslint/naming-convention": [
         "error",
         {
