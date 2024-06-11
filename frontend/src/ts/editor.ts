@@ -59,11 +59,15 @@ class MonacoEditor extends HTMLElement {
   init: boolean;
   textChanged: boolean;
   editor?: monaco.editor.IStandaloneCodeEditor;
+  beforeUnload: (e: any) => void;
 
   constructor() {
     super();
     this.init = false;
     this.textChanged = false;
+    this.beforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
   }
 
   static get observedAttributes(): string[] {
@@ -172,7 +176,11 @@ class MonacoEditor extends HTMLElement {
 
   set changed(value: boolean) {
     this.textChanged = value;
-    window.addEventListener('beforeunload', () => (this.textChanged ? () => true : null));
+    window.removeEventListener('beforeunload', this.beforeUnload);
+
+    if (this.textChanged) {
+      window.addEventListener('beforeunload', this.beforeUnload);
+    }
   }
 
   get diagramType() {

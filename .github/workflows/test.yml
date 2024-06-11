@@ -16,7 +16,7 @@ permissions:
 jobs:
   test:
     name: test
-    if: github.actor != 'dependabot[bot]'
+    if: github.actor != 'dependabot[bot]' && contains(github.event.commits.*.message, '[skip ci]') == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo

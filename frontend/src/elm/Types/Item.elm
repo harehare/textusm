@@ -96,7 +96,7 @@ type alias Hierarchy =
 type Item
     = Item
         { lineNo : Int
-        , value : ItemValue.Value
+        , value : Value
         , comments : Maybe String
         , settings : Maybe ItemSettings.Settings
         , children : Children
@@ -553,7 +553,7 @@ withText text (Item item) =
         |> Result.withDefault (Item { item | value = PlainText 0 (Text.fromString text), comments = Nothing, settings = Nothing })
 
 
-withValue : ItemValue.Value -> Item -> Item
+withValue : Value -> Item -> Item
 withValue value (Item item) =
     Item { item | value = value }
 
