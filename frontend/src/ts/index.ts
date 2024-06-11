@@ -76,7 +76,7 @@ const app = (Elm as ElmType).Main.init({
     settings,
     isOnline: window.navigator.onLine ?? true,
     isDarkMode,
-    canUseClipboardItem: Boolean(ClipboardItem),
+    canUseClipboardItem: 'ClipboardItem' in window,
     canUseNativeFileSystem,
   },
 });
