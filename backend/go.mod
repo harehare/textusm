@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	cloud.google.com/go/firestore v1.15.0
-	cloud.google.com/go/storage v1.41.0
+	cloud.google.com/go/storage v1.42.0
 	firebase.google.com/go/v4 v4.14.1
 	github.com/99designs/gqlgen v0.17.48
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -67,7 +67,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine/v2 v2.0.5 // indirect
 	google.golang.org/genproto v0.0.0-20240528184218-531527333157 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240521202816-d264139d666e // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
