@@ -21,7 +21,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.backend }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - uses: actions/checkout@4
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -105,7 +105,7 @@ jobs:
 
   backend-test:
     name: Backend test
-    needs: check-changes
+    needs: changes
     runs-on: ubuntu-latest
     if: ${{ needs.changes.outputs.backend == 'true' }}
     steps:
@@ -119,10 +119,9 @@ jobs:
         with:
           working-directory: backend
           args: --issues-exit-code=0 --timeout=2m
-      - name: test
+      - name: Run tests
         run: just test
-        with:
-          working-directory: backend
+        working-directory: frontend
 
   analyze:
     name: Analyze
