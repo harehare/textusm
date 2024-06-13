@@ -14,29 +14,36 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
-    name: test
-    if: github.actor != 'dependabot[bot]' && contains(github.event.commits.*.message, '[skip ci]') == false
+  changes:
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && contains(github.event.commits.*.message, '[skip ci]') == false
+    outputs:
+      frontend: ${{ steps.filter.outputs.backend }}
+      backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@4
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          fetch-depth: 0
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+
+  frontend-test:
+    name: frontend-test
+    needs: changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "backend/go.mod"
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          working-directory: backend
-          args: --issues-exit-code=0 --timeout=2m
       - name: Get npm cache directory
         id: npm-cache-dir
         shell: bash
@@ -96,10 +103,32 @@ jobs:
           MONITOR_ENABLE: "0"
           USE_HTTPS: "0"
 
+  backend-test:
+    name: Backend test
+    needs: check-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "backend/go.mod"
+      - uses: extractions/setup-just@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          working-directory: backend
+          args: --issues-exit-code=0 --timeout=2m
+      - name: test
+        run: just test
+        with:
+          working-directory: backend
+
   analyze:
     name: Analyze
-    if: github.actor != 'dependabot[bot]'
+    needs: changes
     runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.backend == 'true' }}
     permissions:
       security-events: write
     strategy:
