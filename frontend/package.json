@@ -39,7 +39,7 @@
     "elm-constants": "^1.0.0",
     "elm-format": "^0.8.7",
     "elm-optimize-level-2": "^0.3.5",
-    "elm-review": "^2.11.2",
+    "elm-review": "^2.12.0",
     "elm-test": "^0.19.1-revision12",
     "firebase-tools": "^13.11.2",
     "prettier": "^3.3.2",
