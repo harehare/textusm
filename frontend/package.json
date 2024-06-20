@@ -48,7 +48,7 @@
     "stylelint": "^16.6.1",
     "stylelint-config-standard": "^36.0.0",
     "terser": "^5.31.1",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vite": "^5.3.1",
     "vite-plugin-elm": "^3.0.1",
     "vite-plugin-html": "^3.2.2",
