@@ -30,7 +30,7 @@
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20.14.7",
     "@types/requestidlecallback": "^0.3.7",
-    "@types/uuid": "^9.0.8",
+    "@types/uuid": "^10.0.0",
     "@types/wicg-file-system-access": "^2023.10.5",
     "concurrently": "^8.2.2",
     "devcert": "^1.2.2",
