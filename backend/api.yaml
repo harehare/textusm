@@ -1,0 +1,56 @@
+openapi: "3.0.3"
+info:
+  version: 1.0.0
+  title: TextUSM APIs
+servers:
+  - url: "https://api.textusm.com"
+paths:
+  /version:
+    get:
+      summary: Get version
+      responses:
+        "200":
+          description: 200 OK
+          content:
+            "*/*":
+              schema:
+                type: string
+  /api/v1/settings/usable-font-list:
+    get:
+      summary: Get font list
+      parameters:
+        - in: query
+          name: path
+          schema:
+            type: string
+            enum: [ja, en]
+      responses:
+        "200":
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/v1/token/gist/revoke:
+    delete:
+      summary: Revoke token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access_token:
+                  type: string
+      responses:
+        "200":
+          description: 200 Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
