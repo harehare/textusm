@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	cloud.google.com/go/firestore v1.15.0
-	cloud.google.com/go/storage v1.42.0
+	cloud.google.com/go/storage v1.43.0
 	firebase.google.com/go/v4 v4.14.1
 	github.com/99designs/gqlgen v0.17.49
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
