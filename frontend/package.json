@@ -8,7 +8,7 @@
     "url": "https://github.com/harehare/textusm/issues"
   },
   "dependencies": {
-    "@sentry/browser": "^8.13.0",
+    "@sentry/browser": "^8.14.0",
     "clipboard-copy": "^4.0.1",
     "dexie": "^4.0.7",
     "firebase": "^10.12.3",
