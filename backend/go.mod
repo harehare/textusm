@@ -13,7 +13,7 @@ require (
 	github.com/go-chi/httprate v0.10.0
 	github.com/google/wire v0.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/redis/go-redis/v9 v9.6.0
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/samber/lo v1.46.0
 	github.com/samber/mo v1.13.0
 	github.com/satori/go.uuid v1.2.0
