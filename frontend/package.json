@@ -45,7 +45,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "size-limit": "^11.0.2",
-    "stylelint": "^16.8.0",
+    "stylelint": "^16.8.1",
     "stylelint-config-standard": "^36.0.1",
     "terser": "^5.31.3",
     "typescript": "^5.5.4",
