@@ -47,7 +47,7 @@
     "size-limit": "^11.0.2",
     "stylelint": "^16.8.1",
     "stylelint-config-standard": "^36.0.1",
-    "terser": "^5.31.4",
+    "terser": "^5.31.5",
     "typescript": "^5.5.4",
     "vite": "^5.4.0",
     "vite-plugin-elm": "^3.0.1",
