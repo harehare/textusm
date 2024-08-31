@@ -104,7 +104,7 @@ jobs:
           USE_HTTPS: "0"
 
   backend-test:
-    name: Backend test
+    name: backend_test
     needs: changes
     runs-on: ubuntu-latest
     if: ${{ needs.changes.outputs.backend == 'true' }}
@@ -124,7 +124,7 @@ jobs:
         working-directory: frontend
 
   analyze:
-    name: Analyze
+    name: analyze
     needs: changes
     runs-on: ubuntu-latest
     if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.backend == 'true' }}

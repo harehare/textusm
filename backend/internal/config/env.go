@@ -7,7 +7,6 @@ import (
 )
 
 type Env struct {
-	Host                string `envconfig:"API_HOST"`
 	Version             string `required:"true" envconfig:"API_VERSION"`
 	Port                string `required:"true" envconfig:"PORT"`
 	Credentials         string `required:"false" envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`

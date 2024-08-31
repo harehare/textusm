@@ -80,7 +80,7 @@ func NewConfig(env *Env) (*Config, error) {
 		fbApp = _fbApp
 	} else {
 		firebaseConfig := &firebase.Config{
-			ProjectID:     "dev",
+			ProjectID:     "textusm",
 			StorageBucket: env.StorageBucketName,
 		}
 		_app, err := firebase.NewApp(ctx, firebaseConfig)
