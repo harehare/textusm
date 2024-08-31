@@ -121,7 +121,7 @@ jobs:
           args: --issues-exit-code=0 --timeout=2m
       - name: Run tests
         run: just test
-        working-directory: frontend
+        working-directory: backend
 
   analyze:
     name: analyze
