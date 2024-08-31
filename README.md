@@ -422,9 +422,13 @@ npm install
 
 # 2. Set environment variables
 cp .env.example .env
+# use direnv
 echo 'dotenv' > .envrc
 
-# 3. build, serve & watch
+# 3. generate constants
+npm run generate:elm-constants
+
+# 4. build, serve & watch
 just run
 ```
 
