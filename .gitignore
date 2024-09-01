@@ -39,6 +39,7 @@ tests/VerifyExamples
 elm.js
 
 .env
+.env.bak*
 .envrc*
 
 cli/package-lock.json
