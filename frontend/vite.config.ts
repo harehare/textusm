@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => ({
         passes: 3,
       },
     },
+    chunkSizeWarningLimit: 1024,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -45,6 +46,10 @@ export default defineConfig(({ mode }) => ({
 
           if (id.includes('svgo')) {
             return 'vendor-svgo';
+          }
+
+          if (id.includes('monaco-editor')) {
+            return 'vendor-monaco';
           }
 
           if (id.includes('node_modules')) {
@@ -92,7 +97,7 @@ export default defineConfig(({ mode }) => ({
               swDest: `${outDirectory}/sw.js`,
               clientsClaim: true,
               skipWaiting: true,
-              maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
+              maximumFileSizeToCacheInBytes: 1024 * 1024 * 10,
               navigateFallback: '/index.html',
               navigateFallbackAllowlist: [/^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/],
               runtimeCaching: [
