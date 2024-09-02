@@ -416,20 +416,8 @@ r1
 
 ## Developing
 
-```shell
-# 1. Install dependencies
-npm install
-
-# 2. Set environment variables
-cp .env.example .env
-# use direnv
-echo 'dotenv' > .envrc
-
-# 3. generate constants
-npm run generate:elm-constants
-
-# 4. build, serve & watch
-just run
+```sh
+$ npm run dev
 ```
 
 Open http://localhost:3000 and start modifying the code in /src.

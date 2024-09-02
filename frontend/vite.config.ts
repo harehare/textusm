@@ -1,7 +1,7 @@
 import path from 'node:path';
 import elmPlugin from 'vite-plugin-elm';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import { defineConfig } from 'vite';
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
@@ -36,28 +36,6 @@ export default defineConfig(({ mode }) => ({
         passes: 3,
       },
     },
-    chunkSizeWarningLimit: 1024,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('jspdf') || id.includes('html2canvas')) {
-            return 'vendor-pdf';
-          }
-
-          if (id.includes('svgo')) {
-            return 'vendor-svgo';
-          }
-
-          if (id.includes('monaco-editor')) {
-            return 'vendor-monaco';
-          }
-
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
-      },
-    },
   },
   define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
   plugins: [
@@ -88,6 +66,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
+    splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
           // eslint-disable-next-line new-cap
@@ -97,7 +76,7 @@ export default defineConfig(({ mode }) => ({
               swDest: `${outDirectory}/sw.js`,
               clientsClaim: true,
               skipWaiting: true,
-              maximumFileSizeToCacheInBytes: 1024 * 1024 * 10,
+              maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
               navigateFallback: '/index.html',
               navigateFallbackAllowlist: [/^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/],
               runtimeCaching: [
