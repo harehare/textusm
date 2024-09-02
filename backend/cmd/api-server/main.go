@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log/slog"
 	"os"
 
 	backend "github.com/harehare/textusm/internal/app"
@@ -24,7 +23,6 @@ func main() {
 	}
 
 	if err != nil {
-		slog.Error(err.Error())
 		os.Exit(1)
 	} else {
 		os.Exit(0)
