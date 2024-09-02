@@ -2,10 +2,20 @@ name: deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "deploy branch"
+        required: true
+        default: "master"
+        type: choice
+        options:
+          - master
+          - refs/tags/v0.14.7
+          - refs/tags/v0.14.8
 
 jobs:
   deploy:
     uses: ./.github/workflows/build_and_deploy.yml
     secrets: inherit
     with:
-      ref: ${{ github.ref }}
+      ref: ${{ inputs.branch }}

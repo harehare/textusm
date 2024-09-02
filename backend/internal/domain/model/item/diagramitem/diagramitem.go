@@ -169,15 +169,11 @@ func (i *DiagramItem) Title() string {
 }
 
 func (i *DiagramItem) Text() string {
-	if hasEncryptKey() {
-		text, err := util.Decrypt(encryptKey, i.encryptedText)
-		if err != nil {
-			return "invalid text"
-		}
-		return text
-	} else {
-		return i.encryptedText
+	text, err := util.Decrypt(encryptKey, i.encryptedText)
+	if err != nil {
+		return "invalid text"
 	}
+	return text
 }
 
 func (i *DiagramItem) EncryptedText() string {
@@ -343,20 +339,12 @@ func (i *DiagramItem) ToMap() map[string]interface{} {
 		"SaveToStorage": true}
 }
 
-func hasEncryptKey() bool {
-	return len(encryptKey) > 0
-}
-
 func encryptText(text string) (*string, error) {
-	if hasEncryptKey() {
-		t, err := util.Encrypt(encryptKey, text)
+	t, err := util.Encrypt(encryptKey, text)
 
-		if err != nil {
-			return nil, e.EncryptionFailedError(err)
-		}
-
-		return &t, nil
-	} else {
-		return &text, nil
+	if err != nil {
+		return nil, e.EncryptionFailedError(err)
 	}
+
+	return &t, nil
 }
