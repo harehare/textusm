@@ -27,38 +27,78 @@ var Set = wire.NewSet(
 )
 
 func NewConfig(env *Env) (*Config, error) {
-	cred, err := base64.StdEncoding.DecodeString(env.Credentials)
+	var (
+		app          *firebase.App
+		fbApp        *firebase.App
+		cred, dbCred []byte
+	)
 
-	if err != nil {
-		slog.Error("error initializing app", "error", err)
-		return nil, err
+	if env.Credentials != "" {
+		_cred, err := base64.StdEncoding.DecodeString(env.Credentials)
+
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
+		cred = _cred
 	}
 
-	dbCred, err := base64.StdEncoding.DecodeString(env.DatabaseCredentials)
+	if env.DatabaseCredentials != "" {
+		_dbCred, err := base64.StdEncoding.DecodeString(env.DatabaseCredentials)
 
-	if err != nil {
-		slog.Error("error initializing app", "error", err)
-		return nil, err
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
+
+		dbCred = _dbCred
 	}
 
 	ctx := context.Background()
-	opt := option.WithCredentialsJSON(cred)
-	dbOpt := option.WithCredentialsJSON(dbCred)
-	app, err := firebase.NewApp(ctx, nil, opt)
 
-	if err != nil {
-		slog.Error("error initializing app", "error", err)
-		return nil, err
-	}
+	if cred != nil && dbCred != nil {
+		firebaseConfig := &firebase.Config{
+			StorageBucket: env.StorageBucketName,
+		}
+		opt := option.WithCredentialsJSON(cred)
+		dbOpt := option.WithCredentialsJSON(dbCred)
+		_app, err := firebase.NewApp(ctx, nil, opt)
 
-	firebaseConfig := &firebase.Config{
-		StorageBucket: env.StorageBucketName,
-	}
-	fbApp, err := firebase.NewApp(ctx, firebaseConfig, dbOpt)
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
 
-	if err != nil {
-		slog.Error("error initializing app", "error", err)
-		return nil, err
+		_fbApp, err := firebase.NewApp(ctx, firebaseConfig, dbOpt)
+
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
+
+		app = _app
+		fbApp = _fbApp
+	} else {
+		firebaseConfig := &firebase.Config{
+			ProjectID:     "textusm",
+			StorageBucket: env.StorageBucketName,
+		}
+		_app, err := firebase.NewApp(ctx, firebaseConfig)
+
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
+
+		_fbApp, err := firebase.NewApp(ctx, firebaseConfig)
+
+		if err != nil {
+			slog.Error("error initializing app", "error", err)
+			return nil, err
+		}
+
+		app = _app
+		fbApp = _fbApp
 	}
 
 	firestore, err := fbApp.Firestore(ctx)
