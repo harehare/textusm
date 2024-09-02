@@ -4,17 +4,25 @@ const zlib = require("zlib");
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getStorage } = require("firebase-admin/storage");
 
-initializeApp({
-  credential: cert(
-    JSON.parse(
-      Buffer.from(
-        process.env.DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON,
-        "base64"
-      ).toString()
-    )
-  ),
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-});
+if (process.env.DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  initializeApp({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    credential: process.env.DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON ? cert(
+      JSON.parse(
+        Buffer.from(
+          process.env.DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON,
+          "base64"
+        ).toString()
+      )
+    ) : undefined,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
+} else {
+  initializeApp({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
+}
 
 (async () => {
   fs.readdir("./assets/fontlist/", (err, files) => {

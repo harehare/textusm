@@ -7,11 +7,10 @@ import (
 )
 
 type Env struct {
-	Host                string `envconfig:"API_HOST"`
 	Version             string `required:"true" envconfig:"API_VERSION"`
 	Port                string `required:"true" envconfig:"PORT"`
-	Credentials         string `required:"true" envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
-	DatabaseCredentials string `required:"true" envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	Credentials         string `required:"false" envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	DatabaseCredentials string `required:"false" envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
