@@ -51,6 +51,7 @@
     "vite": "^5.4.0",
     "vite-plugin-elm": "^3.0.1",
     "vite-plugin-html": "^3.2.2",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-pwa": "^0.20.1",
     "xo": "^0.59.3"
   },

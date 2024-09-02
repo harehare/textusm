@@ -1,9 +1,10 @@
 import path from 'node:path';
 import elmPlugin from 'vite-plugin-elm';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import { defineConfig, splitVendorChunkPlugin } from 'vite';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { createHtmlPlugin } from 'vite-plugin-html';
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 const outDirectory = path.join(import.meta.dirname, 'dist');
 const day = 60 * 60 * 24;
@@ -37,30 +38,33 @@ export default defineConfig(({ mode }) => ({
       },
     },
     chunkSizeWarningLimit: 1024,
-    // rollupOptions: {
-    //   output: {
-    //     manualChunks(id) {
-    //       if (id.includes('jspdf') || id.includes('html2canvas')) {
-    //         return 'vendor-pdf';
-    //       }
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('jspdf') || id.includes('html2canvas')) {
+            return 'vendor-pdf';
+          }
 
-    //       if (id.includes('svgo')) {
-    //         return 'vendor-svgo';
-    //       }
+          if (id.includes('svgo')) {
+            return 'vendor-svgo';
+          }
 
-    //       if (id.includes('monaco-editor')) {
-    //         return 'vendor-monaco';
-    //       }
+          if (id.includes('monaco-editor')) {
+            return 'vendor-monaco';
+          }
 
-    //       if (id.includes('node_modules')) {
-    //         return 'vendor';
-    //       }
-    //     },
-    //   },
-    // },
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
   define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
   plugins: [
+    monacoEditorPlugin.default({
+      languageWorkers: ['editorWorkerService'],
+    }),
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     elmPlugin({
       optimize: false,
@@ -88,7 +92,6 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
-    splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
           // eslint-disable-next-line new-cap
