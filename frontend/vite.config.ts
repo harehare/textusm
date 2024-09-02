@@ -48,6 +48,10 @@ export default defineConfig(({ mode }) => ({
             return 'vendor-svgo';
           }
 
+          if (id.includes('monaco-editor')) {
+            return 'vendor-monaco';
+          }
+
           if (id.includes('node_modules')) {
             return 'vendor';
           }
