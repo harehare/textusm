@@ -1,8 +1,7 @@
 default: run
-set working-directory := 'frontend'
 
 run:
-  npm run dev
+  cd frontend && npm run dev
 
 test:
   cd frontend && npm run test
