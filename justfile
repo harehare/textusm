@@ -1,9 +1,10 @@
 default: run
+set working-directory := 'frontend'
 
 run:
-  cd frontend && npm run dev
+  npm run dev
 
 test:
-  cd frontend && npm run test
-  cd frontend && npm run test:e2e
-  cd backend && just test
+  npm run test
+  npm run test:e2e
+  cd ../backend && just test
