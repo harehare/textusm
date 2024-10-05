@@ -160,10 +160,7 @@
           ]
         }
       ],
-      "n/file-extension-in-import": [
-        "error",
-        "never"
-      ],
+      "n/file-extension-in-import": "off",
       "default-case": "off"
     }
   },
