@@ -1,9 +1,9 @@
-module Api.Http.Request exposing (Request, delete, emptyResolver, get, jsonResolver, patch, post)
+module Api.Http.Request exposing (Request, delete, emptyResolver, get, getFile, jsonResolver, patch, post)
 
 import Http exposing (Header)
 import Json.Decode as D
 import Task exposing (Task)
-import Url.Builder exposing (QueryParameter, crossOrigin)
+import Url.Builder exposing (QueryParameter, absolute, crossOrigin)
 
 
 type alias Request =
@@ -56,6 +56,18 @@ get req resolver =
         , resolver = resolver
         , timeout = Nothing
         , url = crossOrigin req.url req.path req.query
+        }
+
+
+getFile : Request -> Http.Resolver Http.Error a -> Task Http.Error a
+getFile req resolver =
+    Http.task
+        { body = Http.emptyBody
+        , headers = req.headers
+        , method = "GET"
+        , resolver = resolver
+        , timeout = Nothing
+        , url = absolute req.path req.query
         }
 
 

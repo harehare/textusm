@@ -40,7 +40,3 @@ func (s *SettingsService) Save(ctx context.Context, diagram v.Diagram, settings 
 
 	return s.repo.Save(ctx, values.GetUID(ctx).OrEmpty(), diagram, *settings)
 }
-
-func (s *SettingsService) FindFontList(ctx context.Context, lang string) mo.Result[[]string] {
-	return s.repo.FindFontList(ctx, lang)
-}

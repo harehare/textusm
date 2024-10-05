@@ -47,22 +47,3 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
-func (a *Api) UsableFontList(w http.ResponseWriter, r *http.Request) {
-	fontList := a.settingsService.FindFontList(r.Context(), r.URL.Query().Get("lang"))
-
-	if fontList.IsError() {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(fontList.OrElse([]string{}))
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
