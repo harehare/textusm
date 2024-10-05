@@ -48,11 +48,6 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 		r.Use(middleware.IPMiddleware())
 		r.Use(cors)
 
-		r.Route("/settings", func(r chi.Router) {
-			r.Use(httprate.LimitByIP(10, 1*time.Minute))
-			r.Get("/usable-font-list", restApi.UsableFontList)
-		})
-
 		r.Route("/", func(r chi.Router) {
 			r.Use(middleware.AuthMiddleware(config.FirebaseApp))
 			r.Use(httprate.LimitByIP(10, 1*time.Minute))

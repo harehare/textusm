@@ -1,7 +1,7 @@
 {
   "name": "textusm",
   "description": "Online tool for Generate a User Story Mapping from indented text.",
-  "version": "0.14.8",
+  "version": "0.14.9",
   "author": "harehare",
   "type": "module",
   "bugs": {
@@ -160,10 +160,7 @@
           ]
         }
       ],
-      "n/file-extension-in-import": [
-        "error",
-        "never"
-      ],
+      "n/file-extension-in-import": "off",
       "default-case": "off"
     }
   },

@@ -9,7 +9,6 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/storage"
 	"github.com/google/wire"
-	"github.com/redis/go-redis/v9"
 	"google.golang.org/api/option"
 )
 
@@ -17,7 +16,6 @@ type Config struct {
 	FirebaseApp     *firebase.App
 	FirestoreClient *firestore.Client
 	StorageClient   *storage.Client
-	RedisClient     *redis.Client
 }
 
 var Set = wire.NewSet(
@@ -115,23 +113,10 @@ func NewConfig(env *Env) (*Config, error) {
 		return nil, err
 	}
 
-	var rdb *redis.Client
-
-	if env.RedisUrl != "" {
-		opts, err := redis.ParseURL(env.RedisUrl)
-
-		if err != nil {
-			slog.Error("error initializing redis", "error", err)
-			return nil, err
-		}
-		rdb = redis.NewClient(opts)
-	}
-
 	config := Config{
 		FirebaseApp:     app,
 		FirestoreClient: firestore,
 		StorageClient:   storage,
-		RedisClient:     rdb,
 	}
 
 	return &config, nil

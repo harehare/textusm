@@ -15,7 +15,6 @@ type Env struct {
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
 	GoEnv               string `required:"true" envconfig:"GO_ENV"`
-	RedisUrl            string `required:"false" envconfig:"REDIS_URL"`
 }
 
 func NewEnv() (*Env, error) {

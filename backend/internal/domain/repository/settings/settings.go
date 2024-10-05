@@ -10,6 +10,5 @@ import (
 
 type SettingsRepository interface {
 	Find(ctx context.Context, userID string, diagram values.Diagram) mo.Result[*settings.Settings]
-	FindFontList(ctx context.Context, lang string) mo.Result[[]string]
 	Save(ctx context.Context, userID string, diagram values.Diagram, settings settings.Settings) mo.Result[*settings.Settings]
 }
