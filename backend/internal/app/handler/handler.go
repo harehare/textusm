@@ -8,7 +8,6 @@ import (
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -67,7 +66,6 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolvers}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
-		graphql.SetQueryCache(lru.New(100))
 		if os.Getenv("GO_ENV") != "production" {
 			graphql.Use(extension.Introspection{})
 		}
