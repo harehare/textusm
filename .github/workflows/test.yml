@@ -115,7 +115,7 @@ jobs:
           go-version-file: "backend/go.mod"
       - uses: extractions/setup-just@v2
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           working-directory: backend
           args: --issues-exit-code=0 --timeout=2m
