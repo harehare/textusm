@@ -1,3 +1,4 @@
+-- migrate:up
 CREATE TYPE diagram AS ENUM(
   'USER_STORY_MAP',
   'OPPORTUNITY_CANVAS',
@@ -78,6 +79,17 @@ CREATE TABLE
     updated_at timestamp DEFAULT NOW()
   );
 
-CREATE INDEX ON items (diagram_id);
+CREATE INDEX items_idx ON items (diagram_id);
 
-CREATE INDEX ON gist_items (diagram_id);
+-- migrate:down
+DROP TABLE items;
+
+DROP TABLE share_conditions;
+
+DROP TABLE settings;
+
+DROP TYPE diagram;
+
+DROP TYPE location;
+
+DROP INDEX items_idx;
