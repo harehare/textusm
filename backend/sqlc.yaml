@@ -2,14 +2,12 @@ version: "2"
 cloud:
   project: "textusm"
 sql:
-  - schema: "postgresql/schema.sql"
-    queries: "postgresql/query.sql"
+  - schema: "db/migrations"
+    queries: "db/query.sql"
     engine: "postgresql"
     gen:
       go:
-        package: "internal/database"
-        out: "internal/database"
-    database:
-      managed: true
+        package: "db"
+        out: "internal/db"
     rules:
       - sqlc/db-prepare

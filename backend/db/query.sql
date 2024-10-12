@@ -13,9 +13,15 @@ SELECT
 FROM
   items
 WHERE
-  uid = $1;
+  uid = $1
+  AND is_public = $2
+  AND is_bookmark = $3
+LIMIT
+  $4
+OFFSET
+  $5;
 
--- name: CreateItem :batchexec
+-- name: CreateItem :exec
 INSERT INTO
   items (
     diagram,
@@ -29,7 +35,7 @@ INSERT INTO
 VALUES
   ($1, $2, $3, $4, $5, $6, $7);
 
--- name: UpdateItem :batchexec
+-- name: UpdateItem :exec
 UPDATE items
 SET
   diagram = $1,
@@ -40,8 +46,14 @@ SET
   thumbnail = $6,
   updated_at = NOW()
 WHERE
+  uid = $7
+  AND diagram_id = $8;
+
+-- name: DeleteItem :exec
+DELETE FROM items
+WHERE
   uid = $1
-  AND diagram_id = $7;
+  AND diagram_id = $2;
 
 -- name: GetSettings :one
 SELECT
@@ -52,7 +64,7 @@ WHERE
   uid = $1
   AND diagram = $2;
 
--- name: CreateSettings :batchexec
+-- name: CreateSettings :exec
 INSERT INTO
   settings (
     id,
@@ -98,7 +110,7 @@ VALUES
     $18
   );
 
--- name: UpdateSettings :batchexec
+-- name: UpdateSettings :exec
 UPDATE settings
 SET
   activity_color = $1,
