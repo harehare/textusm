@@ -9,12 +9,15 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/storage"
 	"github.com/google/wire"
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"google.golang.org/api/option"
 )
 
 type Config struct {
 	FirebaseApp     *firebase.App
 	FirestoreClient *firestore.Client
+	DBConn          *pgxpool.Pool
 	StorageClient   *storage.Client
 }
 
@@ -113,10 +116,26 @@ func NewConfig(env *Env) (*Config, error) {
 		return nil, err
 	}
 
+	var conn *pgxpool.Pool
+
+	if env.DatabaseURL != "" {
+		cfg, err := pgxpool.ParseConfig(env.DatabaseURL)
+		if err != nil {
+			return nil, err
+		}
+
+		conn, err = pgxpool.NewWithConfig(ctx, cfg)
+		if err != nil {
+			return nil, err
+		}
+		defer conn.Close()
+	}
+
 	config := Config{
 		FirebaseApp:     app,
 		FirestoreClient: firestore,
 		StorageClient:   storage,
+		DBConn:          conn,
 	}
 
 	return &config, nil

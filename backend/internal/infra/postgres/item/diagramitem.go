@@ -8,6 +8,7 @@ import (
 	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/samber/mo"
 )
 
@@ -28,7 +29,7 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 
 	i, err := r.db.GetItem(ctx, db.GetItemParams{
 		Uid:       userID,
-		DiagramID: uuid.NullUUID{UUID: u, Valid: true},
+		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 	})
 
 	if err != nil {
@@ -37,20 +38,26 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 
 	var thumbnail mo.Option[string]
 
-	if i.Thumbnail.Valid {
-		thumbnail = mo.Some[string](i.Thumbnail.String)
-	} else {
+	if i.Thumbnail == nil {
 		thumbnail = mo.None[string]()
+	} else {
+		thumbnail = mo.Some[string](*i.Thumbnail)
+	}
+
+	id, err := i.DiagramID.Value()
+
+	if err != nil {
+		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
 	return diagramitem.New().
-		WithID(i.DiagramID.UUID.String()).
-		WithTitle(i.Title.String).
+		WithID(id.(string)).
+		WithTitle(*i.Title).
 		WithEncryptedText(i.Text).
 		WithThumbnail(thumbnail).
 		WithDiagramString(string(i.Diagram)).
-		WithIsPublic(i.IsPublic.Bool).
-		WithIsBookmark(i.IsBookmark.Bool).
+		WithIsPublic(*i.IsPublic).
+		WithIsBookmark(*i.IsBookmark).
 		WithCreatedAt(i.CreatedAt.Time).
 		WithUpdatedAt(i.UpdatedAt.Time).
 		Build()
@@ -59,8 +66,8 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
 	dbItems, err := r.db.ListItems(ctx, db.ListItemsParams{
 		Uid:        userID,
-		IsPublic:   sql.NullBool{Bool: isPublic, Valid: true},
-		IsBookmark: sql.NullBool{Bool: isBookmark, Valid: true},
+		IsPublic:   &isPublic,
+		IsBookmark: &isBookmark,
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 	})
@@ -74,20 +81,26 @@ func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset
 	for _, i := range dbItems {
 		var thumbnail mo.Option[string]
 
-		if i.Thumbnail.Valid {
-			thumbnail = mo.Some[string](i.Thumbnail.String)
-		} else {
+		if i.Thumbnail == nil {
 			thumbnail = mo.None[string]()
+		} else {
+			thumbnail = mo.Some[string](*i.Thumbnail)
+		}
+
+		id, err := i.DiagramID.Value()
+
+		if err != nil {
+			return mo.Err[[]*diagramitem.DiagramItem](err)
 		}
 
 		item := diagramitem.New().
-			WithID(i.DiagramID.UUID.String()).
-			WithTitle(i.Title.String).
+			WithID(id.(string)).
+			WithTitle(*i.Title).
 			WithEncryptedText(i.Text).
 			WithThumbnail(thumbnail).
 			WithDiagramString(string(i.Diagram)).
-			WithIsPublic(i.IsPublic.Bool).
-			WithIsBookmark(i.IsBookmark.Bool).
+			WithIsPublic(*i.IsPublic).
+			WithIsBookmark(*i.IsBookmark).
 			WithCreatedAt(i.CreatedAt.Time).
 			WithUpdatedAt(i.UpdatedAt.Time).
 			Build()
@@ -111,39 +124,38 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 
 	_, err = r.db.GetItem(ctx, db.GetItemParams{
 		Uid:       userID,
-		DiagramID: uuid.NullUUID{UUID: u, Valid: true},
+		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 	})
 
-	var thumbnail sql.NullString
+	isBookmark := item.IsBookmark()
+	title := item.Title()
 
-	if item.Thumbnail() != nil {
-		thumbnail = sql.NullString{String: *item.Thumbnail(), Valid: true}
-	} else {
-		thumbnail = sql.NullString{}
-	}
+	isBookmarkPtr := &isBookmark
+	isPublicPtr := &isPublic
+	titlePtr := &title
 
 	if err == sql.ErrNoRows {
 		r.db.CreateItem(ctx, db.CreateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
-			DiagramID:  uuid.NullUUID{UUID: u, Valid: true},
-			IsBookmark: sql.NullBool{Bool: item.IsBookmark(), Valid: true},
-			IsPublic:   sql.NullBool{Bool: item.IsPublic(), Valid: true},
-			Title:      sql.NullString{String: item.Title(), Valid: true},
+			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
+			IsBookmark: isBookmarkPtr,
+			IsPublic:   isPublicPtr,
+			Title:      titlePtr,
 			Text:       item.Text(),
-			Thumbnail:  thumbnail,
+			Thumbnail:  item.Thumbnail(),
 		})
 	} else if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	} else {
 		r.db.UpdateItem(ctx, db.UpdateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
-			IsBookmark: sql.NullBool{Bool: item.IsBookmark(), Valid: true},
-			IsPublic:   sql.NullBool{Bool: item.IsPublic(), Valid: true},
-			Title:      sql.NullString{String: item.Title(), Valid: true},
+			IsBookmark: isBookmarkPtr,
+			IsPublic:   isPublicPtr,
+			Title:      &title,
 			Text:       item.Text(),
-			Thumbnail:  thumbnail,
+			Thumbnail:  item.Thumbnail(),
 			Uid:        userID,
-			DiagramID:  uuid.NullUUID{UUID: u, Valid: true},
+			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 		})
 	}
 	return mo.Ok(item)
@@ -158,7 +170,7 @@ func (r *PostgresItemRepository) Delete(ctx context.Context, userID string, item
 
 	r.db.DeleteItem(ctx, db.DeleteItemParams{
 		Uid:       userID,
-		DiagramID: uuid.NullUUID{UUID: u, Valid: true},
+		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 	})
 
 	return mo.Ok(true)

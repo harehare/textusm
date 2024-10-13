@@ -9,5 +9,7 @@ sql:
       go:
         package: "db"
         out: "internal/db"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true
     rules:
       - sqlc/db-prepare
