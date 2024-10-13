@@ -5,11 +5,10 @@
 package db
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Diagram string
@@ -116,52 +115,52 @@ func (ns NullLocation) Value() (driver.Value, error) {
 type Item struct {
 	ID         int64
 	Uid        string
-	DiagramID  uuid.NullUUID
+	DiagramID  pgtype.UUID
 	Location   Location
 	Diagram    Diagram
-	IsBookmark sql.NullBool
-	IsPublic   sql.NullBool
-	Title      sql.NullString
+	IsBookmark *bool
+	IsPublic   *bool
+	Title      *string
 	Text       string
-	Thumbnail  sql.NullString
-	CreatedAt  sql.NullTime
-	UpdatedAt  sql.NullTime
+	Thumbnail  *string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
 }
 
 type Setting struct {
 	ID                      int64
 	Uid                     string
-	ActivityColor           sql.NullString
-	ActivityBackgroundColor sql.NullString
-	BackgroundColor         sql.NullString
+	ActivityColor           *string
+	ActivityBackgroundColor *string
+	BackgroundColor         *string
 	Diagram                 Diagram
-	Height                  sql.NullInt32
-	LineColor               sql.NullString
-	LabelColor              sql.NullString
-	LockEditing             sql.NullBool
-	TextColor               sql.NullString
-	Toolbar                 sql.NullBool
-	Scale                   sql.NullFloat64
-	ShowGrid                sql.NullBool
-	StoryColor              sql.NullString
-	StoryBackgroundColor    sql.NullString
-	TaskColor               sql.NullString
-	TaskBackgroundColor     sql.NullString
-	Width                   sql.NullInt32
-	ZoomControl             sql.NullBool
-	CreatedAt               sql.NullTime
-	UpdatedAt               sql.NullTime
+	Height                  *int32
+	LineColor               *string
+	LabelColor              *string
+	LockEditing             *bool
+	TextColor               *string
+	Toolbar                 *bool
+	Scale                   *float32
+	ShowGrid                *bool
+	StoryColor              *string
+	StoryBackgroundColor    *string
+	TaskColor               *string
+	TaskBackgroundColor     *string
+	Width                   *int32
+	ZoomControl             *bool
+	CreatedAt               pgtype.Timestamp
+	UpdatedAt               pgtype.Timestamp
 }
 
 type ShareCondition struct {
 	ID             int64
 	Uid            string
-	DiagramID      uuid.NullUUID
+	DiagramID      pgtype.UUID
 	AllowIpList    []string
 	AllowEmailList []string
-	ExpireTime     sql.NullInt32
-	Password       sql.NullString
+	ExpireTime     *int32
+	Password       *string
 	Token          string
-	CreatedAt      sql.NullTime
-	UpdatedAt      sql.NullTime
+	CreatedAt      pgtype.Timestamp
+	UpdatedAt      pgtype.Timestamp
 }

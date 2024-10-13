@@ -7,9 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createItem = `-- name: CreateItem :exec
@@ -29,16 +28,16 @@ VALUES
 
 type CreateItemParams struct {
 	Diagram    Diagram
-	DiagramID  uuid.NullUUID
-	IsBookmark sql.NullBool
-	IsPublic   sql.NullBool
-	Title      sql.NullString
+	DiagramID  pgtype.UUID
+	IsBookmark *bool
+	IsPublic   *bool
+	Title      *string
 	Text       string
-	Thumbnail  sql.NullString
+	Thumbnail  *string
 }
 
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) error {
-	_, err := q.db.ExecContext(ctx, createItem,
+	_, err := q.db.Exec(ctx, createItem,
 		arg.Diagram,
 		arg.DiagramID,
 		arg.IsBookmark,
@@ -98,28 +97,28 @@ VALUES
 `
 
 type CreateSettingsParams struct {
-	ActivityColor           sql.NullString
-	ActivityBackgroundColor sql.NullString
-	BackgroundColor         sql.NullString
-	Height                  sql.NullInt32
+	ActivityColor           *string
+	ActivityBackgroundColor *string
+	BackgroundColor         *string
+	Height                  *int32
 	Diagram                 Diagram
-	LineColor               sql.NullString
-	LabelColor              sql.NullString
-	LockEditing             sql.NullBool
-	TextColor               sql.NullString
-	Toolbar                 sql.NullBool
-	Scale                   sql.NullFloat64
-	ShowGrid                sql.NullBool
-	StoryColor              sql.NullString
-	StoryBackgroundColor    sql.NullString
-	TaskColor               sql.NullString
-	TaskBackgroundColor     sql.NullString
-	Width                   sql.NullInt32
-	ZoomControl             sql.NullBool
+	LineColor               *string
+	LabelColor              *string
+	LockEditing             *bool
+	TextColor               *string
+	Toolbar                 *bool
+	Scale                   *float32
+	ShowGrid                *bool
+	StoryColor              *string
+	StoryBackgroundColor    *string
+	TaskColor               *string
+	TaskBackgroundColor     *string
+	Width                   *int32
+	ZoomControl             *bool
 }
 
 func (q *Queries) CreateSettings(ctx context.Context, arg CreateSettingsParams) error {
-	_, err := q.db.ExecContext(ctx, createSettings,
+	_, err := q.db.Exec(ctx, createSettings,
 		arg.ActivityColor,
 		arg.ActivityBackgroundColor,
 		arg.BackgroundColor,
@@ -151,11 +150,11 @@ WHERE
 
 type DeleteItemParams struct {
 	Uid       string
-	DiagramID uuid.NullUUID
+	DiagramID pgtype.UUID
 }
 
 func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) error {
-	_, err := q.db.ExecContext(ctx, deleteItem, arg.Uid, arg.DiagramID)
+	_, err := q.db.Exec(ctx, deleteItem, arg.Uid, arg.DiagramID)
 	return err
 }
 
@@ -171,11 +170,11 @@ WHERE
 
 type GetItemParams struct {
 	Uid       string
-	DiagramID uuid.NullUUID
+	DiagramID pgtype.UUID
 }
 
 func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) {
-	row := q.db.QueryRowContext(ctx, getItem, arg.Uid, arg.DiagramID)
+	row := q.db.QueryRow(ctx, getItem, arg.Uid, arg.DiagramID)
 	var i Item
 	err := row.Scan(
 		&i.ID,
@@ -210,7 +209,7 @@ type GetSettingsParams struct {
 }
 
 func (q *Queries) GetSettings(ctx context.Context, arg GetSettingsParams) (Setting, error) {
-	row := q.db.QueryRowContext(ctx, getSettings, arg.Uid, arg.Diagram)
+	row := q.db.QueryRow(ctx, getSettings, arg.Uid, arg.Diagram)
 	var i Setting
 	err := row.Scan(
 		&i.ID,
@@ -256,14 +255,14 @@ OFFSET
 
 type ListItemsParams struct {
 	Uid        string
-	IsPublic   sql.NullBool
-	IsBookmark sql.NullBool
+	IsPublic   *bool
+	IsBookmark *bool
 	Limit      int32
 	Offset     int32
 }
 
 func (q *Queries) ListItems(ctx context.Context, arg ListItemsParams) ([]Item, error) {
-	rows, err := q.db.QueryContext(ctx, listItems,
+	rows, err := q.db.Query(ctx, listItems,
 		arg.Uid,
 		arg.IsPublic,
 		arg.IsBookmark,
@@ -295,9 +294,6 @@ func (q *Queries) ListItems(ctx context.Context, arg ListItemsParams) ([]Item, e
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -321,17 +317,17 @@ WHERE
 
 type UpdateItemParams struct {
 	Diagram    Diagram
-	IsBookmark sql.NullBool
-	IsPublic   sql.NullBool
-	Title      sql.NullString
+	IsBookmark *bool
+	IsPublic   *bool
+	Title      *string
 	Text       string
-	Thumbnail  sql.NullString
+	Thumbnail  *string
 	Uid        string
-	DiagramID  uuid.NullUUID
+	DiagramID  pgtype.UUID
 }
 
 func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
-	_, err := q.db.ExecContext(ctx, updateItem,
+	_, err := q.db.Exec(ctx, updateItem,
 		arg.Diagram,
 		arg.IsBookmark,
 		arg.IsPublic,
@@ -370,27 +366,27 @@ WHERE
 `
 
 type UpdateSettingsParams struct {
-	ActivityColor           sql.NullString
-	ActivityBackgroundColor sql.NullString
-	BackgroundColor         sql.NullString
-	Height                  sql.NullInt32
-	LineColor               sql.NullString
-	LabelColor              sql.NullString
-	LockEditing             sql.NullBool
-	TextColor               sql.NullString
-	Toolbar                 sql.NullBool
-	Scale                   sql.NullFloat64
-	ShowGrid                sql.NullBool
-	StoryColor              sql.NullString
-	StoryBackgroundColor    sql.NullString
-	TaskColor               sql.NullString
-	TaskBackgroundColor     sql.NullString
-	Width                   sql.NullInt32
-	ZoomControl             sql.NullBool
+	ActivityColor           *string
+	ActivityBackgroundColor *string
+	BackgroundColor         *string
+	Height                  *int32
+	LineColor               *string
+	LabelColor              *string
+	LockEditing             *bool
+	TextColor               *string
+	Toolbar                 *bool
+	Scale                   *float32
+	ShowGrid                *bool
+	StoryColor              *string
+	StoryBackgroundColor    *string
+	TaskColor               *string
+	TaskBackgroundColor     *string
+	Width                   *int32
+	ZoomControl             *bool
 }
 
 func (q *Queries) UpdateSettings(ctx context.Context, arg UpdateSettingsParams) error {
-	_, err := q.db.ExecContext(ctx, updateSettings,
+	_, err := q.db.Exec(ctx, updateSettings,
 		arg.ActivityColor,
 		arg.ActivityBackgroundColor,
 		arg.BackgroundColor,
