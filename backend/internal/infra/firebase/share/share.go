@@ -56,7 +56,7 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 }
 
 func (r *FirestoreShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
-	tx := values.GetTx(ctx)
+	tx := values.GetFirestoreTx(ctx)
 
 	if tx.IsAbsent() {
 		_, err := r.client.Collection(shareCollection).Doc(hashKey).Delete(ctx)

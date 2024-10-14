@@ -5,7 +5,8 @@ FROM
   items
 WHERE
   uid = $1
-  AND diagram_id = $2;
+  AND diagram_id = $2
+  AND location = $3;
 
 -- name: ListItems :many
 SELECT
@@ -16,10 +17,11 @@ WHERE
   uid = $1
   AND is_public = $2
   AND is_bookmark = $3
+  AND location = $4
 LIMIT
-  $4
+  $5
 OFFSET
-  $5;
+  $6;
 
 -- name: CreateItem :exec
 INSERT INTO
@@ -30,10 +32,11 @@ INSERT INTO
     is_public,
     title,
     text,
-    thumbnail
+    thumbnail,
+    location
   )
 VALUES
-  ($1, $2, $3, $4, $5, $6, $7);
+  ($1, $2, $3, $4, $5, $6, $7, $8);
 
 -- name: UpdateItem :exec
 UPDATE items
@@ -44,16 +47,46 @@ SET
   title = $4,
   text = $5,
   thumbnail = $6,
+  location = $7,
   updated_at = NOW()
 WHERE
-  uid = $7
-  AND diagram_id = $8;
+  uid = $8
+  AND diagram_id = $9;
 
 -- name: DeleteItem :exec
 DELETE FROM items
 WHERE
   uid = $1
   AND diagram_id = $2;
+
+-- name: GetShareCondition :one
+SELECT
+  *
+FROM
+  share_conditions
+WHERE
+  hashkey = $1;
+
+-- name: CreateShareCondition :exec
+INSERT INTO
+  share_conditions (
+    hashkey,
+    uid,
+    diagram_id,
+    location,
+    allow_ip_list,
+    allow_email_list,
+    expire_time,
+    password,
+    token
+  )
+VALUES
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+
+-- name: DeleteShareCondition :exec
+DELETE FROM share_conditions
+WHERE
+  hashkey = $1;
 
 -- name: GetSettings :one
 SELECT

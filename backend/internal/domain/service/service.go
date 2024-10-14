@@ -17,12 +17,14 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/internal/context/values"
+	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	shareModel "github.com/harehare/textusm/internal/domain/model/share"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
 	userRepo "github.com/harehare/textusm/internal/domain/repository/user"
 	e "github.com/harehare/textusm/internal/error"
+	"github.com/harehare/textusm/internal/github"
 	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
 )
@@ -34,12 +36,15 @@ var (
 )
 
 type Service struct {
-	repo      itemRepo.ItemRepository
-	shareRepo shareRepo.ShareRepository
-	userRepo  userRepo.UserRepository
+	repo         itemRepo.ItemRepository
+	shareRepo    shareRepo.ShareRepository
+	userRepo     userRepo.UserRepository
+	transaction  db.Transaction
+	clientID     github.ClientID
+	clientSecret github.ClientSecret
 }
 
-func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository) *Service {
+func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret) *Service {
 	return &Service{
 		repo:      r,
 		shareRepo: s,
@@ -108,33 +113,36 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 }
 
 func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) error {
-	if err := isAuthenticated(ctx); err != nil {
-		return err
-	}
+	return s.transaction.Do(ctx, func(ctx context.Context) error {
 
-	userID := values.GetUID(ctx)
-	shareID := itemIDToShareID(itemID)
-
-	if shareID.IsError() {
-		return shareID.Error()
-	}
-
-	if isPublic {
-		ret := s.isPublicDiagramOwner(ctx, itemID, userID.OrEmpty())
-
-		if !ret.OrElse(false) {
-			return e.NoAuthorizationError(errors.New("not diagram owner"))
+		if err := isAuthenticated(ctx); err != nil {
+			return err
 		}
-		if err := s.repo.Delete(ctx, userID.OrEmpty(), itemID, true); err.IsError() {
+
+		userID := values.GetUID(ctx)
+		shareID := itemIDToShareID(itemID)
+
+		if shareID.IsError() {
+			return shareID.Error()
+		}
+
+		if isPublic {
+			ret := s.isPublicDiagramOwner(ctx, itemID, userID.OrEmpty())
+
+			if !ret.OrElse(false) {
+				return e.NoAuthorizationError(errors.New("not diagram owner"))
+			}
+			if err := s.repo.Delete(ctx, userID.OrEmpty(), itemID, true); err.IsError() {
+				return err.Error()
+			}
+		}
+
+		if err := s.shareRepo.Delete(ctx, shareID.OrEmpty()); err.IsError() {
 			return err.Error()
 		}
-	}
 
-	if err := s.shareRepo.Delete(ctx, shareID.OrEmpty()); err.IsError() {
-		return err.Error()
-	}
-
-	return s.repo.Delete(ctx, userID.OrEmpty(), itemID, false).Error()
+		return s.repo.Delete(ctx, userID.OrEmpty(), itemID, false).Error()
+	})
 }
 
 func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) mo.Result[*diagramitem.DiagramItem] {
@@ -306,6 +314,14 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	}
 
 	return mo.Ok(base64.RawURLEncoding.EncodeToString([]byte(tokenString)))
+}
+
+func (s *Service) RevokeToken(ctx context.Context, accessToken string) error {
+	if err := isAuthenticated(ctx); err != nil {
+		return err
+	}
+
+	return s.userRepo.RevokeToken(ctx, string(s.clientID), string(s.clientSecret), accessToken)
 }
 
 func verifyToken(token string) mo.Result[*jwt.Token] {

@@ -10,6 +10,7 @@ import (
 	"github.com/harehare/textusm/internal/app/handler"
 	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
+	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
 	itemRepo "github.com/harehare/textusm/internal/infra/firebase/item"
@@ -41,6 +42,7 @@ func InitializeServer() (*http.Server, error) {
 		service.NewService,
 		service.NewGistService,
 		service.NewSettingsService,
+		db.NewFirestoreTx,
 		resolver.New,
 		api.New,
 		handler.NewHandler,

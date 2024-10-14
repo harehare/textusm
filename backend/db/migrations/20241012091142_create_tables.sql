@@ -42,8 +42,10 @@ CREATE TABLE
 CREATE TABLE
   share_conditions (
     id bigserial PRIMARY KEY,
+    hashkey varchar NOT NULL,
     uid varchar NOT NULL,
     diagram_id UUID,
+    location location NOT NULL,
     allow_ip_list varchar[],
     allow_email_list varchar[],
     expire_time int,
@@ -62,6 +64,7 @@ CREATE TABLE
     background_color varchar,
     diagram diagram NOT NULL,
     height int,
+    font varchar,
     line_color varchar,
     label_color varchar,
     lock_editing boolean,
