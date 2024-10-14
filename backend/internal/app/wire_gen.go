@@ -10,6 +10,7 @@ import (
 	"github.com/harehare/textusm/internal/app/handler"
 	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
+	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
 	"github.com/harehare/textusm/internal/infra/firebase/item"
@@ -35,15 +36,16 @@ func InitializeServer() (*http.Server, error) {
 	itemRepository := item.NewFirestoreItemRepository(configConfig)
 	shareRepository := share.NewFirestoreShareRepository(configConfig)
 	userRepository := user.NewFirebaseUserRepository(configConfig)
-	serviceService := service.NewService(itemRepository, shareRepository, userRepository)
-	gistItemRepository := item.NewFirestoreGistItemRepository(configConfig)
+	transaction := db.NewFirestoreTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
+	serviceService := service.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
+	gistItemRepository := item.NewFirestoreGistItemRepository(configConfig)
 	gistService := service.NewGistService(gistItemRepository, clientID, clientSecret)
 	settingsRepository := settings.NewFirestoreSettingsRepository(configConfig)
 	settingsService := service.NewSettingsService(settingsRepository, clientID, clientSecret)
 	resolver := graphql.New(serviceService, gistService, settingsService, configConfig)
-	apiApi := api.New(gistService, settingsService)
+	apiApi := api.New(serviceService, gistService, settingsService)
 	logger := config.NewLogger(env)
 	mux, err := handler.NewHandler(env, configConfig, resolver, apiApi, logger)
 	if err != nil {

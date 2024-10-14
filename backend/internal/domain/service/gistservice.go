@@ -50,18 +50,10 @@ func (g *GistService) Save(ctx context.Context, gist *gistitem.GistItem) mo.Resu
 	return g.repo.Save(ctx, values.GetUID(ctx).OrEmpty(), gist)
 }
 
-func (g *GistService) Delete(ctx context.Context, gistID string) error {
+func (g *GistService) Delete(ctx context.Context, gistID string) mo.Result[bool] {
 	if err := isAuthenticated(ctx); err != nil {
-		return err
+		return mo.Err[bool](err)
 	}
 
 	return g.repo.Delete(ctx, values.GetUID(ctx).OrEmpty(), gistID)
-}
-
-func (g *GistService) RevokeToken(ctx context.Context, accessToken string) error {
-	if err := isAuthenticated(ctx); err != nil {
-		return err
-	}
-
-	return g.repo.RevokeToken(ctx, string(g.clientID), string(g.clientSecret), accessToken)
 }

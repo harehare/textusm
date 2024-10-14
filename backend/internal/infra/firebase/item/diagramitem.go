@@ -199,7 +199,7 @@ func (r *FirestoreItemRepository) saveToCloudStorage(ctx context.Context, userID
 }
 
 func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
-	tx := values.GetTx(ctx)
+	tx := values.GetFirestoreTx(ctx)
 
 	if tx.IsAbsent() {
 		if isPublic {

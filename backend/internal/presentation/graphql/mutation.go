@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"cloud.google.com/go/firestore"
-	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
 	settingsModel "github.com/harehare/textusm/internal/domain/model/settings"
@@ -46,10 +44,7 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 }
 
 func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (string, error) {
-	err := r.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		ctx = values.WithTx(ctx, tx)
-		return r.service.Delete(ctx, itemID, *isPublic)
-	})
+	err := r.service.Delete(ctx, itemID, *isPublic)
 
 	if err != nil {
 		return "", err
@@ -94,7 +89,7 @@ func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*
 
 func (r *mutationResolver) DeleteGist(ctx context.Context, gistID string) (string, error) {
 	err := r.gistService.Delete(ctx, gistID)
-	return gistID, err
+	return gistID, err.Error()
 }
 
 func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settingsModel.Settings, error) {

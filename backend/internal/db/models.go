@@ -135,6 +135,7 @@ type Setting struct {
 	BackgroundColor         *string
 	Diagram                 Diagram
 	Height                  *int32
+	Font                    *string
 	LineColor               *string
 	LabelColor              *string
 	LockEditing             *bool
@@ -154,8 +155,10 @@ type Setting struct {
 
 type ShareCondition struct {
 	ID             int64
+	Hashkey        string
 	Uid            string
 	DiagramID      pgtype.UUID
+	Location       Location
 	AllowIpList    []string
 	AllowEmailList []string
 	ExpireTime     *int32

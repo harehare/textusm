@@ -9,11 +9,12 @@ import (
 )
 
 type Api struct {
+	service         *service.Service
 	gistService     *service.GistService
 	settingsService *service.SettingsService
 }
 
-func New(gistService *service.GistService, settingsService *service.SettingsService) *Api {
+func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService) *Api {
 	api := Api{gistService: gistService, settingsService: settingsService}
 	return &api
 }
@@ -38,7 +39,7 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.gistService.RevokeToken(r.Context(), accessToken.AccessToken)
+	err = a.service.RevokeToken(r.Context(), accessToken.AccessToken)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
