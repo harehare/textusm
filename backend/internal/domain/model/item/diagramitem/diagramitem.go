@@ -239,13 +239,13 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 	id, ok := v["ID"].(string)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid id")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidId))
 	}
 
 	title, ok := v["Title"].(string)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid title")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidTitle))
 	}
 
 	text, ok := v["Text"].(string)
@@ -270,31 +270,31 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 	diagram, ok := v["Diagram"].(string)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid diagram")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidDiagram))
 	}
 
 	isPublic, ok := v["IsPublic"].(bool)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid isPublic")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidIsPublic))
 	}
 
 	isBookmark, ok := v["IsBookmark"].(bool)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid isBookmark")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidIsBookmark))
 	}
 
 	createdAt, ok := v["CreatedAt"].(time.Time)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid createdAt")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidCreatedAt))
 	}
 
 	updatedAt, ok := v["UpdatedAt"].(time.Time)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid updatedat")))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidUpdatedAt))
 	}
 
 	saveToStorage, ok := v["SaveToStorage"].(bool)

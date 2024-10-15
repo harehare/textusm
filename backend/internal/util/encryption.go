@@ -6,10 +6,11 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 	"io"
 	"math/big"
 	"strings"
+
+	e "github.com/harehare/textusm/internal/error"
 )
 
 func addBase64Padding(value string) string {
@@ -36,7 +37,7 @@ func unpad(src []byte) ([]byte, error) {
 	unpadding := int(src[length-1])
 
 	if unpadding > length {
-		return nil, errors.New("unpad error. This could happen when incorrect encryption key is used")
+		return nil, e.ErrUnpadError
 	}
 
 	return src[:(length - unpadding)], nil
@@ -73,7 +74,7 @@ func Decrypt(key []byte, text string) (string, error) {
 	}
 
 	if (len(decodedMsg) % aes.BlockSize) != 0 {
-		return "", errors.New("blocksize must be multipe of decoded message length")
+		return "", e.ErrBlockSizeError
 	}
 
 	iv := decodedMsg[:aes.BlockSize]

@@ -1,7 +1,6 @@
 package gistitem
 
 import (
-	"errors"
 	"time"
 
 	"github.com/harehare/textusm/internal/domain/values"
@@ -166,19 +165,19 @@ func MapToGistItem(v map[string]interface{}) mo.Result[*GistItem] {
 	id, ok := v["ID"].(string)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid id")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidId))
 	}
 
 	url, ok := v["URL"].(string)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid url")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidURL))
 	}
 
 	title, ok := v["Title"].(string)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid title")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidTitle))
 	}
 
 	var thumbnail mo.Option[string]
@@ -197,25 +196,25 @@ func MapToGistItem(v map[string]interface{}) mo.Result[*GistItem] {
 	diagram, ok := v["Diagram"].(string)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid diagram")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidDiagram))
 	}
 
 	isBookmark, ok := v["IsBookmark"].(bool)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid isBookmark")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidIsBookmark))
 	}
 
 	createdAt, ok := v["CreatedAt"].(time.Time)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid createdAt")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidCreatedAt))
 	}
 
 	updatedAt, ok := v["UpdatedAt"].(time.Time)
 
 	if !ok {
-		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid updatedat")))
+		return mo.Err[*GistItem](e.InvalidParameterError(e.ErrInvalidUpdatedAt))
 	}
 
 	return New().

@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"errors"
 	"net"
 	"os"
 	"slices"
@@ -56,7 +55,7 @@ func isAuthenticated(ctx context.Context) error {
 	userID := values.GetUID(ctx)
 
 	if userID.IsAbsent() {
-		return e.NoAuthorizationError(errors.New("not authorization"))
+		return e.NoAuthorizationError(e.ErrNotAuthorization)
 	}
 
 	return nil
@@ -114,7 +113,6 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 
 func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) error {
 	return s.transaction.Do(ctx, func(ctx context.Context) error {
-
 		if err := isAuthenticated(ctx); err != nil {
 			return err
 		}
@@ -130,7 +128,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 			ret := s.isPublicDiagramOwner(ctx, itemID, userID.OrEmpty())
 
 			if !ret.OrElse(false) {
-				return e.NoAuthorizationError(errors.New("not diagram owner"))
+				return e.NoAuthorizationError(e.ErrNotDiagramOwner)
 			}
 			if err := s.repo.Delete(ctx, userID.OrEmpty(), itemID, true); err.IsError() {
 				return err.Error()
@@ -180,7 +178,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 	shareInfo := shareResponse.OrEmpty().ShareInfo
 
 	if ip.IsAbsent() || !shareInfo.CheckIpWithinRange(ip.OrEmpty()) {
-		return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(errors.New("not allow ip address")))
+		return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrNotAllowIpAddress))
 	}
 
 	uid := values.GetUID(ctx)
@@ -188,19 +186,19 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 	if uid.IsPresent() {
 		u := s.userRepo.Find(ctx, uid.OrEmpty())
 		if u.IsError() {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(errors.New("sign in required")))
+			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrSignInRequired))
 		}
 
 		uu, _ := u.Get()
 
 		if !shareInfo.ValidEmail(uu.Email) {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(errors.New("not allow email")))
+			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrNotAllowEmail))
 		}
 	}
 
 	if claims["check_password"].(bool) {
 		if password == "" {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(errors.New("password is required")))
+			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrPasswordIsRequired))
 		}
 
 		if err := shareInfo.ComparePassword(password); err != nil {
@@ -219,7 +217,7 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) mo.Resu
 	userID := values.GetUID(ctx)
 
 	if userID.IsAbsent() {
-		return mo.Err[*shareModel.ShareCondition](e.NoAuthorizationError(errors.New("not authorization")))
+		return mo.Err[*shareModel.ShareCondition](e.NoAuthorizationError(e.ErrNotAuthorization))
 	}
 
 	ret := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
@@ -256,7 +254,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	userID := values.GetUID(ctx)
 
 	if userID.IsAbsent() {
-		return mo.Err[string](e.NoAuthorizationError(errors.New("not authorization")))
+		return mo.Err[string](e.NoAuthorizationError(e.ErrNotAuthorization))
 	}
 
 	itemResult := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
