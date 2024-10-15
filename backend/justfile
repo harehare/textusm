@@ -35,8 +35,8 @@ generate:
 	go get github.com/urfave/cli/v2
 	go generate {{ target }}
 
-di:
-	wire gen ./internal/app/wire.go
+di $DATABASE ='firestore':
+	wire gen ./internal/app/wire_${DATABASE}.go
 
 test:
 	go test {{ target }}
