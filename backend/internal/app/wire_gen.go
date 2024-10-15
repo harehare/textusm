@@ -22,7 +22,7 @@ import (
 	"net/http"
 )
 
-// Injectors from wire.go:
+// Injectors from wire_firestore.go:
 
 func InitializeServer() (*http.Server, error) {
 	env, err := config.NewEnv()
@@ -55,7 +55,7 @@ func InitializeServer() (*http.Server, error) {
 	return httpServer, nil
 }
 
-// wire.go:
+// wire_firestore.go:
 
 func provideGithubClientID(env *config.Env) github.ClientID {
 	return github.ClientID(env.GithubClientID)
