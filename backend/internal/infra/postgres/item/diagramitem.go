@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
+	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
@@ -165,13 +166,23 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 }
 
 func (r *PostgresItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
+	var dbWithTx *db.Queries
+
+	tx := values.GetDBTx(ctx)
+
+	if tx.IsPresent() {
+		dbWithTx = r.db.WithTx(*tx.MustGet())
+	} else {
+		dbWithTx = r.db
+	}
+
 	u, err := uuid.Parse(itemID)
 
 	if err != nil {
 		return mo.Err[bool](err)
 	}
 
-	r.db.DeleteItem(ctx, db.DeleteItemParams{
+	dbWithTx.DeleteItem(ctx, db.DeleteItemParams{
 		Uid:       userID,
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 	})

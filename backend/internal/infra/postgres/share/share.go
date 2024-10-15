@@ -2,7 +2,6 @@ package share
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
@@ -11,6 +10,7 @@ import (
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
+	e "github.com/harehare/textusm/internal/error"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/samber/mo"
 )
@@ -81,7 +81,7 @@ func (r *PostgresShareRepository) Save(ctx context.Context, hashKey string, item
 	userID := values.GetUID(ctx)
 
 	if userID.IsAbsent() {
-		return mo.Err[bool](errors.New("userID is required"))
+		return mo.Err[bool](e.NoAuthorizationError(e.ErrNotAuthorization))
 	}
 
 	expireTime := int32(shareInfo.ExpireTime)
@@ -111,7 +111,17 @@ func (r *PostgresShareRepository) Save(ctx context.Context, hashKey string, item
 }
 
 func (r *PostgresShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
-	err := r.db.DeleteShareCondition(ctx, hashKey)
+	var dbWithTx *db.Queries
+
+	tx := values.GetDBTx(ctx)
+
+	if tx.IsPresent() {
+		dbWithTx = r.db.WithTx(*tx.MustGet())
+	} else {
+		dbWithTx = r.db
+	}
+
+	err := dbWithTx.DeleteShareCondition(ctx, hashKey)
 
 	if err != nil {
 		return mo.Err[bool](err)
