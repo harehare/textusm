@@ -125,10 +125,10 @@ func NewConfig(env *Env) (*Config, error) {
 		}
 
 		conn, err = pgxpool.NewWithConfig(ctx, cfg)
+
 		if err != nil {
 			return nil, err
 		}
-		defer conn.Close()
 	}
 
 	config := Config{

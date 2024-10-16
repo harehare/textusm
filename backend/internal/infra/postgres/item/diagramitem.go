@@ -3,6 +3,8 @@ package item
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
@@ -32,6 +34,7 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 	i, err := r.db.GetItem(ctx, db.GetItemParams{
 		Uid:       userID,
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
+		Location:  db.LocationSYSTEM,
 	})
 
 	if err != nil {
@@ -70,6 +73,7 @@ func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset
 		Uid:        userID,
 		IsPublic:   &isPublic,
 		IsBookmark: &isBookmark,
+		Location:   db.LocationSYSTEM,
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 	})
@@ -127,7 +131,10 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 	_, err = r.db.GetItem(ctx, db.GetItemParams{
 		Uid:       userID,
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
+		Location:  db.LocationSYSTEM,
 	})
+
+	fmt.Println(err)
 
 	isBookmark := item.IsBookmark()
 	title := item.Title()
@@ -136,21 +143,26 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 	isPublicPtr := &isPublic
 	titlePtr := &title
 
-	if err == sql.ErrNoRows {
-		r.db.CreateItem(ctx, db.CreateItemParams{
+	if errors.Is(err, sql.ErrNoRows) {
+		err := r.db.CreateItem(ctx, db.CreateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   isPublicPtr,
 			Title:      titlePtr,
 			Text:       item.Text(),
+			Uid:        userID,
 			Thumbnail:  item.Thumbnail(),
 			Location:   db.LocationSYSTEM,
 		})
+
+		if err != nil {
+			return mo.Err[*diagramitem.DiagramItem](err)
+		}
 	} else if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	} else {
-		r.db.UpdateItem(ctx, db.UpdateItemParams{
+		err := r.db.UpdateItem(ctx, db.UpdateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   isPublicPtr,
@@ -161,6 +173,10 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			Location:   db.LocationSYSTEM,
 		})
+
+		if err != nil {
+			return mo.Err[*diagramitem.DiagramItem](err)
+		}
 	}
 	return mo.Ok(item)
 }

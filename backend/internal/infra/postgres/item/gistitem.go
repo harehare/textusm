@@ -3,6 +3,7 @@ package item
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
@@ -136,7 +137,7 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 	isPublicPtr := false
 	titlePtr := &title
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		r.db.CreateItem(ctx, db.CreateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
@@ -144,6 +145,7 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 			IsPublic:   &isPublicPtr,
 			Title:      titlePtr,
 			Thumbnail:  item.Thumbnail(),
+			Uid:        userID,
 			Location:   db.LocationGIST,
 		})
 	} else if err != nil {

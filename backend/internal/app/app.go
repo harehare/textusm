@@ -7,22 +7,22 @@ import (
 	"github.com/harehare/textusm/internal/config"
 )
 
-func Server() (*http.Server, error) {
+func Server() (server *http.Server, cleanup func(), err error) {
 	env, err := config.NewEnv()
 
 	if err != nil {
 		slog.Error("error initializing app", "error", err)
-		return nil, err
+		return
 	}
 
-	server, err := InitializeServer()
+	server, cleanup, err = InitializeServer()
 
 	if err != nil {
 		slog.Error("error initializing app", "error", err)
-		return nil, err
+		return
 	}
 
 	slog.Info("Start server", "port", env.Port)
 
-	return server, nil
+	return
 }

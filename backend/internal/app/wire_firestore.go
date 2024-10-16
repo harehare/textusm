@@ -29,7 +29,7 @@ func provideGithubClientSecret(env *config.Env) github.ClientSecret {
 	return github.ClientSecret(env.GithubClientSecret)
 }
 
-func InitializeServer() (*http.Server, error) {
+func InitializeServer() (*http.Server, func(), error) {
 	wire.Build(
 		config.Set,
 		provideGithubClientID,
@@ -48,5 +48,5 @@ func InitializeServer() (*http.Server, error) {
 		handler.NewHandler,
 		server.NewServer,
 	)
-	return &http.Server{}, nil
+	return &http.Server{}, func() {}, nil
 }

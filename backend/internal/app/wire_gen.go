@@ -13,49 +13,51 @@ import (
 	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
-	"github.com/harehare/textusm/internal/infra/firebase/item"
-	"github.com/harehare/textusm/internal/infra/firebase/settings"
-	"github.com/harehare/textusm/internal/infra/firebase/share"
 	"github.com/harehare/textusm/internal/infra/firebase/user"
+	"github.com/harehare/textusm/internal/infra/postgres/item"
+	"github.com/harehare/textusm/internal/infra/postgres/settings"
+	"github.com/harehare/textusm/internal/infra/postgres/share"
 	"github.com/harehare/textusm/internal/presentation/api"
 	"github.com/harehare/textusm/internal/presentation/graphql"
 	"net/http"
 )
 
-// Injectors from wire_firestore.go:
+// Injectors from wire_postgres.go:
 
-func InitializeServer() (*http.Server, error) {
+func InitializeServer() (*http.Server, func(), error) {
 	env, err := config.NewEnv()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	configConfig, err := config.NewConfig(env)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	itemRepository := item.NewFirestoreItemRepository(configConfig)
-	shareRepository := share.NewFirestoreShareRepository(configConfig)
+	itemRepository := item.NewPostgresItemRepository(configConfig)
+	shareRepository := share.NewPostgresShareRepository(configConfig)
 	userRepository := user.NewFirebaseUserRepository(configConfig)
 	transaction := db.NewFirestoreTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
 	serviceService := service.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
-	gistItemRepository := item.NewFirestoreGistItemRepository(configConfig)
+	gistItemRepository := item.NewPostgresGistItemRepository(configConfig)
 	gistService := service.NewGistService(gistItemRepository, clientID, clientSecret)
-	settingsRepository := settings.NewFirestoreSettingsRepository(configConfig)
+	settingsRepository := settings.NewPostgresSettingsRepository(configConfig)
 	settingsService := service.NewSettingsService(settingsRepository, clientID, clientSecret)
 	resolver := graphql.New(serviceService, gistService, settingsService, configConfig)
 	apiApi := api.New(serviceService, gistService, settingsService)
 	logger := config.NewLogger(env)
 	mux, err := handler.NewHandler(env, configConfig, resolver, apiApi, logger)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	httpServer := server.NewServer(mux, env)
-	return httpServer, nil
+	httpServer, cleanup := server.NewServer(mux, env, configConfig)
+	return httpServer, func() {
+		cleanup()
+	}, nil
 }
 
-// wire_firestore.go:
+// wire_postgres.go:
 
 func provideGithubClientID(env *config.Env) github.ClientID {
 	return github.ClientID(env.GithubClientID)
