@@ -15,7 +15,7 @@ func Server() (server *http.Server, cleanup func(), err error) {
 		return
 	}
 
-	server, cleanup, err = InitializeServer()
+	server, cleanup, err = InitializeFirebaseServer()
 
 	if err != nil {
 		slog.Error("error initializing app", "error", err)
