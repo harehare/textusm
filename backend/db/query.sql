@@ -26,6 +26,7 @@ OFFSET
 -- name: CreateItem :exec
 INSERT INTO
   items (
+    uid,
     diagram,
     diagram_id,
     is_bookmark,
@@ -36,7 +37,7 @@ INSERT INTO
     location
   )
 VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8);
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 
 -- name: UpdateItem :exec
 UPDATE items

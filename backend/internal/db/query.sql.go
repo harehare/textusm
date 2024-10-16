@@ -14,6 +14,7 @@ import (
 const createItem = `-- name: CreateItem :exec
 INSERT INTO
   items (
+    uid,
     diagram,
     diagram_id,
     is_bookmark,
@@ -24,10 +25,11 @@ INSERT INTO
     location
   )
 VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8)
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 `
 
 type CreateItemParams struct {
+	Uid        string
 	Diagram    Diagram
 	DiagramID  pgtype.UUID
 	IsBookmark *bool
@@ -40,6 +42,7 @@ type CreateItemParams struct {
 
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) error {
 	_, err := q.db.Exec(ctx, createItem,
+		arg.Uid,
 		arg.Diagram,
 		arg.DiagramID,
 		arg.IsBookmark,
