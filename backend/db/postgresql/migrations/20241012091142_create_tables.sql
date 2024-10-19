@@ -48,7 +48,7 @@ CREATE TABLE
     location location NOT NULL,
     allow_ip_list varchar[],
     allow_email_list varchar[],
-    expire_time int,
+    expire_time bigint,
     password varchar,
     token varchar NOT NULL,
     created_at timestamp DEFAULT NOW(),
@@ -82,7 +82,31 @@ CREATE TABLE
     updated_at timestamp DEFAULT NOW()
   );
 
-CREATE INDEX items_idx ON items (diagram_id);
+CREATE UNIQUE INDEX items_uid_location_diagram_id_idx ON items (uid, location, diagram_id);
+
+CREATE UNIQUE INDEX settings_uid_diagram_idx ON settings (uid, diagram);
+
+CREATE UNIQUE INDEX share_hashkey_idx ON share_conditions (hashkey);
+
+CREATE UNIQUE INDEX share_uid_location_diagram_id_idx ON share_conditions (uid, location, diagram_id);
+
+ALTER TABLE items FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE items ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE share_conditions FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE share_conditions ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE settings FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY items_uid_policy ON items AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::varchar));
+
+CREATE POLICY share_conditions_uid_policy ON share_conditions AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::text));
+
+CREATE POLICY settings_uid_policy ON settings AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::text));
 
 -- migrate:down
 DROP TABLE items;
@@ -94,5 +118,3 @@ DROP TABLE settings;
 DROP TYPE diagram;
 
 DROP TYPE location;
-
-DROP INDEX items_idx;

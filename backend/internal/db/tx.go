@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"log/slog"
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/internal/config"
@@ -21,7 +22,7 @@ type firestoreTx struct {
 	db *firestore.Client
 }
 
-func NewPostgresTx(config config.Config) Transaction {
+func NewPostgresTx(config *config.Config) Transaction {
 	return &postgresTx{db: config.DBConn}
 }
 
@@ -36,10 +37,18 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 	}
 	ctx = values.WithDBTx(ctx, &tx)
 
+	_, err = tx.Exec(ctx, "SET LOCAL app.uid = '"+values.GetUID(ctx).MustGet()+"';")
+
+	if err != nil {
+		return err
+	}
+
 	if err = fn(ctx); err != nil {
 		if txErr := tx.Rollback(ctx); txErr != nil {
 			return err
 		}
+
+		slog.Error(err.Error())
 		return err
 	}
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
@@ -17,11 +16,21 @@ import (
 )
 
 type PostgresItemRepository struct {
-	db *db.Queries
+	_db *db.Queries
 }
 
 func NewPostgresItemRepository(config *config.Config) itemRepo.ItemRepository {
-	return &PostgresItemRepository{db: db.New(config.DBConn)}
+	return &PostgresItemRepository{_db: db.New(config.DBConn)}
+}
+
+func (r *PostgresItemRepository) tx(ctx context.Context) *db.Queries {
+	tx := values.GetDBTx(ctx)
+
+	if tx.IsPresent() {
+		return r._db.WithTx(*tx.MustGet())
+	} else {
+		return r._db
+	}
 }
 
 func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
@@ -31,8 +40,7 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	i, err := r.db.GetItem(ctx, db.GetItemParams{
-		Uid:       userID,
+	i, err := r.tx(ctx).GetItem(ctx, db.GetItemParams{
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 		Location:  db.LocationSYSTEM,
 	})
@@ -69,11 +77,10 @@ func (r *PostgresItemRepository) FindByID(ctx context.Context, userID string, it
 }
 
 func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
-	dbItems, err := r.db.ListItems(ctx, db.ListItemsParams{
-		Uid:        userID,
+	dbItems, err := r.tx(ctx).ListItems(ctx, db.ListItemsParams{
+		Location:   db.LocationSYSTEM,
 		IsPublic:   &isPublic,
 		IsBookmark: &isBookmark,
-		Location:   db.LocationSYSTEM,
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 	})
@@ -128,13 +135,10 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	_, err = r.db.GetItem(ctx, db.GetItemParams{
-		Uid:       userID,
+	_, err = r.tx(ctx).GetItem(ctx, db.GetItemParams{
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
 		Location:  db.LocationSYSTEM,
 	})
-
-	fmt.Println(err)
 
 	isBookmark := item.IsBookmark()
 	title := item.Title()
@@ -144,14 +148,14 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 	titlePtr := &title
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err := r.db.CreateItem(ctx, db.CreateItemParams{
+		err := r.tx(ctx).CreateItem(ctx, db.CreateItemParams{
+			Uid:        userID,
 			Diagram:    db.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   isPublicPtr,
 			Title:      titlePtr,
 			Text:       item.Text(),
-			Uid:        userID,
 			Thumbnail:  item.Thumbnail(),
 			Location:   db.LocationSYSTEM,
 		})
@@ -162,14 +166,14 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 	} else if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	} else {
-		err := r.db.UpdateItem(ctx, db.UpdateItemParams{
+
+		err := r.tx(ctx).UpdateItem(ctx, db.UpdateItemParams{
 			Diagram:    db.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   isPublicPtr,
 			Title:      &title,
 			Text:       item.Text(),
 			Thumbnail:  item.Thumbnail(),
-			Uid:        userID,
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			Location:   db.LocationSYSTEM,
 		})
@@ -182,26 +186,17 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 }
 
 func (r *PostgresItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
-	var dbWithTx *db.Queries
-
-	tx := values.GetDBTx(ctx)
-
-	if tx.IsPresent() {
-		dbWithTx = r.db.WithTx(*tx.MustGet())
-	} else {
-		dbWithTx = r.db
-	}
-
 	u, err := uuid.Parse(itemID)
 
 	if err != nil {
 		return mo.Err[bool](err)
 	}
 
-	dbWithTx.DeleteItem(ctx, db.DeleteItemParams{
-		Uid:       userID,
-		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
-	})
+	err = r.tx(ctx).DeleteItem(ctx, pgtype.UUID{Bytes: u, Valid: true})
+
+	if err != nil {
+		return mo.Err[bool](err)
+	}
 
 	return mo.Ok(true)
 }

@@ -10,28 +10,37 @@ import (
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
-	e "github.com/harehare/textusm/internal/error"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/samber/mo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type PostgresShareRepository struct {
-	db *db.Queries
+	_db *db.Queries
 }
 
 func NewPostgresShareRepository(config *config.Config) shareRepo.ShareRepository {
-	return &PostgresShareRepository{db: db.New(config.DBConn)}
+	return &PostgresShareRepository{_db: db.New(config.DBConn)}
+}
+
+func (r *PostgresShareRepository) tx(ctx context.Context) *db.Queries {
+	tx := values.GetDBTx(ctx)
+
+	if tx.IsPresent() {
+		return r._db.WithTx(*tx.MustGet())
+	} else {
+		return r._db
+	}
 }
 
 func (r *PostgresShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareValue] {
-	s, err := r.db.GetShareCondition(ctx, hashKey)
+	s, err := r.tx(ctx).GetShareCondition(ctx, hashKey)
 
 	if err != nil {
 		return mo.Err[shareRepo.ShareValue](err)
 	}
 
-	item, err := r.db.GetItem(ctx, db.GetItemParams{
-		Uid:       s.Uid,
+	item, err := r.tx(ctx).GetItem(ctx, db.GetItemParams{
 		DiagramID: s.DiagramID,
 		Location:  s.Location,
 	})
@@ -77,29 +86,52 @@ func (r *PostgresShareRepository) Find(ctx context.Context, hashKey string) mo.R
 	return mo.Ok(shareRepo.ShareValue{DiagramItem: diagramitem, ShareInfo: &shareInfo})
 }
 
-func (r *PostgresShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
-	userID := values.GetUID(ctx)
-
-	if userID.IsAbsent() {
-		return mo.Err[bool](e.NoAuthorizationError(e.ErrNotAuthorization))
-	}
-
-	expireTime := int32(shareInfo.ExpireTime)
+func (r *PostgresShareRepository) Save(ctx context.Context, userID, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
+	expireTime := shareInfo.ExpireTime
 	id, err := uuid.Parse(item.ID())
 
 	if err != nil {
 		return mo.Err[bool](err)
 	}
 
-	err = r.db.CreateShareCondition(ctx, db.CreateShareConditionParams{
+	_, err = r.tx(ctx).GetShareConditionItem(ctx, db.GetShareConditionItemParams{
+		Location:  db.LocationSYSTEM,
+		DiagramID: pgtype.UUID{Bytes: id, Valid: true},
+	})
+
+	if err == nil {
+		err = r.tx(ctx).DeleteShareConditionItem(ctx, db.DeleteShareConditionItemParams{
+			Location:  db.LocationSYSTEM,
+			DiagramID: pgtype.UUID{Bytes: id, Valid: true},
+		})
+
+		if err != nil {
+			return mo.Err[bool](err)
+		}
+	}
+
+	var savePassword string
+
+	if shareInfo.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(shareInfo.Password), bcrypt.DefaultCost)
+
+		if err != nil {
+			return mo.Err[bool](err)
+		}
+		savePassword = string(hashedPassword)
+	} else {
+		savePassword = ""
+	}
+
+	err = r.tx(ctx).CreateShareCondition(ctx, db.CreateShareConditionParams{
+		Uid:            userID,
 		Hashkey:        hashKey,
-		Uid:            userID.MustGet(),
 		DiagramID:      pgtype.UUID{Bytes: id, Valid: true},
 		Location:       db.LocationSYSTEM,
 		AllowIpList:    shareInfo.AllowIPList,
 		AllowEmailList: shareInfo.AllowEmailList,
 		ExpireTime:     &expireTime,
-		Password:       &shareInfo.Password,
+		Password:       &savePassword,
 		Token:          shareInfo.Token,
 	})
 
@@ -110,18 +142,8 @@ func (r *PostgresShareRepository) Save(ctx context.Context, hashKey string, item
 	return mo.Ok(true)
 }
 
-func (r *PostgresShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
-	var dbWithTx *db.Queries
-
-	tx := values.GetDBTx(ctx)
-
-	if tx.IsPresent() {
-		dbWithTx = r.db.WithTx(*tx.MustGet())
-	} else {
-		dbWithTx = r.db
-	}
-
-	err := dbWithTx.DeleteShareCondition(ctx, hashKey)
+func (r *PostgresShareRepository) Delete(ctx context.Context, userID, hashKey string) mo.Result[bool] {
+	err := r.tx(ctx).DeleteShareCondition(ctx, hashKey)
 
 	if err != nil {
 		return mo.Err[bool](err)

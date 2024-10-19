@@ -2,8 +2,11 @@ package settings
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/harehare/textusm/internal/config"
+	v "github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
@@ -12,18 +15,25 @@ import (
 )
 
 type PostgresSettingsRepository struct {
-	db *db.Queries
+	_db *db.Queries
 }
 
 func NewPostgresSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
-	return &PostgresSettingsRepository{db: db.New(config.DBConn)}
+	return &PostgresSettingsRepository{_db: db.New(config.DBConn)}
+}
+
+func (r *PostgresSettingsRepository) tx(ctx context.Context) *db.Queries {
+	tx := v.GetDBTx(ctx)
+
+	if tx.IsPresent() {
+		return r._db.WithTx(*tx.MustGet())
+	} else {
+		return r._db
+	}
 }
 
 func (r *PostgresSettingsRepository) Find(ctx context.Context, userID string, diagram values.Diagram) mo.Result[*settings.Settings] {
-	s, err := r.db.GetSettings(ctx, db.GetSettingsParams{
-		Uid:     userID,
-		Diagram: db.Diagram(diagram),
-	})
+	s, err := r.tx(ctx).GetSettings(ctx, db.Diagram(diagram))
 
 	if err != nil {
 		return mo.Err[*settings.Settings](err)
@@ -58,25 +68,53 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 	height := int32(s.Height)
 	scale := float32(*s.Scale)
 
-	err := r.db.UpdateSettings(ctx, db.UpdateSettingsParams{
-		ActivityColor:           &s.ActivityColor.ForegroundColor,
-		ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
-		BackgroundColor:         &backgroundColor,
-		Height:                  &height,
-		LineColor:               &s.LineColor,
-		LabelColor:              &s.LabelColor,
-		LockEditing:             s.LockEditing,
-		TextColor:               s.TextColor,
-		Toolbar:                 s.Toolbar,
-		Scale:                   &scale,
-		ShowGrid:                s.ShowGrid,
-		StoryColor:              &s.StoryColor.ForegroundColor,
-		StoryBackgroundColor:    &s.StoryColor.BackgroundColor,
-		TaskColor:               &s.TaskColor.ForegroundColor,
-		TaskBackgroundColor:     &s.TaskColor.BackgroundColor,
-		Width:                   &width,
-		ZoomControl:             s.ZoomControl,
-	})
+	_, err := r.tx(ctx).GetSettings(ctx, db.Diagram(diagram))
+
+	if errors.Is(err, sql.ErrNoRows) {
+		err = r.tx(ctx).CreateSettings(ctx, db.CreateSettingsParams{
+			Uid:                     userID,
+			Diagram:                 db.Diagram(diagram),
+			ActivityColor:           &s.ActivityColor.ForegroundColor,
+			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
+			BackgroundColor:         &backgroundColor,
+			Height:                  &height,
+			LineColor:               &s.LineColor,
+			LabelColor:              &s.LabelColor,
+			LockEditing:             s.LockEditing,
+			TextColor:               s.TextColor,
+			Toolbar:                 s.Toolbar,
+			Scale:                   &scale,
+			ShowGrid:                s.ShowGrid,
+			StoryColor:              &s.StoryColor.ForegroundColor,
+			StoryBackgroundColor:    &s.StoryColor.BackgroundColor,
+			TaskColor:               &s.TaskColor.ForegroundColor,
+			TaskBackgroundColor:     &s.TaskColor.BackgroundColor,
+			Width:                   &width,
+			ZoomControl:             s.ZoomControl,
+		})
+	} else if err != nil {
+		return mo.Err[*settings.Settings](err)
+	} else {
+		err = r.tx(ctx).UpdateSettings(ctx, db.UpdateSettingsParams{
+			ActivityColor:           &s.ActivityColor.ForegroundColor,
+			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
+			BackgroundColor:         &backgroundColor,
+			Height:                  &height,
+			LineColor:               &s.LineColor,
+			LabelColor:              &s.LabelColor,
+			LockEditing:             s.LockEditing,
+			TextColor:               s.TextColor,
+			Toolbar:                 s.Toolbar,
+			Scale:                   &scale,
+			ShowGrid:                s.ShowGrid,
+			StoryColor:              &s.StoryColor.ForegroundColor,
+			StoryBackgroundColor:    &s.StoryColor.BackgroundColor,
+			TaskColor:               &s.TaskColor.ForegroundColor,
+			TaskBackgroundColor:     &s.TaskColor.BackgroundColor,
+			Width:                   &width,
+			ZoomControl:             s.ZoomControl,
+		})
+	}
 
 	if err != nil {
 		return mo.Err[*settings.Settings](err)

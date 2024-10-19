@@ -9,9 +9,6 @@ import (
 )
 
 func main() {
-	tlsCertFile := os.Getenv("TLS_CERT_FILE")
-	tlsKeyFile := os.Getenv("TLS_KEY_FILE")
-
 	server, cleanup, err := backend.Server()
 
 	if err != nil {
@@ -19,6 +16,9 @@ func main() {
 	}
 
 	defer cleanup()
+
+	tlsCertFile := os.Getenv("TLS_CERT_FILE")
+	tlsKeyFile := os.Getenv("TLS_KEY_FILE")
 
 	if tlsCertFile != "" && tlsKeyFile != "" {
 		err = server.ListenAndServeTLS(tlsCertFile, tlsKeyFile)

@@ -4,9 +4,8 @@ SELECT
 FROM
   items
 WHERE
-  uid = $1
-  AND diagram_id = $2
-  AND location = $3;
+  location = $1
+  AND diagram_id = $2;
 
 -- name: ListItems :many
 SELECT
@@ -14,14 +13,13 @@ SELECT
 FROM
   items
 WHERE
-  uid = $1
+  location = $1
   AND is_public = $2
   AND is_bookmark = $3
-  AND location = $4
 LIMIT
-  $5
+  $4
 OFFSET
-  $6;
+  $5;
 
 -- name: CreateItem :exec
 INSERT INTO
@@ -51,14 +49,12 @@ SET
   location = $7,
   updated_at = NOW()
 WHERE
-  uid = $8
-  AND diagram_id = $9;
+  diagram_id = $8;
 
 -- name: DeleteItem :exec
 DELETE FROM items
 WHERE
-  uid = $1
-  AND diagram_id = $2;
+  diagram_id = $1;
 
 -- name: GetShareCondition :one
 SELECT
@@ -68,11 +64,20 @@ FROM
 WHERE
   hashkey = $1;
 
+-- name: GetShareConditionItem :one
+SELECT
+  *
+FROM
+  share_conditions
+WHERE
+  location = $1
+  AND diagram_id = $2;
+
 -- name: CreateShareCondition :exec
 INSERT INTO
   share_conditions (
-    hashkey,
     uid,
+    hashkey,
     diagram_id,
     location,
     allow_ip_list,
@@ -89,19 +94,24 @@ DELETE FROM share_conditions
 WHERE
   hashkey = $1;
 
+-- name: DeleteShareConditionItem :exec
+DELETE FROM share_conditions
+WHERE
+  location = $1
+  AND diagram_id = $2;
+
 -- name: GetSettings :one
 SELECT
   *
 FROM
   settings
 WHERE
-  uid = $1
-  AND diagram = $2;
+  diagram = $1;
 
 -- name: CreateSettings :exec
 INSERT INTO
   settings (
-    id,
+    uid,
     activity_color,
     activity_background_color,
     background_color,
@@ -123,7 +133,6 @@ INSERT INTO
   )
 VALUES
   (
-    1,
     $1,
     $2,
     $3,
@@ -141,7 +150,8 @@ VALUES
     $15,
     $16,
     $17,
-    $18
+    $18,
+    $19
   );
 
 -- name: UpdateSettings :exec
@@ -165,5 +175,4 @@ SET
   width = $16,
   zoom_control = $17
 WHERE
-  uid = $1
-  AND diagram = $2;
+  diagram = $2;

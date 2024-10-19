@@ -59,13 +59,13 @@ func (m *MockShareRepository) Find(ctx context.Context, hashKey string) mo.Resul
 	return ret.Get(0).(mo.Result[shareRepo.ShareValue])
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *sm.Share) mo.Result[bool] {
-	ret := m.Called(ctx, hashKey, item, shareInfo)
+func (m *MockShareRepository) Save(ctx context.Context, userID, hashKey string, item *diagramitem.DiagramItem, shareInfo *sm.Share) mo.Result[bool] {
+	ret := m.Called(ctx, userID, hashKey, item, shareInfo)
 	return ret.Get(0).(mo.Result[bool])
 }
 
-func (m *MockShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
-	ret := m.Called(ctx, hashKey)
+func (m *MockShareRepository) Delete(ctx context.Context, userID, hashKey string) mo.Result[bool] {
+	ret := m.Called(ctx, userID, hashKey)
 	return ret.Get(0).(mo.Result[bool])
 }
 

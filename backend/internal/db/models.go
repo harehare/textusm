@@ -161,7 +161,7 @@ type ShareCondition struct {
 	Location       Location
 	AllowIpList    []string
 	AllowEmailList []string
-	ExpireTime     *int32
+	ExpireTime     *int64
 	Password       *string
 	Token          string
 	CreatedAt      pgtype.Timestamp

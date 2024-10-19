@@ -72,7 +72,7 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 	itemRepository := item2.NewPostgresItemRepository(configConfig)
 	shareRepository := share2.NewPostgresShareRepository(configConfig)
 	userRepository := user.NewFirebaseUserRepository(configConfig)
-	transaction := db.NewFirestoreTx(configConfig)
+	transaction := db.NewPostgresTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
 	serviceService := service.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)

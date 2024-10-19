@@ -58,7 +58,7 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) error {
 const createSettings = `-- name: CreateSettings :exec
 INSERT INTO
   settings (
-    id,
+    uid,
     activity_color,
     activity_background_color,
     background_color,
@@ -80,7 +80,6 @@ INSERT INTO
   )
 VALUES
   (
-    1,
     $1,
     $2,
     $3,
@@ -98,11 +97,13 @@ VALUES
     $15,
     $16,
     $17,
-    $18
+    $18,
+    $19
   )
 `
 
 type CreateSettingsParams struct {
+	Uid                     string
 	ActivityColor           *string
 	ActivityBackgroundColor *string
 	BackgroundColor         *string
@@ -125,6 +126,7 @@ type CreateSettingsParams struct {
 
 func (q *Queries) CreateSettings(ctx context.Context, arg CreateSettingsParams) error {
 	_, err := q.db.Exec(ctx, createSettings,
+		arg.Uid,
 		arg.ActivityColor,
 		arg.ActivityBackgroundColor,
 		arg.BackgroundColor,
@@ -150,8 +152,8 @@ func (q *Queries) CreateSettings(ctx context.Context, arg CreateSettingsParams) 
 const createShareCondition = `-- name: CreateShareCondition :exec
 INSERT INTO
   share_conditions (
-    hashkey,
     uid,
+    hashkey,
     diagram_id,
     location,
     allow_ip_list,
@@ -165,21 +167,21 @@ VALUES
 `
 
 type CreateShareConditionParams struct {
-	Hashkey        string
 	Uid            string
+	Hashkey        string
 	DiagramID      pgtype.UUID
 	Location       Location
 	AllowIpList    []string
 	AllowEmailList []string
-	ExpireTime     *int32
+	ExpireTime     *int64
 	Password       *string
 	Token          string
 }
 
 func (q *Queries) CreateShareCondition(ctx context.Context, arg CreateShareConditionParams) error {
 	_, err := q.db.Exec(ctx, createShareCondition,
-		arg.Hashkey,
 		arg.Uid,
+		arg.Hashkey,
 		arg.DiagramID,
 		arg.Location,
 		arg.AllowIpList,
@@ -194,17 +196,11 @@ func (q *Queries) CreateShareCondition(ctx context.Context, arg CreateShareCondi
 const deleteItem = `-- name: DeleteItem :exec
 DELETE FROM items
 WHERE
-  uid = $1
-  AND diagram_id = $2
+  diagram_id = $1
 `
 
-type DeleteItemParams struct {
-	Uid       string
-	DiagramID pgtype.UUID
-}
-
-func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) error {
-	_, err := q.db.Exec(ctx, deleteItem, arg.Uid, arg.DiagramID)
+func (q *Queries) DeleteItem(ctx context.Context, diagramID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteItem, diagramID)
 	return err
 }
 
@@ -219,25 +215,40 @@ func (q *Queries) DeleteShareCondition(ctx context.Context, hashkey string) erro
 	return err
 }
 
+const deleteShareConditionItem = `-- name: DeleteShareConditionItem :exec
+DELETE FROM share_conditions
+WHERE
+  location = $1
+  AND diagram_id = $2
+`
+
+type DeleteShareConditionItemParams struct {
+	Location  Location
+	DiagramID pgtype.UUID
+}
+
+func (q *Queries) DeleteShareConditionItem(ctx context.Context, arg DeleteShareConditionItemParams) error {
+	_, err := q.db.Exec(ctx, deleteShareConditionItem, arg.Location, arg.DiagramID)
+	return err
+}
+
 const getItem = `-- name: GetItem :one
 SELECT
   id, uid, diagram_id, location, diagram, is_bookmark, is_public, title, text, thumbnail, created_at, updated_at
 FROM
   items
 WHERE
-  uid = $1
+  location = $1
   AND diagram_id = $2
-  AND location = $3
 `
 
 type GetItemParams struct {
-	Uid       string
-	DiagramID pgtype.UUID
 	Location  Location
+	DiagramID pgtype.UUID
 }
 
 func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) {
-	row := q.db.QueryRow(ctx, getItem, arg.Uid, arg.DiagramID, arg.Location)
+	row := q.db.QueryRow(ctx, getItem, arg.Location, arg.DiagramID)
 	var i Item
 	err := row.Scan(
 		&i.ID,
@@ -262,17 +273,11 @@ SELECT
 FROM
   settings
 WHERE
-  uid = $1
-  AND diagram = $2
+  diagram = $1
 `
 
-type GetSettingsParams struct {
-	Uid     string
-	Diagram Diagram
-}
-
-func (q *Queries) GetSettings(ctx context.Context, arg GetSettingsParams) (Setting, error) {
-	row := q.db.QueryRow(ctx, getSettings, arg.Uid, arg.Diagram)
+func (q *Queries) GetSettings(ctx context.Context, diagram Diagram) (Setting, error) {
+	row := q.db.QueryRow(ctx, getSettings, diagram)
 	var i Setting
 	err := row.Scan(
 		&i.ID,
@@ -331,37 +336,69 @@ func (q *Queries) GetShareCondition(ctx context.Context, hashkey string) (ShareC
 	return i, err
 }
 
+const getShareConditionItem = `-- name: GetShareConditionItem :one
+SELECT
+  id, hashkey, uid, diagram_id, location, allow_ip_list, allow_email_list, expire_time, password, token, created_at, updated_at
+FROM
+  share_conditions
+WHERE
+  location = $1
+  AND diagram_id = $2
+`
+
+type GetShareConditionItemParams struct {
+	Location  Location
+	DiagramID pgtype.UUID
+}
+
+func (q *Queries) GetShareConditionItem(ctx context.Context, arg GetShareConditionItemParams) (ShareCondition, error) {
+	row := q.db.QueryRow(ctx, getShareConditionItem, arg.Location, arg.DiagramID)
+	var i ShareCondition
+	err := row.Scan(
+		&i.ID,
+		&i.Hashkey,
+		&i.Uid,
+		&i.DiagramID,
+		&i.Location,
+		&i.AllowIpList,
+		&i.AllowEmailList,
+		&i.ExpireTime,
+		&i.Password,
+		&i.Token,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listItems = `-- name: ListItems :many
 SELECT
   id, uid, diagram_id, location, diagram, is_bookmark, is_public, title, text, thumbnail, created_at, updated_at
 FROM
   items
 WHERE
-  uid = $1
+  location = $1
   AND is_public = $2
   AND is_bookmark = $3
-  AND location = $4
 LIMIT
-  $5
+  $4
 OFFSET
-  $6
+  $5
 `
 
 type ListItemsParams struct {
-	Uid        string
+	Location   Location
 	IsPublic   *bool
 	IsBookmark *bool
-	Location   Location
 	Limit      int32
 	Offset     int32
 }
 
 func (q *Queries) ListItems(ctx context.Context, arg ListItemsParams) ([]Item, error) {
 	rows, err := q.db.Query(ctx, listItems,
-		arg.Uid,
+		arg.Location,
 		arg.IsPublic,
 		arg.IsBookmark,
-		arg.Location,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -408,8 +445,7 @@ SET
   location = $7,
   updated_at = NOW()
 WHERE
-  uid = $8
-  AND diagram_id = $9
+  diagram_id = $8
 `
 
 type UpdateItemParams struct {
@@ -420,7 +456,6 @@ type UpdateItemParams struct {
 	Text       string
 	Thumbnail  *string
 	Location   Location
-	Uid        string
 	DiagramID  pgtype.UUID
 }
 
@@ -433,7 +468,6 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
 		arg.Text,
 		arg.Thumbnail,
 		arg.Location,
-		arg.Uid,
 		arg.DiagramID,
 	)
 	return err
@@ -460,8 +494,7 @@ SET
   width = $16,
   zoom_control = $17
 WHERE
-  uid = $1
-  AND diagram = $2
+  diagram = $2
 `
 
 type UpdateSettingsParams struct {

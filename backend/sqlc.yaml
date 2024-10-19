@@ -2,8 +2,8 @@ version: "2"
 cloud:
   project: "textusm"
 sql:
-  - schema: "db/migrations"
-    queries: "db/query.sql"
+  - schema: "db/postgresql/migrations"
+    queries: "db/postgresql/query.sql"
     engine: "postgresql"
     gen:
       go:
@@ -11,5 +11,3 @@ sql:
         out: "internal/db"
         sql_package: "pgx/v5"
         emit_pointers_for_null_types: true
-    rules:
-      - sqlc/db-prepare

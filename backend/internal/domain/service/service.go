@@ -45,9 +45,12 @@ type Service struct {
 
 func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret) *Service {
 	return &Service{
-		repo:      r,
-		shareRepo: s,
-		userRepo:  u,
+		repo:         r,
+		shareRepo:    s,
+		userRepo:     u,
+		transaction:  transaction,
+		clientID:     clientID,
+		clientSecret: clientSecret,
 	}
 }
 
@@ -62,53 +65,93 @@ func isAuthenticated(ctx context.Context) error {
 }
 
 func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) mo.Result[[]*diagramitem.DiagramItem] {
-	shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "text")
+	var items []*diagramitem.DiagramItem
 
-	if err := isAuthenticated(ctx); err != nil {
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "text")
+
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
+
+		result := s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), offset, limit, isPublic, isBookmark, shouldLoadText)
+
+		if !result.IsError() {
+			items = result.MustGet()
+		}
+		return result.Error()
+	})
+
+	if err != nil {
 		return mo.Err[[]*diagramitem.DiagramItem](err)
 	}
 
-	return s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), offset, limit, isPublic, isBookmark, shouldLoadText)
+	return mo.Ok(items)
 }
 
 func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	if err := isAuthenticated(ctx); err != nil {
+	var item *diagramitem.DiagramItem
+
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
+
+		result := s.repo.FindByID(ctx, values.GetUID(ctx).OrEmpty(), itemID, isPublic)
+
+		if !result.IsError() {
+			item = result.MustGet()
+		}
+
+		return result.Error()
+	})
+
+	if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	return s.repo.FindByID(ctx, values.GetUID(ctx).OrEmpty(), itemID, isPublic)
+	return mo.Ok(item)
 }
 
 func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	slog.Debug("Save diagram", "ID", item.ID(), "isPublic", isPublic)
-	if err := isAuthenticated(ctx); err != nil {
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		slog.Debug("Save diagram", "ID", item.ID(), "isPublic", isPublic)
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
+
+		userID := values.GetUID(ctx)
+
+		if isPublic {
+			publishItem := item.Publish()
+			ret := s.isPublicDiagramOwner(ctx, publishItem.ID(), userID.OrEmpty())
+
+			if !ret.OrElse(false) {
+				return ret.Error()
+			}
+
+			return s.repo.Save(ctx, userID.OrEmpty(), item, true).Error()
+		} else {
+			ret := s.repo.FindByID(ctx, userID.OrEmpty(), item.ID(), true)
+
+			if ret.IsOk() {
+				err := s.repo.Delete(ctx, userID.OrEmpty(), item.ID(), true)
+
+				if err.IsError() {
+					return err.Error()
+				}
+				slog.Debug("Delete public diagram", "ID", item.ID())
+			}
+		}
+
+		return s.repo.Save(ctx, userID.OrEmpty(), item, false).Error()
+	})
+
+	if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	userID := values.GetUID(ctx)
-
-	if isPublic {
-		publishItem := item.Publish()
-		ret := s.isPublicDiagramOwner(ctx, publishItem.ID(), userID.OrEmpty())
-
-		if !ret.OrElse(false) {
-			return mo.Err[*diagramitem.DiagramItem](e.NoAuthorizationError(ret.Error()))
-		}
-		return s.repo.Save(ctx, userID.OrEmpty(), item, true)
-	} else {
-		ret := s.repo.FindByID(ctx, userID.OrEmpty(), item.ID(), true)
-
-		if ret.IsOk() {
-			err := s.repo.Delete(ctx, userID.OrEmpty(), item.ID(), true)
-
-			if err.IsError() {
-				return mo.Err[*diagramitem.DiagramItem](err.Error())
-			}
-			slog.Debug("Delete public diagram", "ID", item.ID())
-		}
-	}
-
-	return s.repo.Save(ctx, userID.OrEmpty(), item, false)
+	return mo.Ok(item)
 }
 
 func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) error {
@@ -135,7 +178,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 			}
 		}
 
-		if err := s.shareRepo.Delete(ctx, shareID.OrEmpty()); err.IsError() {
+		if err := s.shareRepo.Delete(ctx, userID.OrEmpty(), shareID.OrEmpty()); err.IsError() {
 			return err.Error()
 		}
 
@@ -144,182 +187,230 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 }
 
 func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) mo.Result[*diagramitem.DiagramItem] {
-	if err := isAuthenticated(ctx); err != nil {
+	var item *diagramitem.DiagramItem
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
+
+		result := s.FindByID(ctx, itemID, false).FlatMap(func(item *diagramitem.DiagramItem) mo.Result[*diagramitem.DiagramItem] {
+			return s.Save(ctx, item.Bookmark(isBookmark), false)
+		})
+
+		if !result.IsError() {
+			item = result.MustGet()
+		}
+
+		return result.Error()
+	})
+
+	if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	return s.FindByID(ctx, itemID, false).FlatMap(func(item *diagramitem.DiagramItem) mo.Result[*diagramitem.DiagramItem] {
-		return s.Save(ctx, item.Bookmark(isBookmark), false)
-	})
+	return mo.Ok(item)
 }
 
 func (s *Service) FindShareItem(ctx context.Context, token string, password string) mo.Result[*diagramitem.DiagramItem] {
-	t, err := base64.RawURLEncoding.DecodeString(token)
+	var item *diagramitem.DiagramItem
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		t, err := base64.RawURLEncoding.DecodeString(token)
+
+		if err != nil {
+			return err
+		}
+
+		jwtTokenResult := verifyToken(string(t))
+
+		if jwtTokenResult.IsError() {
+			return jwtTokenResult.Error()
+		}
+
+		jwtToken, _ := jwtTokenResult.Get()
+		claims := jwtToken.Claims.(jwt.MapClaims)
+		shareResponse := s.shareRepo.Find(ctx, claims["sub"].(string))
+
+		if shareResponse.IsError() {
+			return shareResponse.Error()
+		}
+
+		ip := values.GetIP(ctx)
+		shareInfo := shareResponse.OrEmpty().ShareInfo
+
+		if ip.IsAbsent() || !shareInfo.CheckIpWithinRange(ip.OrEmpty()) {
+			return e.ForbiddenError(e.ErrNotAllowIpAddress)
+		}
+
+		uid := values.GetUID(ctx)
+
+		if uid.IsPresent() {
+			u := s.userRepo.Find(ctx, uid.OrEmpty())
+			if u.IsError() {
+				return e.ForbiddenError(e.ErrSignInRequired)
+			}
+
+			uu, _ := u.Get()
+
+			if !shareInfo.ValidEmail(uu.Email) {
+				return e.ForbiddenError(e.ErrNotAllowEmail)
+			}
+		}
+
+		if claims["check_password"].(bool) {
+			if password == "" {
+				return e.ForbiddenError(e.ErrPasswordIsRequired)
+			}
+
+			if err := shareInfo.ComparePassword(password); err != nil {
+				return e.ForbiddenError(err)
+			}
+		}
+
+		item = shareResponse.OrEmpty().DiagramItem
+		return nil
+	})
 
 	if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	jwtTokenResult := verifyToken(string(t))
-
-	if jwtTokenResult.IsError() {
-		return mo.Err[*diagramitem.DiagramItem](jwtTokenResult.Error())
-	}
-
-	jwtToken, _ := jwtTokenResult.Get()
-	claims := jwtToken.Claims.(jwt.MapClaims)
-	shareResponse := s.shareRepo.Find(ctx, claims["sub"].(string))
-
-	if shareResponse.IsError() {
-		return mo.Err[*diagramitem.DiagramItem](shareResponse.Error())
-	}
-
-	ip := values.GetIP(ctx)
-	shareInfo := shareResponse.OrEmpty().ShareInfo
-
-	if ip.IsAbsent() || !shareInfo.CheckIpWithinRange(ip.OrEmpty()) {
-		return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrNotAllowIpAddress))
-	}
-
-	uid := values.GetUID(ctx)
-
-	if uid.IsPresent() {
-		u := s.userRepo.Find(ctx, uid.OrEmpty())
-		if u.IsError() {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrSignInRequired))
-		}
-
-		uu, _ := u.Get()
-
-		if !shareInfo.ValidEmail(uu.Email) {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrNotAllowEmail))
-		}
-	}
-
-	if claims["check_password"].(bool) {
-		if password == "" {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(e.ErrPasswordIsRequired))
-		}
-
-		if err := shareInfo.ComparePassword(password); err != nil {
-			return mo.Err[*diagramitem.DiagramItem](e.ForbiddenError(err))
-		}
-	}
-
-	return mo.Ok(shareResponse.OrEmpty().DiagramItem)
+	return mo.Ok(item)
 }
 
 func (s *Service) FindShareCondition(ctx context.Context, itemID string) mo.Result[*shareModel.ShareCondition] {
-	if err := isAuthenticated(ctx); err != nil {
+	var shareCondition *shareModel.ShareCondition
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
+
+		userID := values.GetUID(ctx)
+
+		if userID.IsAbsent() {
+			return e.NoAuthorizationError(e.ErrNotAuthorization)
+		}
+
+		ret := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
+
+		if ret.IsError() {
+			return ret.Error()
+		}
+
+		shareID := itemIDToShareID(itemID)
+
+		if shareID.IsError() {
+			return shareID.Error()
+		}
+
+		shareResponse := s.shareRepo.Find(ctx, shareID.OrEmpty())
+
+		if shareResponse.OrEmpty().ShareInfo == nil || shareResponse.IsError() {
+			// TODO:
+			return nil
+		}
+
+		share := shareResponse.OrEmpty().ShareInfo
+
+		shareCondition = &shareModel.ShareCondition{
+			Token:          share.Token,
+			UsePassword:    share.Password != "",
+			ExpireTime:     int(share.ExpireTime),
+			AllowIPList:    share.AllowIPList,
+			AllowEmailList: share.AllowEmailList,
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return mo.Err[*shareModel.ShareCondition](err)
 	}
 
-	userID := values.GetUID(ctx)
-
-	if userID.IsAbsent() {
-		return mo.Err[*shareModel.ShareCondition](e.NoAuthorizationError(e.ErrNotAuthorization))
-	}
-
-	ret := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
-
-	if ret.IsError() {
-		return mo.Err[*shareModel.ShareCondition](ret.Error())
-	}
-
-	shareID := itemIDToShareID(itemID)
-
-	if shareID.IsError() {
-		return mo.Err[*shareModel.ShareCondition](shareID.Error())
-	}
-
-	shareResponse := s.shareRepo.Find(ctx, shareID.OrEmpty())
-
-	if shareResponse.OrEmpty().ShareInfo == nil || shareResponse.IsError() {
-		// TODO:
-		return mo.Ok[*shareModel.ShareCondition](nil)
-	}
-
-	share := shareResponse.OrEmpty().ShareInfo
-
-	return mo.Ok(&shareModel.ShareCondition{
-		Token:          share.Token,
-		UsePassword:    share.Password != "",
-		ExpireTime:     int(share.ExpireTime),
-		AllowIPList:    share.AllowIPList,
-		AllowEmailList: share.AllowEmailList,
-	})
+	return mo.Ok(shareCondition)
 }
 
 func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password string, allowIPList []string, allowEmailList []string) mo.Result[string] {
-	userID := values.GetUID(ctx)
+	var shareToken string
+	err := s.transaction.Do(ctx, func(ctx context.Context) error {
+		userID := values.GetUID(ctx)
 
-	if userID.IsAbsent() {
-		return mo.Err[string](e.NoAuthorizationError(e.ErrNotAuthorization))
-	}
+		if userID.IsAbsent() {
+			return e.NoAuthorizationError(e.ErrNotAuthorization)
+		}
 
-	itemResult := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
+		itemResult := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
 
-	if itemResult.IsError() {
-		return mo.Err[string](itemResult.Error())
-	}
+		if itemResult.IsError() {
+			return itemResult.Error()
+		}
 
-	item := itemResult.OrEmpty()
-	shareID := itemIDToShareID(item.ID())
+		item := itemResult.OrEmpty()
+		shareID := itemIDToShareID(item.ID())
 
-	if shareID.IsError() {
-		return mo.Err[string](shareID.Error())
-	}
+		if shareID.IsError() {
+			return shareID.Error()
+		}
 
-	privateKey, err := base64.StdEncoding.DecodeString(priKey)
+		privateKey, err := base64.StdEncoding.DecodeString(priKey)
+
+		if err != nil {
+			return err
+		}
+
+		signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+		expireTime := now.Add(time.Second * time.Duration(expSecond)).Unix()
+		token := jwt.New(jwt.SigningMethodRS512)
+		claims := token.Claims.(jwt.MapClaims)
+		claims["jti"] = uuid.NewV4().String()
+		claims["sub"] = shareID.OrEmpty()
+		claims["iat"] = now.Unix()
+		claims["exp"] = expireTime
+		claims["check_password"] = password != ""
+		claims["check_email"] = len(allowEmailList) > 0
+
+		tokenString, err := token.SignedString(signKey)
+
+		if err != nil {
+			return err
+		}
+
+		shareInfo := shareModel.Share{
+			Token:          tokenString,
+			Password:       password,
+			AllowIPList:    validIpList(allowIPList),
+			AllowEmailList: allowEmailList,
+			ExpireTime:     expireTime * int64(1000),
+		}
+
+		if err := s.shareRepo.Save(ctx, userID.OrEmpty(), shareID.OrEmpty(), item, &shareInfo); err.IsError() {
+			return err.Error()
+		}
+
+		shareToken = base64.RawURLEncoding.EncodeToString([]byte(tokenString))
+		return nil
+	})
 
 	if err != nil {
 		return mo.Err[string](err)
 	}
 
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
-
-	if err != nil {
-		return mo.Err[string](err)
-	}
-
-	now := time.Now()
-	expireTime := now.Add(time.Second * time.Duration(expSecond)).Unix()
-	token := jwt.New(jwt.SigningMethodRS512)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["jti"] = uuid.NewV4().String()
-	claims["sub"] = shareID.OrEmpty()
-	claims["iat"] = now.Unix()
-	claims["exp"] = expireTime
-	claims["check_password"] = password != ""
-	claims["check_email"] = len(allowEmailList) > 0
-
-	tokenString, err := token.SignedString(signKey)
-
-	if err != nil {
-		return mo.Err[string](err)
-	}
-
-	shareInfo := shareModel.Share{
-		Token:          tokenString,
-		Password:       password,
-		AllowIPList:    validIpList(allowIPList),
-		AllowEmailList: allowEmailList,
-		ExpireTime:     expireTime * int64(1000),
-	}
-
-	if err := s.shareRepo.Save(ctx, shareID.OrEmpty(), item, &shareInfo); err.IsError() {
-		return mo.Err[string](err.Error())
-	}
-
-	return mo.Ok(base64.RawURLEncoding.EncodeToString([]byte(tokenString)))
+	return mo.Ok(shareToken)
 }
 
 func (s *Service) RevokeToken(ctx context.Context, accessToken string) error {
-	if err := isAuthenticated(ctx); err != nil {
-		return err
-	}
+	return s.transaction.Do(ctx, func(ctx context.Context) error {
+		if err := isAuthenticated(ctx); err != nil {
+			return err
+		}
 
-	return s.userRepo.RevokeToken(ctx, string(s.clientID), string(s.clientSecret), accessToken)
+		return s.userRepo.RevokeToken(ctx, string(s.clientID), string(s.clientSecret), accessToken)
+	})
 }
 
 func verifyToken(token string) mo.Result[*jwt.Token] {

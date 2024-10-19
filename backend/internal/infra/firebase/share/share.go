@@ -37,7 +37,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) mo.
 	return r.findFromFirestore(ctx, hashKey)
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
+func (r *FirestoreShareRepository) Save(ctx context.Context, userID, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
@@ -55,7 +55,7 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 	return mo.Ok(true)
 }
 
-func (r *FirestoreShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
+func (r *FirestoreShareRepository) Delete(ctx context.Context, userID, hashKey string) mo.Result[bool] {
 	tx := values.GetFirestoreTx(ctx)
 
 	if tx.IsAbsent() {
