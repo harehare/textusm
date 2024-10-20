@@ -23,7 +23,7 @@ type firestoreTx struct {
 }
 
 func NewPostgresTx(config *config.Config) Transaction {
-	return &postgresTx{db: config.DBConn}
+	return &postgresTx{db: config.PostgresConn}
 }
 
 func NewFirestoreTx(config *config.Config) Transaction {

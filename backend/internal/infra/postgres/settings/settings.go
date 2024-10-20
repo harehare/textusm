@@ -19,7 +19,7 @@ type PostgresSettingsRepository struct {
 }
 
 func NewPostgresSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
-	return &PostgresSettingsRepository{_db: db.New(config.DBConn)}
+	return &PostgresSettingsRepository{_db: db.New(config.PostgresConn)}
 }
 
 func (r *PostgresSettingsRepository) tx(ctx context.Context) *db.Queries {

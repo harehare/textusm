@@ -37,8 +37,8 @@ func NewServer(handler *chi.Mux, env *config.Env, config *config.Config) (server
 	go gracefulShutdown(ctx, server, quit, done)
 
 	cleanup = func() {
-		if config.DBConn != nil {
-			config.DBConn.Close()
+		if config.PostgresConn != nil {
+			config.PostgresConn.Close()
 		}
 	}
 

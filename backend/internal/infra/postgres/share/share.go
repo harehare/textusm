@@ -20,7 +20,7 @@ type PostgresShareRepository struct {
 }
 
 func NewPostgresShareRepository(config *config.Config) shareRepo.ShareRepository {
-	return &PostgresShareRepository{_db: db.New(config.DBConn)}
+	return &PostgresShareRepository{_db: db.New(config.PostgresConn)}
 }
 
 func (r *PostgresShareRepository) tx(ctx context.Context) *db.Queries {

@@ -17,7 +17,7 @@ import (
 type Config struct {
 	FirebaseApp     *firebase.App
 	FirestoreClient *firestore.Client
-	DBConn          *pgxpool.Pool
+	PostgresConn    *pgxpool.Pool
 	StorageClient   *storage.Client
 }
 
@@ -135,7 +135,7 @@ func NewConfig(env *Env) (*Config, error) {
 		FirebaseApp:     app,
 		FirestoreClient: firestore,
 		StorageClient:   storage,
-		DBConn:          conn,
+		PostgresConn:    conn,
 	}
 
 	return &config, nil

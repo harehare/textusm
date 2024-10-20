@@ -20,7 +20,7 @@ type PostgresGistItemRepository struct {
 }
 
 func NewPostgresGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
-	return &PostgresGistItemRepository{_db: db.New(config.DBConn)}
+	return &PostgresGistItemRepository{_db: db.New(config.PostgresConn)}
 }
 
 func (r *PostgresGistItemRepository) tx(ctx context.Context) *db.Queries {

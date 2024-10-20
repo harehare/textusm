@@ -20,7 +20,7 @@ type PostgresItemRepository struct {
 }
 
 func NewPostgresItemRepository(config *config.Config) itemRepo.ItemRepository {
-	return &PostgresItemRepository{_db: db.New(config.DBConn)}
+	return &PostgresItemRepository{_db: db.New(config.PostgresConn)}
 }
 
 func (r *PostgresItemRepository) tx(ctx context.Context) *db.Queries {
