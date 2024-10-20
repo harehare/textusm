@@ -3,6 +3,8 @@ package app
 import (
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/harehare/textusm/internal/config"
 )
@@ -15,7 +17,13 @@ func Server() (server *http.Server, cleanup func(), err error) {
 		return
 	}
 
-	server, cleanup, err = InitializeFirebaseServer()
+	DBType := os.Getenv("DB_TYPE")
+
+	if strings.ToLower(DBType) == "postgres" {
+		server, cleanup, err = InitializePostgresServer()
+	} else {
+		server, cleanup, err = InitializeFirebaseServer()
+	}
 
 	if err != nil {
 		slog.Error("error initializing app", "error", err)

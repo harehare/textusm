@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"cloud.google.com/go/firestore"
@@ -37,7 +38,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 	}
 	ctx = values.WithDBTx(ctx, &tx)
 
-	_, err = tx.Exec(ctx, "SET LOCAL app.uid = '"+values.GetUID(ctx).MustGet()+"';")
+	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = '%s'", values.GetUID(ctx).MustGet()))
 
 	if err != nil {
 		return err
