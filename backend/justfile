@@ -51,3 +51,9 @@ fix:
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
 	fieldalignment -fix pkg/presentation/graphql/models.go
+
+migrate DATABASE='postgresql':
+  dbmate -d db/{{DATABASE}}/migrations up
+
+rollback DATABASE='postgresql':
+  dbmate -d db/{{DATABASE}}/migrations down

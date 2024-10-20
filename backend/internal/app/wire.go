@@ -10,12 +10,16 @@ import (
 	"github.com/harehare/textusm/internal/app/handler"
 	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
+	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/service"
 	"github.com/harehare/textusm/internal/github"
-	itemRepo "github.com/harehare/textusm/internal/infra/firebase/item"
-	settingsRepo "github.com/harehare/textusm/internal/infra/firebase/settings"
-	shareRepo "github.com/harehare/textusm/internal/infra/firebase/share"
+	firebaseItemRepo "github.com/harehare/textusm/internal/infra/firebase/item"
+	firebaseSettingsRepo "github.com/harehare/textusm/internal/infra/firebase/settings"
+	firebaseShareRepo "github.com/harehare/textusm/internal/infra/firebase/share"
 	userRepo "github.com/harehare/textusm/internal/infra/firebase/user"
+	postgresItemRepo "github.com/harehare/textusm/internal/infra/postgres/item"
+	postgresSettingsRepo "github.com/harehare/textusm/internal/infra/postgres/settings"
+	postgresShareRepo "github.com/harehare/textusm/internal/infra/postgres/share"
 	"github.com/harehare/textusm/internal/presentation/api"
 	resolver "github.com/harehare/textusm/internal/presentation/graphql"
 )
@@ -28,15 +32,16 @@ func provideGithubClientSecret(env *config.Env) github.ClientSecret {
 	return github.ClientSecret(env.GithubClientSecret)
 }
 
-func InitializeServer() (*http.Server, error) {
+func InitializeFirebaseServer() (*http.Server, func(), error) {
 	wire.Build(
 		config.Set,
 		provideGithubClientID,
 		provideGithubClientSecret,
-		itemRepo.NewFirestoreItemRepository,
-		itemRepo.NewFirestoreGistItemRepository,
-		settingsRepo.NewFirestoreSettingsRepository,
-		shareRepo.NewFirestoreShareRepository,
+		db.NewFirestoreTx,
+		firebaseItemRepo.NewFirestoreItemRepository,
+		firebaseItemRepo.NewFirestoreGistItemRepository,
+		firebaseSettingsRepo.NewFirestoreSettingsRepository,
+		firebaseShareRepo.NewFirestoreShareRepository,
 		userRepo.NewFirebaseUserRepository,
 		service.NewService,
 		service.NewGistService,
@@ -46,5 +51,27 @@ func InitializeServer() (*http.Server, error) {
 		handler.NewHandler,
 		server.NewServer,
 	)
-	return &http.Server{}, nil
+	return &http.Server{}, func() {}, nil
+}
+
+func InitializePostgresServer() (*http.Server, func(), error) {
+	wire.Build(
+		config.Set,
+		provideGithubClientID,
+		provideGithubClientSecret,
+		db.NewPostgresTx,
+		postgresItemRepo.NewPostgresItemRepository,
+		postgresItemRepo.NewPostgresGistItemRepository,
+		postgresSettingsRepo.NewPostgresSettingsRepository,
+		postgresShareRepo.NewPostgresShareRepository,
+		userRepo.NewFirebaseUserRepository,
+		service.NewService,
+		service.NewGistService,
+		service.NewSettingsService,
+		resolver.New,
+		api.New,
+		handler.NewHandler,
+		server.NewServer,
+	)
+	return &http.Server{}, func() {}, nil
 }

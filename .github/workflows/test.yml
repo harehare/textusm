@@ -3,11 +3,11 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches:
-      - release
       - master
   push:
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
   contents: read

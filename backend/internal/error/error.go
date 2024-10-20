@@ -1,8 +1,30 @@
 package error
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Code string
+
+var (
+	ErrInvalidId          = errors.New("invalid id")
+	ErrInvalidTitle       = errors.New("invalid title")
+	ErrInvalidDiagram     = errors.New("invalid diagram")
+	ErrInvalidIsPublic    = errors.New("invalid isPublic")
+	ErrInvalidIsBookmark  = errors.New("invalid isBookmark")
+	ErrInvalidCreatedAt   = errors.New("invalid createdAt")
+	ErrInvalidUpdatedAt   = errors.New("invalid updatedAt")
+	ErrInvalidURL         = errors.New("invalid URL")
+	ErrNotAuthorization   = errors.New("not authorization")
+	ErrNotAllowIpAddress  = errors.New("not allow ip address")
+	ErrSignInRequired     = errors.New("sign in required")
+	ErrNotAllowEmail      = errors.New("not allow email")
+	ErrPasswordIsRequired = errors.New("password is required")
+	ErrNotDiagramOwner    = errors.New("not diagram owner")
+	ErrUnpadError         = errors.New("unpad error. This could happen when incorrect encryption key is used")
+	ErrBlockSizeError     = errors.New("blocksize must be multiple of decoded message length")
+)
 
 const (
 	NotFound        Code = "NotFound"

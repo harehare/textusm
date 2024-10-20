@@ -1,0 +1,13 @@
+version: "2"
+cloud:
+  project: "textusm"
+sql:
+  - schema: "db/postgresql/migrations"
+    queries: "db/postgresql/query.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/db"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true

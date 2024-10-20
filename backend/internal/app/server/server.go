@@ -16,14 +16,14 @@ import (
 	"github.com/harehare/textusm/internal/config"
 )
 
-func NewServer(handler *chi.Mux, env *config.Env) *http.Server {
+func NewServer(handler *chi.Mux, env *config.Env, config *config.Config) (server *http.Server, cleanup func()) {
 	done := make(chan bool, 1)
 	quit := make(chan os.Signal, 1)
 
 	signal.Notify(quit, os.Interrupt)
 	signal.Notify(quit, syscall.SIGTERM)
 
-	s := &http.Server{
+	server = &http.Server{
 		Addr:              fmt.Sprintf(":%s", env.Port),
 		Handler:           handler,
 		ReadTimeout:       16 * time.Second,
@@ -34,9 +34,15 @@ func NewServer(handler *chi.Mux, env *config.Env) *http.Server {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	go gracefulShutdown(ctx, s, quit, done)
+	go gracefulShutdown(ctx, server, quit, done)
 
-	return s
+	cleanup = func() {
+		if config.PostgresConn != nil {
+			config.PostgresConn.Close()
+		}
+	}
+
+	return
 }
 
 func gracefulShutdown(ctx context.Context, server *http.Server, quit <-chan os.Signal, done chan<- bool) {
@@ -45,6 +51,7 @@ func gracefulShutdown(ctx context.Context, server *http.Server, quit <-chan os.S
 
 	server.SetKeepAlivesEnabled(false)
 	if err := server.Shutdown(ctx); err != nil {
+		server.Close()
 		slog.Error("Could not gracefully shutdown the server", "error", err)
 	}
 	close(done)
