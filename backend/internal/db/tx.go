@@ -38,7 +38,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 	}
 	ctx = values.WithDBTx(ctx, &tx)
 
-	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = '%s'", values.GetUID(ctx).MustGet()))
+	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = \"%s\";", values.GetUID(ctx).MustGet()))
 
 	if err != nil {
 		return err

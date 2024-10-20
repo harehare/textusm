@@ -104,9 +104,9 @@ ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY items_uid_policy ON items AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::varchar));
 
-CREATE POLICY share_conditions_uid_policy ON share_conditions AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::text));
+CREATE POLICY share_conditions_uid_policy ON share_conditions AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::varchar));
 
-CREATE POLICY settings_uid_policy ON settings AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::text));
+CREATE POLICY settings_uid_policy ON settings AS PERMISSIVE FOR ALL TO public USING (uid = current_setting('app.uid'::varchar));
 
 -- migrate:down
 DROP TABLE items;

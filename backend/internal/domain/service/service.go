@@ -114,6 +114,7 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) mo
 }
 
 func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
+	var savedItem *diagramitem.DiagramItem
 	err := s.transaction.Do(ctx, func(ctx context.Context) error {
 		slog.Debug("Save diagram", "ID", item.ID(), "isPublic", isPublic)
 		if err := isAuthenticated(ctx); err != nil {
@@ -130,7 +131,13 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 				return ret.Error()
 			}
 
-			return s.repo.Save(ctx, userID.OrEmpty(), item, true).Error()
+			r := s.repo.Save(ctx, userID.OrEmpty(), item, true)
+
+			if r.IsError() {
+				return r.Error()
+			}
+			savedItem = r.MustGet()
+			return nil
 		} else {
 			ret := s.repo.FindByID(ctx, userID.OrEmpty(), item.ID(), true)
 
@@ -144,14 +151,21 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 			}
 		}
 
-		return s.repo.Save(ctx, userID.OrEmpty(), item, false).Error()
+		r := s.repo.Save(ctx, userID.OrEmpty(), item, false)
+
+		if r.IsError() {
+			return r.Error()
+		}
+
+		savedItem = r.MustGet()
+		return nil
 	})
 
 	if err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	return mo.Ok(item)
+	return mo.Ok(savedItem)
 }
 
 func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) error {
