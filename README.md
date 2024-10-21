@@ -417,18 +417,15 @@ r1
 ## Developing
 
 ```shell
-# 1. Install dependencies
-npm install
-
-# 2. Set environment variables
+# Set environment variables
 cp .env.example .env
-# use direnv
+# Use direnv
 echo 'dotenv' > .envrc
 
-# 3. generate constants
-npm run generate:elm-constants
+# Install dependencies
+cd frontend && npm install
 
-# 4. build, serve & watch
+# Build, serve & watch
 just run
 ```
 
@@ -443,7 +440,7 @@ npm run prod
 ## Testing
 
 ```
-$ npm run test
+$ just test
 ```
 
 <hr />
