@@ -67,7 +67,7 @@
     "build:lib": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
     "build:vscode": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
     "dev": "concurrently \"npm:dev:*\"",
-    "dev:frontend": "generate:elm-constants && vite",
+    "dev:frontend": "npm run generate:elm-constants && vite",
     "dev:backend": "cd ../backend/ && just watch",
     "dev:emulators": "cd .. && mkdir -p data && firebase emulators:start --only firestore,auth,storage --import=data",
     "embed:build": "npm run prod && cp -r dist ../backend/internal/app",
