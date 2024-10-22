@@ -1000,6 +1000,7 @@ update model message =
 
         M.SignOut ->
             Effect.revokeGistToken M.CallApi model.session
+                >> Effect.revokeToken M.CallApi model.session
                 >> Return.command (Ports.signOut ())
                 >> setCurrentDiagram DiagramItem.empty
                 >> signOut

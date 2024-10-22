@@ -39,7 +39,18 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.service.RevokeToken(r.Context(), accessToken.AccessToken)
+	err = a.service.RevokeGistToken(r.Context(), accessToken.AccessToken)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (a *Api) RevokeToken(w http.ResponseWriter, r *http.Request) {
+	err := a.service.RevokeToken(r.Context())
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

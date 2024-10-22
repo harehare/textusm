@@ -74,8 +74,13 @@ func (m *MockUserRepository) Find(ctx context.Context, uid string) mo.Result[*um
 	return ret.Get(0).(mo.Result[*um.User])
 }
 
-func (m *MockUserRepository) RevokeToken(ctx context.Context, clientID, clientSecret, accessToken string) error {
+func (m *MockUserRepository) RevokeGistToken(ctx context.Context, clientID, clientSecret, accessToken string) error {
 	ret := m.Called(ctx, clientID, clientSecret, accessToken)
+	return ret.Get(0).(error)
+}
+
+func (m *MockUserRepository) RevokeToken(ctx context.Context) error {
+	ret := m.Called(ctx)
 	return ret.Get(0).(error)
 }
 

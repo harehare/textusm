@@ -51,6 +51,7 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 			r.Use(middleware.AuthMiddleware(config.FirebaseApp))
 			r.Use(httprate.LimitByIP(10, 1*time.Minute))
 			r.Route("/token", func(r chi.Router) {
+				r.Delete("/revoke", restApi.RevokeGistToken)
 				r.Delete("/gist/revoke", restApi.RevokeGistToken)
 			})
 		})

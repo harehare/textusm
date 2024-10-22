@@ -30,7 +30,7 @@ func AuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 				return
 			}
 
-			token, err := client.VerifyIDToken(r.Context(), idToken[1])
+			token, err := client.VerifyIDTokenAndCheckRevoked(r.Context(), idToken[1])
 			if err != nil {
 				http.Error(w, "{\"error\": \"authorization failed\"}", http.StatusForbidden)
 				return

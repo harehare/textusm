@@ -88,6 +88,7 @@ jobs:
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          APP_VERSION: ""
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -102,6 +103,7 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           MONITOR_ENABLE: "0"
           USE_HTTPS: "0"
+          REPO_BUTTON_URL: ""
 
   backend-test:
     name: backend_test

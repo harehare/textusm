@@ -9,6 +9,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/harehare/textusm/internal/config"
+	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/user"
 	userRepo "github.com/harehare/textusm/internal/domain/repository/user"
 	"github.com/samber/mo"
@@ -36,7 +37,7 @@ func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) mo.Result
 	return mo.Ok(&user)
 }
 
-func (r *FirebaseUserRepository) RevokeToken(ctx context.Context, clientID, clientSecret, accessToken string) error {
+func (r *FirebaseUserRepository) RevokeGistToken(ctx context.Context, clientID, clientSecret, accessToken string) error {
 	client := &http.Client{Timeout: time.Duration(30) * time.Second}
 	body := `{"access_token":"` + accessToken + `"}`
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("https://api.github.com/applications/%s/token", clientID), bytes.NewBuffer([]byte(body)))
@@ -51,6 +52,22 @@ func (r *FirebaseUserRepository) RevokeToken(ctx context.Context, clientID, clie
 		return err
 	}
 	defer res.Body.Close()
+
+	return nil
+}
+
+func (r *FirebaseUserRepository) RevokeToken(ctx context.Context) error {
+	client, err := r.app.Auth(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = client.RevokeRefreshTokens(ctx, values.GetUID(ctx).MustGet())
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
