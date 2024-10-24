@@ -417,14 +417,20 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	return mo.Ok(shareToken)
 }
 
-func (s *Service) RevokeToken(ctx context.Context, accessToken string) error {
-	return s.transaction.Do(ctx, func(ctx context.Context) error {
-		if err := isAuthenticated(ctx); err != nil {
-			return err
-		}
+func (s *Service) RevokeGistToken(ctx context.Context, accessToken string) error {
+	if err := isAuthenticated(ctx); err != nil {
+		return err
+	}
 
-		return s.userRepo.RevokeToken(ctx, string(s.clientID), string(s.clientSecret), accessToken)
-	})
+	return s.userRepo.RevokeGistToken(ctx, string(s.clientID), string(s.clientSecret), accessToken)
+}
+
+func (s *Service) RevokeToken(ctx context.Context) error {
+	if err := isAuthenticated(ctx); err != nil {
+		return err
+	}
+
+	return s.userRepo.RevokeToken(ctx)
 }
 
 func verifyToken(token string) mo.Result[*jwt.Token] {

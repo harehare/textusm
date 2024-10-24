@@ -5,6 +5,7 @@ module Effect exposing
     , getGistTokenAfterSave
     , historyBack
     , revokeGistToken
+    , revokeToken
     , setFocus
     , setFocusEditor
     , toggleFullscreen
@@ -72,6 +73,21 @@ revokeGistToken msg session =
 
                 _ ->
                     Return.zero
+
+        Session.Guest ->
+            Return.zero
+
+
+revokeToken : (Result Message () -> msg) -> Session -> Return.ReturnF msg model
+revokeToken msg session =
+    case session of
+        Session.SignedIn _ ->
+            (TokenApi.revokeToken
+                (Session.getIdToken session)
+                |> Task.mapError (\_ -> Message.messageFailedRevokeToken)
+            )
+                |> Task.attempt msg
+                |> Return.command
 
         Session.Guest ->
             Return.zero

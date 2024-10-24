@@ -54,7 +54,7 @@ export const pollRefreshToken = (callback: (idToken: string) => void): void => {
         }
       }
     },
-    10 * 60 * 1000
+    30 * 60 * 1000
   );
 };
 
@@ -129,7 +129,7 @@ export const signInGithubWithGist = async (): Promise<{
           accessToken: result?._tokenResponse?.oauthAccessToken,
         });
       })
-      .catch((error: Error) => {
-        reject(error);
+      .catch((error: unknown) => {
+        reject(error as Error);
       });
   });

@@ -1,4 +1,4 @@
-module Api.Http.Token exposing (revokeGistToken)
+module Api.Http.Token exposing (revokeGistToken, revokeToken)
 
 import Api.Http.Request as HttpRequest
 import Api.RequestError as RequestError exposing (RequestError)
@@ -19,6 +19,19 @@ revokeGistToken idToken accessToken =
         , headers = headers idToken
         }
         (Http.jsonBody <| accessTokenRequestEncorder accessToken)
+        HttpRequest.emptyResolver
+        |> Task.mapError RequestError.fromHttpError
+
+
+revokeToken : Maybe IdToken -> Task RequestError ()
+revokeToken idToken =
+    HttpRequest.delete
+        { url = Env.apiRoot
+        , path = [ "api", "v1", "token", "revoke" ]
+        , query = []
+        , headers = headers idToken
+        }
+        Http.emptyBody
         HttpRequest.emptyResolver
         |> Task.mapError RequestError.fromHttpError
 
