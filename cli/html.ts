@@ -71,7 +71,6 @@ interface Settings {
 
 const html = (
   text: string,
-  javaScript: string,
   width: number,
   height: number,
   settings: Settings
@@ -79,7 +78,6 @@ const html = (
   return render(
     `<html>
   <head>
-    <script>${javaScript}</script>
   </head>
   <body>
     <div id="main">
@@ -101,7 +99,6 @@ const html = (
 </html>
 `,
     {
-      javaScript,
       text: text.split("\n").join("\\n"),
       diagramType: settings.diagramType,
       width,

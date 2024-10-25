@@ -5,6 +5,9 @@ import * as path from "path";
 import * as puppeteer from "puppeteer";
 import { html, DiagramType, Settings } from "./html";
 import { optimize } from "svgo";
+import packageJson from "./package.json";
+
+process.title = "textusm";
 
 type DiagramSettings = {
   width: number;
@@ -191,7 +194,7 @@ const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.14.8")
+  .version(packageJson.version)
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -203,9 +206,9 @@ const options = program
     "-H, --height <height>",
     "Height of the page. Optional. Default: 1024."
   )
-  .requiredOption(
+  .option(
     "-o, --output [output]",
-    "Output file. It should be svg, png, pdf or html."
+    "Output file. It should be svg, png, pdf or html. If not specified, output to stdout."
   )
   .option(
     "-d, --diagramType [diagramType]",
@@ -236,14 +239,14 @@ const writeResult = (output: string | null, result: string): void => {
   if (output) {
     fs.writeFileSync(output, result);
   } else {
-    console.log(result);
+    process.stdout.write(result);
   }
 };
 
 (async () => {
   const browser = cdp
     ? await puppeteer.connect({ browserURL: cdp })
-    : await puppeteer.launch({ headless: "new" });
+    : await puppeteer.launch({ headless: true });
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
   const js = fs.readFileSync(
@@ -283,7 +286,8 @@ const writeResult = (output: string | null, result: string): void => {
     config.diagramType = diagramType
       ? diagramMap[diagramType].diagramType
       : "UserStoryMap";
-    await page.setContent(html(text, js, svgWidth, svgHeight, config), {
+    await page.addScriptTag({ content: js });
+    await page.setContent(html(text, svgWidth, svgHeight, config), {
       waitUntil: "load",
     });
 
@@ -295,15 +299,13 @@ const writeResult = (output: string | null, result: string): void => {
 
       const optimizedSvg = optimize(
         svg
-          .replace("<div></div>", "")
-          .replace(
+          .replaceAll("<div></div>", "")
+          .replaceAll(
             "<svg",
             '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
           )
-          .split("<div")
-          .join('<div xmlns="http://www.w3.org/1999/xhtml"')
-          .split("<img")
-          .join('<img xmlns="http://www.w3.org/1999/xhtml"'),
+          .replaceAll("<div", '<div xmlns="http://www.w3.org/1999/xhtml"')
+          .replaceAll("<img", '<img xmlns="http://www.w3.org/1999/xhtml"'),
         {
           plugins: [
             {

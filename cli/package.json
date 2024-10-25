@@ -1,7 +1,7 @@
 {
   "name": "textusm.cli",
   "description": "Generate a User Story Mapping from indented text.",
-  "version": "0.14.8",
+  "version": "0.14.9",
   "author": "Takahiro Sato",
   "bin": {
     "textusm": "dist/index.js"
@@ -10,21 +10,21 @@
     "url": "https://github.com/harehare/textusm/issues"
   },
   "dependencies": {
-    "commander": "^11.1.0",
+    "commander": "^12.1.0",
     "html-escaper": "^3.0.3",
     "mustache": "^4.2.0",
-    "puppeteer": "^21.10.0",
-    "svgo": "^3.2.0"
+    "puppeteer": "^23.6.0",
+    "svgo": "^3.3.2"
   },
   "devDependencies": {
     "@types/html-escaper": "^3.0.2",
     "@types/mustache": "^4.2.5",
-    "@types/node": "^20.11.13",
-    "@types/puppeteer": "^5.4.7",
-    "@types/svgo": "^2.6.4",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
-    "webpack": "^5.90.0",
+    "@types/node": "^22.8.0",
+    "@types/puppeteer": "^7.0.4",
+    "@types/svgo": "^3.0.0",
+    "tsup": "^8.3.4",
+    "typescript": "^5.6.3",
+    "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
   },
   "homepage": "https://github.com/harehare/textusm",
@@ -45,7 +45,7 @@
   "main": "dist/index.js",
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
-    "utf-8-validate": "^6.0.3"
+    "utf-8-validate": "^6.0.4"
   },
   "repository": {
     "type": "git",

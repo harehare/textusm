@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
+    "target": "ES2023",
+    "module": "CommonJS",
     "outDir": "./dist",
     "removeComments": true,
     "strict": true,
