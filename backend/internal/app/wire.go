@@ -20,6 +20,9 @@ import (
 	postgresItemRepo "github.com/harehare/textusm/internal/infra/postgres/item"
 	postgresSettingsRepo "github.com/harehare/textusm/internal/infra/postgres/settings"
 	postgresShareRepo "github.com/harehare/textusm/internal/infra/postgres/share"
+	sqliteItemRepo "github.com/harehare/textusm/internal/infra/sqlite/item"
+	sqliteSettingsRepo "github.com/harehare/textusm/internal/infra/sqlite/settings"
+	sqliteShareRepo "github.com/harehare/textusm/internal/infra/sqlite/share"
 	"github.com/harehare/textusm/internal/presentation/api"
 	resolver "github.com/harehare/textusm/internal/presentation/graphql"
 )
@@ -64,6 +67,28 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 		postgresItemRepo.NewPostgresGistItemRepository,
 		postgresSettingsRepo.NewPostgresSettingsRepository,
 		postgresShareRepo.NewPostgresShareRepository,
+		userRepo.NewFirebaseUserRepository,
+		service.NewService,
+		service.NewGistService,
+		service.NewSettingsService,
+		resolver.New,
+		api.New,
+		handler.NewHandler,
+		server.NewServer,
+	)
+	return &http.Server{}, func() {}, nil
+}
+
+func InitializeSqliteServer() (*http.Server, func(), error) {
+	wire.Build(
+		config.Set,
+		provideGithubClientID,
+		provideGithubClientSecret,
+		db.NewDBTx,
+		sqliteItemRepo.NewSqliteItemRepository,
+		sqliteItemRepo.NewSqliteGistItemRepository,
+		sqliteSettingsRepo.NewSqliteSettingsRepository,
+		sqliteShareRepo.NewSqliteShareRepository,
 		userRepo.NewFirebaseUserRepository,
 		service.NewService,
 		service.NewGistService,

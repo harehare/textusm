@@ -24,7 +24,7 @@ func NewPostgresShareRepository(config *config.Config) shareRepo.ShareRepository
 }
 
 func (r *PostgresShareRepository) tx(ctx context.Context) *postgres.Queries {
-	tx := values.GetDBTx(ctx)
+	tx := values.GetPostgresTx(ctx)
 
 	if tx.IsPresent() {
 		return r._db.WithTx(*tx.MustGet())

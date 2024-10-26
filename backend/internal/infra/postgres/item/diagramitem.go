@@ -24,7 +24,7 @@ func NewPostgresItemRepository(config *config.Config) itemRepo.ItemRepository {
 }
 
 func (r *PostgresItemRepository) tx(ctx context.Context) *postgres.Queries {
-	tx := values.GetDBTx(ctx)
+	tx := values.GetPostgresTx(ctx)
 
 	if tx.IsPresent() {
 		return r._db.WithTx(*tx.MustGet())

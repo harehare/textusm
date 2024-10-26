@@ -20,6 +20,9 @@ import (
 	item2 "github.com/harehare/textusm/internal/infra/postgres/item"
 	settings2 "github.com/harehare/textusm/internal/infra/postgres/settings"
 	share2 "github.com/harehare/textusm/internal/infra/postgres/share"
+	item3 "github.com/harehare/textusm/internal/infra/sqlite/item"
+	settings3 "github.com/harehare/textusm/internal/infra/sqlite/settings"
+	share3 "github.com/harehare/textusm/internal/infra/sqlite/share"
 	"github.com/harehare/textusm/internal/presentation/api"
 	"github.com/harehare/textusm/internal/presentation/graphql"
 	"net/http"
@@ -79,6 +82,39 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 	gistItemRepository := item2.NewPostgresGistItemRepository(configConfig)
 	gistService := service.NewGistService(gistItemRepository, transaction, clientID, clientSecret)
 	settingsRepository := settings2.NewPostgresSettingsRepository(configConfig)
+	settingsService := service.NewSettingsService(settingsRepository, transaction, clientID, clientSecret)
+	resolver := graphql.New(serviceService, gistService, settingsService, configConfig)
+	apiApi := api.New(serviceService, gistService, settingsService)
+	logger := config.NewLogger(env)
+	mux, err := handler.NewHandler(env, configConfig, resolver, apiApi, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	httpServer, cleanup := server.NewServer(mux, env, configConfig)
+	return httpServer, func() {
+		cleanup()
+	}, nil
+}
+
+func InitializeSqliteServer() (*http.Server, func(), error) {
+	env, err := config.NewEnv()
+	if err != nil {
+		return nil, nil, err
+	}
+	configConfig, err := config.NewConfig(env)
+	if err != nil {
+		return nil, nil, err
+	}
+	itemRepository := item3.NewSqliteItemRepository(configConfig)
+	shareRepository := share3.NewSqliteShareRepository(configConfig)
+	userRepository := user.NewFirebaseUserRepository(configConfig)
+	transaction := db.NewDBTx(configConfig)
+	clientID := provideGithubClientID(env)
+	clientSecret := provideGithubClientSecret(env)
+	serviceService := service.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
+	gistItemRepository := item3.NewSqliteGistItemRepository(configConfig)
+	gistService := service.NewGistService(gistItemRepository, transaction, clientID, clientSecret)
+	settingsRepository := settings3.NewSqliteSettingsRepository(configConfig)
 	settingsService := service.NewSettingsService(settingsRepository, transaction, clientID, clientSecret)
 	resolver := graphql.New(serviceService, gistService, settingsService, configConfig)
 	apiApi := api.New(serviceService, gistService, settingsService)

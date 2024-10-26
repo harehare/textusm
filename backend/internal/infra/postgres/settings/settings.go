@@ -23,7 +23,7 @@ func NewPostgresSettingsRepository(config *config.Config) settingsRepo.SettingsR
 }
 
 func (r *PostgresSettingsRepository) tx(ctx context.Context) *postgres.Queries {
-	tx := v.GetDBTx(ctx)
+	tx := v.GetPostgresTx(ctx)
 
 	if tx.IsPresent() {
 		return r._db.WithTx(*tx.MustGet())
@@ -42,15 +42,15 @@ func (r *PostgresSettingsRepository) Find(ctx context.Context, userID string, di
 	scale := float64(*s.Scale)
 
 	ss := settings.Settings{
-		Font:            *s.Font,
-		Width:           int(*s.Width),
-		Height:          int(*s.Height),
-		BackgroundColor: *s.BackgroundColor,
-		ActivityColor:   settings.Color{ForegroundColor: *s.ActivityColor, BackgroundColor: *s.ActivityBackgroundColor},
-		TaskColor:       settings.Color{ForegroundColor: *s.TaskColor, BackgroundColor: *s.TaskBackgroundColor},
-		StoryColor:      settings.Color{ForegroundColor: *s.StoryColor, BackgroundColor: *s.StoryBackgroundColor},
-		LineColor:       *s.LineColor,
-		LabelColor:      *s.LabelColor,
+		Font:            s.Font,
+		Width:           int(s.Width),
+		Height:          int(s.Height),
+		BackgroundColor: s.BackgroundColor,
+		ActivityColor:   settings.Color{ForegroundColor: s.ActivityColor, BackgroundColor: s.ActivityBackgroundColor},
+		TaskColor:       settings.Color{ForegroundColor: s.TaskColor, BackgroundColor: s.TaskBackgroundColor},
+		StoryColor:      settings.Color{ForegroundColor: s.StoryColor, BackgroundColor: s.StoryBackgroundColor},
+		LineColor:       s.LineColor,
+		LabelColor:      s.LabelColor,
 		TextColor:       s.TextColor,
 		ZoomControl:     s.ZoomControl,
 		Scale:           &scale,
@@ -74,44 +74,44 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 		err = r.tx(ctx).CreateSettings(ctx, postgres.CreateSettingsParams{
 			Uid:                     userID,
 			Diagram:                 postgres.Diagram(diagram),
-			ActivityColor:           &s.ActivityColor.ForegroundColor,
-			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
-			BackgroundColor:         &backgroundColor,
-			Height:                  &height,
-			LineColor:               &s.LineColor,
-			LabelColor:              &s.LabelColor,
+			ActivityColor:           s.ActivityColor.ForegroundColor,
+			ActivityBackgroundColor: s.ActivityColor.BackgroundColor,
+			BackgroundColor:         backgroundColor,
+			Height:                  height,
+			LineColor:               s.LineColor,
+			LabelColor:              s.LabelColor,
 			LockEditing:             s.LockEditing,
 			TextColor:               s.TextColor,
 			Toolbar:                 s.Toolbar,
 			Scale:                   &scale,
 			ShowGrid:                s.ShowGrid,
-			StoryColor:              &s.StoryColor.ForegroundColor,
-			StoryBackgroundColor:    &s.StoryColor.BackgroundColor,
-			TaskColor:               &s.TaskColor.ForegroundColor,
-			TaskBackgroundColor:     &s.TaskColor.BackgroundColor,
-			Width:                   &width,
+			StoryColor:              s.StoryColor.ForegroundColor,
+			StoryBackgroundColor:    s.StoryColor.BackgroundColor,
+			TaskColor:               s.TaskColor.ForegroundColor,
+			TaskBackgroundColor:     s.TaskColor.BackgroundColor,
+			Width:                   width,
 			ZoomControl:             s.ZoomControl,
 		})
 	} else if err != nil {
 		return mo.Err[*settings.Settings](err)
 	} else {
 		err = r.tx(ctx).UpdateSettings(ctx, postgres.UpdateSettingsParams{
-			ActivityColor:           &s.ActivityColor.ForegroundColor,
-			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
-			BackgroundColor:         &backgroundColor,
-			Height:                  &height,
-			LineColor:               &s.LineColor,
-			LabelColor:              &s.LabelColor,
+			ActivityColor:           s.ActivityColor.ForegroundColor,
+			ActivityBackgroundColor: s.ActivityColor.BackgroundColor,
+			BackgroundColor:         backgroundColor,
+			Height:                  height,
+			LineColor:               s.LineColor,
+			LabelColor:              s.LabelColor,
 			LockEditing:             s.LockEditing,
 			TextColor:               s.TextColor,
 			Toolbar:                 s.Toolbar,
 			Scale:                   &scale,
 			ShowGrid:                s.ShowGrid,
-			StoryColor:              &s.StoryColor.ForegroundColor,
-			StoryBackgroundColor:    &s.StoryColor.BackgroundColor,
-			TaskColor:               &s.TaskColor.ForegroundColor,
-			TaskBackgroundColor:     &s.TaskColor.BackgroundColor,
-			Width:                   &width,
+			StoryColor:              s.StoryColor.ForegroundColor,
+			StoryBackgroundColor:    s.StoryColor.BackgroundColor,
+			TaskColor:               s.TaskColor.ForegroundColor,
+			TaskBackgroundColor:     s.TaskColor.BackgroundColor,
+			Width:                   width,
 			ZoomControl:             s.ZoomControl,
 		})
 	}
