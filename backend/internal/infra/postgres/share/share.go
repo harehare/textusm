@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
-	"github.com/harehare/textusm/internal/db"
+	"github.com/harehare/textusm/internal/db/postgres"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
@@ -16,14 +16,14 @@ import (
 )
 
 type PostgresShareRepository struct {
-	_db *db.Queries
+	_db *postgres.Queries
 }
 
 func NewPostgresShareRepository(config *config.Config) shareRepo.ShareRepository {
-	return &PostgresShareRepository{_db: db.New(config.PostgresConn)}
+	return &PostgresShareRepository{_db: postgres.New(config.PostgresConn)}
 }
 
-func (r *PostgresShareRepository) tx(ctx context.Context) *db.Queries {
+func (r *PostgresShareRepository) tx(ctx context.Context) *postgres.Queries {
 	tx := values.GetDBTx(ctx)
 
 	if tx.IsPresent() {
@@ -40,7 +40,7 @@ func (r *PostgresShareRepository) Find(ctx context.Context, hashKey string) mo.R
 		return mo.Err[shareRepo.ShareValue](err)
 	}
 
-	item, err := r.tx(ctx).GetItem(ctx, db.GetItemParams{
+	item, err := r.tx(ctx).GetItem(ctx, postgres.GetItemParams{
 		DiagramID: s.DiagramID,
 		Location:  s.Location,
 	})
@@ -94,14 +94,14 @@ func (r *PostgresShareRepository) Save(ctx context.Context, userID, hashKey stri
 		return mo.Err[bool](err)
 	}
 
-	_, err = r.tx(ctx).GetShareConditionItem(ctx, db.GetShareConditionItemParams{
-		Location:  db.LocationSYSTEM,
+	_, err = r.tx(ctx).GetShareConditionItem(ctx, postgres.GetShareConditionItemParams{
+		Location:  postgres.LocationSYSTEM,
 		DiagramID: pgtype.UUID{Bytes: id, Valid: true},
 	})
 
 	if err == nil {
-		err = r.tx(ctx).DeleteShareConditionItem(ctx, db.DeleteShareConditionItemParams{
-			Location:  db.LocationSYSTEM,
+		err = r.tx(ctx).DeleteShareConditionItem(ctx, postgres.DeleteShareConditionItemParams{
+			Location:  postgres.LocationSYSTEM,
 			DiagramID: pgtype.UUID{Bytes: id, Valid: true},
 		})
 
@@ -123,11 +123,11 @@ func (r *PostgresShareRepository) Save(ctx context.Context, userID, hashKey stri
 		savePassword = ""
 	}
 
-	err = r.tx(ctx).CreateShareCondition(ctx, db.CreateShareConditionParams{
+	err = r.tx(ctx).CreateShareCondition(ctx, postgres.CreateShareConditionParams{
 		Uid:            userID,
 		Hashkey:        hashKey,
 		DiagramID:      pgtype.UUID{Bytes: id, Valid: true},
-		Location:       db.LocationSYSTEM,
+		Location:       postgres.LocationSYSTEM,
 		AllowIpList:    shareInfo.AllowIPList,
 		AllowEmailList: shareInfo.AllowEmailList,
 		ExpireTime:     &expireTime,

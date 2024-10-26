@@ -7,7 +7,7 @@ import (
 
 	"github.com/harehare/textusm/internal/config"
 	v "github.com/harehare/textusm/internal/context/values"
-	"github.com/harehare/textusm/internal/db"
+	"github.com/harehare/textusm/internal/db/postgres"
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
 	"github.com/harehare/textusm/internal/domain/values"
@@ -15,14 +15,14 @@ import (
 )
 
 type PostgresSettingsRepository struct {
-	_db *db.Queries
+	_db *postgres.Queries
 }
 
 func NewPostgresSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
-	return &PostgresSettingsRepository{_db: db.New(config.PostgresConn)}
+	return &PostgresSettingsRepository{_db: postgres.New(config.PostgresConn)}
 }
 
-func (r *PostgresSettingsRepository) tx(ctx context.Context) *db.Queries {
+func (r *PostgresSettingsRepository) tx(ctx context.Context) *postgres.Queries {
 	tx := v.GetDBTx(ctx)
 
 	if tx.IsPresent() {
@@ -33,7 +33,7 @@ func (r *PostgresSettingsRepository) tx(ctx context.Context) *db.Queries {
 }
 
 func (r *PostgresSettingsRepository) Find(ctx context.Context, userID string, diagram values.Diagram) mo.Result[*settings.Settings] {
-	s, err := r.tx(ctx).GetSettings(ctx, db.Diagram(diagram))
+	s, err := r.tx(ctx).GetSettings(ctx, postgres.Diagram(diagram))
 
 	if err != nil {
 		return mo.Err[*settings.Settings](err)
@@ -68,12 +68,12 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 	height := int32(s.Height)
 	scale := float32(*s.Scale)
 
-	_, err := r.tx(ctx).GetSettings(ctx, db.Diagram(diagram))
+	_, err := r.tx(ctx).GetSettings(ctx, postgres.Diagram(diagram))
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = r.tx(ctx).CreateSettings(ctx, db.CreateSettingsParams{
+		err = r.tx(ctx).CreateSettings(ctx, postgres.CreateSettingsParams{
 			Uid:                     userID,
-			Diagram:                 db.Diagram(diagram),
+			Diagram:                 postgres.Diagram(diagram),
 			ActivityColor:           &s.ActivityColor.ForegroundColor,
 			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
 			BackgroundColor:         &backgroundColor,
@@ -95,7 +95,7 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 	} else if err != nil {
 		return mo.Err[*settings.Settings](err)
 	} else {
-		err = r.tx(ctx).UpdateSettings(ctx, db.UpdateSettingsParams{
+		err = r.tx(ctx).UpdateSettings(ctx, postgres.UpdateSettingsParams{
 			ActivityColor:           &s.ActivityColor.ForegroundColor,
 			ActivityBackgroundColor: &s.ActivityColor.BackgroundColor,
 			BackgroundColor:         &backgroundColor,
