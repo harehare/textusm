@@ -1,4 +1,31 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+const signIn = async (page: Page) => {
+  // sign in
+  await page.locator('[data-test-id="header-signin"]').click();
+  await page.locator('[data-test-id="google-menu-item"]').click();
+
+  const popup = await page.waitForEvent('popup');
+  await popup.waitForLoadState('networkidle');
+  await popup.getByRole('button', { name: /add new account/i }).click();
+  await popup.waitForLoadState('networkidle');
+  await popup.getByRole('button', { name: /auto-generate/i }).click();
+  await popup.getByRole('button', { name: /sign in/i }).click();
+
+  await page.waitForSelector('[data-test-id="header-title"]');
+};
+
+const editTitle = async (page: Page, title: string) => {
+  await page.locator('[data-test-id="header-title"]').click();
+  await page.locator('[data-test-id="header-input-title"]').fill(title);
+  await page.locator('[data-test-id="header-input-title"]').press('Enter');
+};
+
+const editText = async (page: Page, text: string) => {
+  const monacoEditor = await page.$('monaco-editor');
+  await monacoEditor?.evaluate((node, text) => node.setAttribute('value', text), text);
+  await page.waitForTimeout(500);
+};
 
 test('Create new diagram', async ({ page }) => {
   await page.goto('http://localhost:3000');
@@ -14,13 +41,9 @@ test('Create new diagram', async ({ page }) => {
 test('Save the diagram to local and load it', async ({ page }) => {
   await page.goto('http://localhost:3000');
 
-  await page.locator('[data-test-id="header-title"]').click();
-  await page.locator('[data-test-id="header-input-title"]').fill('test');
-  await page.locator('[data-test-id="header-input-title"]').press('Enter');
-
-  const monacoEditor = await page.$('monaco-editor');
-  await monacoEditor?.evaluate((node) => node.setAttribute('value', 'test1\n    test2\n    test3'));
-  await page.waitForTimeout(500);
+  await editTitle(page, 'test');
+  await editText(page, 'test1\n    test2\n    test3');
+  await editText(page, 'test1\n    test2\n    test3');
 
   await page.locator('[data-test-id="save-menu"]').click();
   await page.locator('[data-test-id="list-menu"]').click();
@@ -73,44 +96,20 @@ test('Change background color settings', async ({ page }) => {
 test('Save the diagram to remote and load it', async ({ page }) => {
   await page.goto('http://localhost:3000');
 
-  await page.locator('[data-test-id="header-title"]').click();
-  await page.locator('[data-test-id="header-input-title"]').fill('test');
-  await page.locator('[data-test-id="header-input-title"]').press('Enter');
-
-  const monacoEditor = await page.$('monaco-editor');
-  await monacoEditor?.evaluate((node) => node.setAttribute('value', 'test1\n    test2\n    test3'));
-  await page.waitForTimeout(500);
-  await page.waitForFunction(() => {
-    const editor = document.querySelector('monaco-editor');
-    const applied = editor && editor.getAttribute('value') === 'test1\n    test2\n    test3';
-
-    if (!applied) {
-      editor?.setAttribute('value', 'test1\n    test2\n    test3');
-    }
-
-    return applied;
-  });
-
-  await page.locator('[data-test-id="header-signin"]').click();
-  await page.locator('[data-test-id="google-menu-item"]').click();
-
-  const popup = await page.waitForEvent('popup');
-  await popup.waitForLoadState('networkidle');
-  await popup.getByRole('button', { name: /add new account/i }).click();
-  await popup.waitForLoadState('networkidle');
-  await popup.getByRole('button', { name: /auto-generate/i }).click();
-  await popup.getByRole('button', { name: /sign in/i }).click();
-
-  await page.waitForSelector('[data-test-id="header-title"]');
+  await signIn(page);
+  await editTitle(page, 'test');
+  await editText(page, 'test1\n    test2\n    test3');
+  await editText(page, 'test1\n    test2\n    test3');
 
   await page.locator('[data-test-id="save-menu"]').click();
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle');
   await page.waitForSelector('[data-test-id="list-menu"]');
   await page.locator('[data-test-id="list-menu"]').click();
+  await page.waitForLoadState('networkidle');
 
   await page.waitForSelector('[data-test-id="diagram-list-item"]');
   await page.locator('[data-test-id="diagram-list-item"]').first().click();
-  await page.waitForTimeout(500);
+  await page.waitForLoadState('networkidle');
 
   await expect(await page.locator('monaco-editor').getAttribute('value')).toContain(`test1`);
 });

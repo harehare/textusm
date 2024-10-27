@@ -21,7 +21,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'DB_TYPE=sqlite FIREBASE_AUTH_EMULATOR_HOST="localhost:9099" USE_HTTPS=0 npm run dev',
+    command: 'DB_TYPE=sqlite FIREBASE_AUTH_EMULATOR_HOST="localhost:9099" USE_HTTPS=0 npm run watch',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
