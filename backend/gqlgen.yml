@@ -6,9 +6,6 @@ exec:
 model:
   filename: internal/presentation/graphql/models.go
   package: graphql
-resolver:
-  filename: internal/presentation/graphql/resolver.go
-  package: graphql
 autobind: []
 models:
   Item:
