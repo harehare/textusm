@@ -94,7 +94,7 @@
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",
     "test:e2e:init": "playwright install --with-deps",
-    "test:e2e": "firebase emulators:exec --only auth 'USE_HTTPS=0 playwright test && kill-port 8081'"
+    "test:e2e": "firebase emulators:exec --only auth 'playwright test' && kill-port 8081"
   },
   "browserslist": [
     "defaults"
