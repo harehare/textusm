@@ -1,3 +1,4 @@
+//go:generate go install github.com/google/wire/cmd/wire@latest
 //go:build wireinject
 // +build wireinject
 

@@ -24,3 +24,4 @@ models:
     model: github.com/harehare/textusm/internal/presentation/graphql/union.DiagramItem
   Node:
     model: github.com/harehare/textusm/internal/presentation/graphql/interface.Node
+omit_root_models: true
