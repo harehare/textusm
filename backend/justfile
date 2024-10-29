@@ -11,6 +11,7 @@ install-tools:
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
   go install github.com/air-verse/air@latest
   go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  go install github.com/amacneil/dbmate@latest
 
 run:
 	go run {{ main }}
@@ -41,7 +42,6 @@ lintre:
 	staticcheck {{ target }}
 	gosec {{ target }}
 	golangci-lint run {{ target }}
-
 
 fix:
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go

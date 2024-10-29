@@ -65,3 +65,4 @@ data
 firebase-export-*
 
 *.sqlite3
+*.db

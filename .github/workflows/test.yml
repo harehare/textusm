@@ -41,6 +41,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
+      - uses: extractions/setup-just@v2
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "backend/go.mod"
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -79,6 +83,14 @@ jobs:
       - name: Run Tests
         working-directory: frontend
         run: npm run test
+      - name: Migrate database
+        run: |
+          go install github.com/amacneil/dbmate@latest
+          just migrate
+        working-directory: backend
+        env:
+          DB_TYPE: sqlite
+          DATABASE_URL: sqlite3:textusm.db
       - name: Setup E2E
         run: npm run test:e2e:init
         working-directory: frontend
@@ -89,12 +101,15 @@ jobs:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ""
-          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_AUTH_EMULATOR_HOST: ""
+          FIREBASE_API_KEY: textusm
+          FIREBASE_AUTH_DOMAIN: textusm
+          FIRESTORE_EMULATOR_HOST: "localhost:8082"
+          FIREBASE_PROJECT_ID: textusm
+          FIREBASE_STORAGE_BUKET: textusm.appspot.com
+          FIREBASE_STORAGE_EMULATOR_HOST: "localhost:9199"
+          FIREBASE_AUTH_EMULATOR_HOST: "localhost:9099"
+          FIREBASE_APP_ID: dev
+          STORAGE_BUCKET_NAME: textusm.appspot.com
           SENTRY_ENABLE: "0"
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_RELEASE: ${{ steps.package-version.outputs.current-version}}
@@ -104,6 +119,11 @@ jobs:
           MONITOR_ENABLE: "0"
           USE_HTTPS: "0"
           REPO_BUTTON_URL: ""
+          API_VERSION: v0.14.8
+          PORT: 8081
+          GO_ENV: development
+          DATABASE_URL: textusm.db
+          DB_TYPE: sqlite
 
   backend-test:
     name: backend_test

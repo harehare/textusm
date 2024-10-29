@@ -47,6 +47,7 @@ test('Save the diagram to local and load it', async ({ page }) => {
 
   await page.locator('[data-test-id="save-menu"]').click();
   await page.locator('[data-test-id="list-menu"]').click();
+  await page.waitForSelector('[data-test-id="diagram-list-item"]');
   await page.locator('[data-test-id="diagram-list-item"]').first().click();
 
   await expect(await page.locator('monaco-editor').getAttribute('value')).toContain(`test1`);
@@ -105,8 +106,6 @@ test('Save the diagram to remote and load it', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.waitForSelector('[data-test-id="list-menu"]');
   await page.locator('[data-test-id="list-menu"]').click();
-  await page.waitForLoadState('networkidle');
-
   await page.waitForSelector('[data-test-id="diagram-list-item"]');
   await page.locator('[data-test-id="diagram-list-item"]').first().click();
   await page.waitForLoadState('networkidle');

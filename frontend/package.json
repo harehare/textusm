@@ -67,11 +67,10 @@
     "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/public/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
     "build:lib": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
     "build:vscode": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
-    "dev": "concurrently \"npm:dev:*\" \"npm run watch\"",
-    "watch": "concurrently \"npm:watch:*\"",
-    "watch:frontend": "npm run generate:elm-constants && vite",
-    "watch:backend": "cd ../backend/ && just watch",
+    "dev": "concurrently \"npm:dev:*\"",
     "dev:emulators": "cd .. && mkdir -p data && firebase emulators:start --only firestore,auth,storage --import=data",
+    "dev:frontend": "npm run generate:elm-constants && vite",
+    "dev:backend": "cd ../backend/ && just watch",
     "embed:build": "npm run prod && cp -r dist ../backend/internal/app",
     "format:ts": "prettier --write src/**/*.ts",
     "format:elm": "elm-format src/**/*.elm",
@@ -89,12 +88,13 @@
     "lint-fix:elm": "elm-review --fix",
     "prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "postprod": "rimraf -rf dist/*.map",
-    "preview": "concurrently \"vite preview\" \"npm run dev:backend\"",
+    "preview": "concurrently \"vite preview\" \"cd ../backend/ && just run\"",
+    "preview:dev": "concurrently \"npm run dev:frontend\" \"cd ../backend/ && just run\"",
     "prepreview": "npm run prod",
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",
     "test:e2e:init": "playwright install --with-deps",
-    "test:e2e": "firebase emulators:exec --only auth 'playwright test' && kill-port 8081"
+    "test:e2e": "firebase emulators:exec --only auth 'playwright test' ; kill-port 8081"
   },
   "browserslist": [
     "defaults"
