@@ -63,3 +63,6 @@ certs/*
 backend/tmp/
 data
 firebase-export-*
+
+*.sqlite3
+*.db
