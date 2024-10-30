@@ -98,8 +98,8 @@ jobs:
         run: npm run test:e2e
         working-directory: frontend
         env:
-          API_ROOT: ${{ secrets.API_ROOT }}
-          WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          API_ROOT: http://localhost:8081
+          WEB_ROOT: http://localhost:3000
           APP_VERSION: ""
           FIREBASE_API_KEY: textusm
           FIREBASE_AUTH_DOMAIN: textusm

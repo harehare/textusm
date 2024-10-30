@@ -42,7 +42,6 @@
     "elm-review": "^2.12.0",
     "elm-test": "^0.19.1-revision12",
     "firebase-tools": "^13.15.1",
-    "kill-port": "^2.0.1",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "size-limit": "^11.0.2",
@@ -89,12 +88,11 @@
     "prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "postprod": "rimraf -rf dist/*.map",
     "preview": "concurrently \"vite preview\" \"cd ../backend/ && just run\"",
-    "preview:dev": "concurrently \"npm run dev:frontend\" \"cd ../backend/ && just run\"",
     "prepreview": "npm run prod",
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",
     "test:e2e:init": "playwright install --with-deps",
-    "test:e2e": "firebase emulators:exec --only auth 'playwright test' ; kill-port 8081"
+    "test:e2e": "firebase emulators:exec --only auth 'playwright test'"
   },
   "browserslist": [
     "defaults"
