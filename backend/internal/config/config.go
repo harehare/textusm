@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"log/slog"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/google/wire"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/api/option"
 )
 
@@ -20,7 +18,6 @@ type Config struct {
 	FirebaseApp     *firebase.App
 	FirestoreClient *firestore.Client
 	PostgresConn    *pgxpool.Pool
-	SqlConn         *sql.Conn
 	StorageClient   *storage.Client
 }
 
@@ -119,36 +116,18 @@ func NewConfig(env *Env) (*Config, error) {
 		return nil, err
 	}
 
-	var (
-		pgConn  *pgxpool.Pool
-		sqlConn *sql.Conn
-	)
+	var conn *pgxpool.Pool
 
 	if env.DatabaseURL != "" {
-		if env.DBType == "sqlite" {
-			db, err := sql.Open("sqlite3", env.DatabaseURL)
+		cfg, err := pgxpool.ParseConfig(env.DatabaseURL)
+		if err != nil {
+			return nil, err
+		}
 
-			if err != nil {
-				return nil, err
-			}
+		conn, err = pgxpool.NewWithConfig(ctx, cfg)
 
-			conn, err := db.Conn(ctx)
-
-			if err != nil {
-				return nil, err
-			}
-			sqlConn = conn
-		} else {
-			cfg, err := pgxpool.ParseConfig(env.DatabaseURL)
-			if err != nil {
-				return nil, err
-			}
-
-			pgConn, err = pgxpool.NewWithConfig(ctx, cfg)
-
-			if err != nil {
-				return nil, err
-			}
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -156,8 +135,7 @@ func NewConfig(env *Env) (*Config, error) {
 		FirebaseApp:     app,
 		FirestoreClient: firestore,
 		StorageClient:   storage,
-		PostgresConn:    pgConn,
-		SqlConn:         sqlConn,
+		PostgresConn:    conn,
 	}
 
 	return &config, nil

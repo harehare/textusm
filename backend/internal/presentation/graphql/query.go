@@ -76,6 +76,10 @@ func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]uni
 
 	gistItems := r.gistService.Find(ctx, *offset, *limit)
 
+	if err != nil {
+		return nil, err
+	}
+
 	for _, item := range items {
 		diagramItems = append(diagramItems, item)
 	}

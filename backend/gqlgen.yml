@@ -6,6 +6,9 @@ exec:
 model:
   filename: internal/presentation/graphql/models.go
   package: graphql
+resolver:
+  filename: internal/presentation/graphql/resolver.go
+  package: graphql
 autobind: []
 models:
   Item:
@@ -24,4 +27,3 @@ models:
     model: github.com/harehare/textusm/internal/presentation/graphql/union.DiagramItem
   Node:
     model: github.com/harehare/textusm/internal/presentation/graphql/interface.Node
-omit_root_models: true

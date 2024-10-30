@@ -175,4 +175,4 @@ SET
   width = $16,
   zoom_control = $17
 WHERE
-  diagram = $18;
+  diagram = $2;
