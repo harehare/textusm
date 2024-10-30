@@ -660,62 +660,62 @@ openCurrentFile diagram =
 
 save : Return.ReturnF Msg Model
 save =
-    (\m ->
-        Return.singleton m
-            |> (let
-                    location : Location
-                    location =
-                        m.currentDiagram.location
-                            |> Maybe.withDefault
-                                (if
-                                    m.currentDiagram
-                                        |> DiagramItem.isRemoteDiagram m.session
-                                 then
-                                    m.settingsModel.settings.location
-                                        |> Maybe.withDefault DiagramLocation.Remote
+    Return.andThen
+        (\m ->
+            Return.singleton m
+                |> (let
+                        location : Location
+                        location =
+                            m.currentDiagram.location
+                                |> Maybe.withDefault
+                                    (if
+                                        m.currentDiagram
+                                            |> DiagramItem.isRemoteDiagram m.session
+                                     then
+                                        m.settingsModel.settings.location
+                                            |> Maybe.withDefault DiagramLocation.Remote
 
-                                 else
-                                    DiagramLocation.Local
-                                )
+                                     else
+                                        DiagramLocation.Local
+                                    )
 
-                    newDiagramModel : Diagram.Types.Model
-                    newDiagramModel =
-                        Diagram.Types.updatedText m.diagramModel (Text.saved m.diagramModel.text)
+                        newDiagramModel : Diagram.Types.Model
+                        newDiagramModel =
+                            Diagram.Types.updatedText m.diagramModel (Text.saved m.diagramModel.text)
 
-                    diagram : DiagramItem
-                    diagram =
-                        m.currentDiagram
-                            |> DiagramItem.text.set newDiagramModel.text
-                            |> DiagramItem.thumbnail.set Nothing
-                            |> DiagramItem.location.set (Just location)
-                            |> DiagramItem.diagram.set newDiagramModel.diagramType
-                in
-                Return.map
-                    (\m_ ->
-                        { m_
-                            | diagramModel = newDiagramModel
-                            , diagramListModel = m_.diagramListModel |> Page.List.diagramList.set Page.List.DiagramList.notAsked
-                        }
-                    )
-                    >> (case ( location, Session.loginProvider m.session ) of
-                            ( DiagramLocation.Gist, Just (LoginProvider.Github Nothing) ) ->
-                                Effect.getGistTokenAfterSave
+                        diagram : DiagramItem
+                        diagram =
+                            m.currentDiagram
+                                |> DiagramItem.text.set newDiagramModel.text
+                                |> DiagramItem.thumbnail.set Nothing
+                                |> DiagramItem.location.set (Just location)
+                                |> DiagramItem.diagram.set newDiagramModel.diagramType
+                    in
+                    Return.map
+                        (\m_ ->
+                            { m_
+                                | diagramModel = newDiagramModel
+                                , diagramListModel = m_.diagramListModel |> Page.List.diagramList.set Page.List.DiagramList.notAsked
+                            }
+                        )
+                        >> (case ( location, Session.loginProvider m.session ) of
+                                ( DiagramLocation.Gist, Just (LoginProvider.Github Nothing) ) ->
+                                    Effect.getGistTokenAfterSave
 
-                            ( DiagramLocation.Gist, _ ) ->
-                                Diagram.Effect.save diagram
+                                ( DiagramLocation.Gist, _ ) ->
+                                    Diagram.Effect.save diagram
 
-                            ( DiagramLocation.Remote, _ ) ->
-                                Diagram.Effect.save diagram
+                                ( DiagramLocation.Remote, _ ) ->
+                                    Diagram.Effect.save diagram
 
-                            ( DiagramLocation.LocalFileSystem, _ ) ->
-                                Return.zero
+                                ( DiagramLocation.LocalFileSystem, _ ) ->
+                                    Return.zero
 
-                            ( DiagramLocation.Local, _ ) ->
-                                Diagram.Effect.save diagram
-                       )
-               )
-    )
-        |> Return.andThen
+                                ( DiagramLocation.Local, _ ) ->
+                                    Diagram.Effect.save diagram
+                           )
+                   )
+        )
 
 
 signIn : Session.User -> Return.ReturnF Msg Model

@@ -19,9 +19,12 @@ func Server() (server *http.Server, cleanup func(), err error) {
 
 	DBType := os.Getenv("DB_TYPE")
 
-	if strings.ToLower(DBType) == "postgres" {
+	switch strings.ToLower(DBType) {
+	case "postgres":
 		server, cleanup, err = InitializePostgresServer()
-	} else {
+	case "sqlite":
+		server, cleanup, err = InitializeSqliteServer()
+	default:
 		server, cleanup, err = InitializeFirebaseServer()
 	}
 
