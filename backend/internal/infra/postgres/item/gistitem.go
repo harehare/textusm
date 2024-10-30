@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
-	"github.com/harehare/textusm/internal/db/postgres"
+	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -16,15 +16,15 @@ import (
 )
 
 type PostgresGistItemRepository struct {
-	_db *postgres.Queries
+	_db *db.Queries
 }
 
 func NewPostgresGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
-	return &PostgresGistItemRepository{_db: postgres.New(config.PostgresConn)}
+	return &PostgresGistItemRepository{_db: db.New(config.PostgresConn)}
 }
 
-func (r *PostgresGistItemRepository) tx(ctx context.Context) *postgres.Queries {
-	tx := values.GetPostgresTx(ctx)
+func (r *PostgresGistItemRepository) tx(ctx context.Context) *db.Queries {
+	tx := values.GetDBTx(ctx)
 
 	if tx.IsPresent() {
 		return r._db.WithTx(*tx.MustGet())
@@ -40,9 +40,9 @@ func (r *PostgresGistItemRepository) FindByID(ctx context.Context, userID string
 		return mo.Err[*gistitem.GistItem](err)
 	}
 
-	i, err := r.tx(ctx).GetItem(ctx, postgres.GetItemParams{
+	i, err := r.tx(ctx).GetItem(ctx, db.GetItemParams{
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
-		Location:  postgres.LocationGIST,
+		Location:  db.LocationGIST,
 	})
 
 	if err != nil {
@@ -77,10 +77,10 @@ func (r *PostgresGistItemRepository) FindByID(ctx context.Context, userID string
 func (r *PostgresGistItemRepository) Find(ctx context.Context, userID string, offset, limit int) mo.Result[[]*gistitem.GistItem] {
 	isPublic := false
 	isBookmark := false
-	dbItems, err := r.tx(ctx).ListItems(ctx, postgres.ListItemsParams{
+	dbItems, err := r.tx(ctx).ListItems(ctx, db.ListItemsParams{
 		IsPublic:   &isPublic,
 		IsBookmark: &isBookmark,
-		Location:   postgres.LocationGIST,
+		Location:   db.LocationGIST,
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 	})
@@ -133,9 +133,9 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 		return mo.Err[*gistitem.GistItem](err)
 	}
 
-	_, err = r.tx(ctx).GetItem(ctx, postgres.GetItemParams{
+	_, err = r.tx(ctx).GetItem(ctx, db.GetItemParams{
 		DiagramID: pgtype.UUID{Bytes: u, Valid: true},
-		Location:  postgres.LocationGIST,
+		Location:  db.LocationGIST,
 	})
 
 	isBookmark := item.IsBookmark()
@@ -146,27 +146,27 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 	titlePtr := &title
 
 	if errors.Is(err, sql.ErrNoRows) {
-		r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
+		r.tx(ctx).CreateItem(ctx, db.CreateItemParams{
 			Uid:        userID,
-			Diagram:    postgres.Diagram(item.Diagram()),
+			Diagram:    db.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   &isPublicPtr,
 			Title:      titlePtr,
 			Thumbnail:  item.Thumbnail(),
-			Location:   postgres.LocationGIST,
+			Location:   db.LocationGIST,
 		})
 	} else if err != nil {
 		return mo.Err[*gistitem.GistItem](err)
 	} else {
-		r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
-			Diagram:    postgres.Diagram(item.Diagram()),
+		r.tx(ctx).UpdateItem(ctx, db.UpdateItemParams{
+			Diagram:    db.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   &isPublicPtr,
 			Title:      &title,
 			Thumbnail:  item.Thumbnail(),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
-			Location:   postgres.LocationGIST,
+			Location:   db.LocationGIST,
 		})
 	}
 	return mo.Ok(item)

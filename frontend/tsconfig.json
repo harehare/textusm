@@ -7,7 +7,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "rootDir": ".",
+    "rootDir": "src/ts",
     "importHelpers": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -17,6 +17,5 @@
     "exactOptionalPropertyTypes": false,
     "types": ["jspdf", "requestidlecallback", "uuid", "wicg-file-system-access", "node", "vite/client"]
   },
-  "include": ["src/ts", "vite.config.ts", "playwright.config.ts"],
-  "exclude": ["**/node_modules/*", "**/*.spec.ts"]
+  "exclude": ["**/node_modules/*", "**/*.spec.ts", "vite.config.ts"]
 }
