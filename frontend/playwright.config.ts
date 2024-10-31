@@ -20,9 +20,22 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
   ],
-  webServer: {
-    command: 'FIREBASE_AUTH_EMULATOR_HOST="localhost:9099" USE_HTTPS=0 npm run dev:frontend',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: 'npm run dev:frontend',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 10 * 60 * 1000,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+    {
+      command: 'cd ../backend && DB_TYPE=sqlite FIREBASE_AUTH_EMULATOR_HOST="localhost:9099" USE_HTTPS=0 just run',
+      url: 'http://localhost:8081/healthcheck',
+      reuseExistingServer: !process.env.CI,
+      timeout: 10 * 60 * 1000,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+  ],
 });

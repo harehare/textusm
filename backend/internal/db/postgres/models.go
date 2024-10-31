@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.27.0
 
-package db
+package postgres
 
 import (
 	"database/sql/driver"
@@ -127,27 +127,31 @@ type Item struct {
 	UpdatedAt  pgtype.Timestamp
 }
 
+type SchemaMigration struct {
+	Version string
+}
+
 type Setting struct {
 	ID                      int64
 	Uid                     string
-	ActivityColor           *string
-	ActivityBackgroundColor *string
-	BackgroundColor         *string
+	ActivityColor           string
+	ActivityBackgroundColor string
+	BackgroundColor         string
 	Diagram                 Diagram
-	Height                  *int32
-	Font                    *string
-	LineColor               *string
-	LabelColor              *string
+	Height                  int32
+	Font                    string
+	LineColor               string
+	LabelColor              string
 	LockEditing             *bool
 	TextColor               *string
 	Toolbar                 *bool
 	Scale                   *float32
 	ShowGrid                *bool
-	StoryColor              *string
-	StoryBackgroundColor    *string
-	TaskColor               *string
-	TaskBackgroundColor     *string
-	Width                   *int32
+	StoryColor              string
+	StoryBackgroundColor    string
+	TaskColor               string
+	TaskBackgroundColor     string
+	Width                   int32
 	ZoomControl             *bool
 	CreatedAt               pgtype.Timestamp
 	UpdatedAt               pgtype.Timestamp

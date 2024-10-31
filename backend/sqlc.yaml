@@ -2,12 +2,19 @@ version: "2"
 cloud:
   project: "textusm"
 sql:
-  - schema: "db/postgresql/migrations"
+  - schema: "db/postgresql/schema.sql"
     queries: "db/postgresql/query.sql"
     engine: "postgresql"
     gen:
       go:
-        package: "db"
-        out: "internal/db"
+        package: "postgres"
+        out: "internal/db/postgres"
         sql_package: "pgx/v5"
         emit_pointers_for_null_types: true
+  - schema: "db/sqlite/schema.sql"
+    queries: "db/sqlite/query.sql"
+    engine: "sqlite"
+    gen:
+      go:
+        package: "sqlite"
+        out: "internal/db/sqlite"

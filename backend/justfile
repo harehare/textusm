@@ -5,13 +5,13 @@ module := "github.com/harehare/textusm"
 sec := "gosec"
 target := "./..."
 
-setup:
-  go get honnef.co/go/tools/cmd/staticcheck
-  go get github.com/securego/gosec/v2/cmd/gosec
+install-tools:
+  go install honnef.co/go/tools/cmd/staticcheck@latest
+  go install github.com/securego/gosec/v2/cmd/gosec@latest
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
-  go install github.com/cosmtrek/air@latest
-  go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
-  go install github.com/google/wire/cmd/wire@latest
+  go install github.com/air-verse/air@latest
+  go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  go install github.com/amacneil/dbmate@latest
 
 run:
 	go run {{ main }}
@@ -35,25 +35,22 @@ generate:
 	go get github.com/urfave/cli/v2
 	go generate {{ target }}
 
-di:
-	wire gen ./internal/app/wire.go
-
 test:
 	go test {{ target }}
 
-lint:
+lintre:
 	staticcheck {{ target }}
 	gosec {{ target }}
 	golangci-lint run {{ target }}
-
 
 fix:
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
 	fieldalignment -fix pkg/presentation/graphql/models.go
 
-migrate DATABASE='postgresql':
-  dbmate -d db/{{DATABASE}}/migrations up
+migrate:
+  DBMATE_SCHEMA_FILE=db/${DB_TYPE}/schema.sql dbmate -d db/${DB_TYPE}/migrations up
+  DBMATE_SCHEMA_FILE=db/${DB_TYPE}/schema.sql dbmate dump
 
-rollback DATABASE='postgresql':
-  dbmate -d db/{{DATABASE}}/migrations down
+rollback:
+  DBMATE_SCHEMA_FILE=db/${DB_TYPE}/schema.sql dbmate -d db/${DB_TYPE}/migrations down
