@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	cloud.google.com/go/firestore v1.17.0
-	cloud.google.com/go/storage v1.45.0
+	cloud.google.com/go/storage v1.46.0
 	firebase.google.com/go/v4 v4.15.0
 	github.com/99designs/gqlgen v0.17.55
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -31,8 +31,8 @@ require (
 require (
 	cel.dev/expr v0.16.1 // indirect
 	cloud.google.com/go v0.116.0 // indirect
-	cloud.google.com/go/auth v0.9.9 // indirect
-	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
+	cloud.google.com/go/auth v0.10.0 // indirect
+	cloud.google.com/go/auth/oauth2adapt v0.2.5 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	cloud.google.com/go/iam v1.2.1 // indirect
 	cloud.google.com/go/longrunning v0.6.1 // indirect
