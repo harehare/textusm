@@ -668,10 +668,7 @@ save =
                         location =
                             m.currentDiagram.location
                                 |> Maybe.withDefault
-                                    (if
-                                        m.currentDiagram
-                                            |> DiagramItem.isRemoteDiagram m.session
-                                     then
+                                    (if DiagramItem.isRemoteDiagram m.session m.currentDiagram && m.browserStatus.isOnline then
                                         m.settingsModel.settings.location
                                             |> Maybe.withDefault DiagramLocation.Remote
 
