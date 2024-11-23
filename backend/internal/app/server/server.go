@@ -51,7 +51,10 @@ func gracefulShutdown(ctx context.Context, server *http.Server, quit <-chan os.S
 
 	server.SetKeepAlivesEnabled(false)
 	if err := server.Shutdown(ctx); err != nil {
-		server.Close()
+		if err := server.Close(); err != nil {
+			slog.Error("Could not gracefully shutdown the server", "error", err)
+			return
+		}
 		slog.Error("Could not gracefully shutdown the server", "error", err)
 	}
 	close(done)

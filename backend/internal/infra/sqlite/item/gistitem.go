@@ -120,7 +120,7 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 	title := item.Title()
 
 	if errors.Is(err, sql.ErrNoRows) {
-		r.tx(ctx).CreateItem(ctx, sqlite.CreateItemParams{
+		if err := r.tx(ctx).CreateItem(ctx, sqlite.CreateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
 			DiagramID:  item.ID(),
@@ -131,11 +131,13 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 			Location:   db.LocationGIST,
 			CreatedAt:  db.DateTimeToInt(item.CreatedAt()),
 			UpdatedAt:  db.DateTimeToInt(item.CreatedAt()),
-		})
+		}); err != nil {
+			return mo.Err[*gistitem.GistItem](err)
+		}
 	} else if err != nil {
 		return mo.Err[*gistitem.GistItem](err)
 	} else {
-		r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
+		if err := r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
 			IsBookmark: db.BoolToInt(isBookmark),
@@ -145,7 +147,9 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 			DiagramID:  item.ID(),
 			Location:   db.LocationGIST,
 			UpdatedAt:  db.DateTimeToInt(item.CreatedAt()),
-		})
+		}); err != nil {
+			return mo.Err[*gistitem.GistItem](err)
+		}
 	}
 	return mo.Ok(item)
 }

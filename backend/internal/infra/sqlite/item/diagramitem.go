@@ -49,7 +49,7 @@ func (r *SqliteItemRepository) FindByID(ctx context.Context, userID string, item
 	if i.Thumbnail.Valid {
 		thumbnail = mo.None[string]()
 	} else {
-		thumbnail = mo.Some[string](*&i.Thumbnail.String)
+		thumbnail = mo.Some[string](i.Thumbnail.String)
 	}
 
 	return diagramitem.New().
@@ -85,7 +85,7 @@ func (r *SqliteItemRepository) Find(ctx context.Context, userID string, offset, 
 		var thumbnail mo.Option[string]
 
 		if i.Thumbnail.Valid {
-			thumbnail = mo.Some[string](*&i.Thumbnail.String)
+			thumbnail = mo.Some[string](i.Thumbnail.String)
 		} else {
 			thumbnail = mo.None[string]()
 		}

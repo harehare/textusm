@@ -35,25 +35,23 @@ func (s *CloudStorage) Put(ctx context.Context, text *string, prefix string, pat
 	var gb bytes.Buffer
 	gw := gzip.NewWriter(&gb)
 	if _, err = gw.Write([]byte(*text)); err != nil {
-		gw.Close()
 		return mo.Err[bool](err)
 	}
 
+	defer gw.Close()
+
 	if err := gw.Flush(); err != nil {
-		gw.Close()
 		return mo.Err[bool](err)
 	}
-	gw.Close()
 
 	ow := bucket.Object(getObjectName(prefix, paths...)).NewWriter(ctx)
 	ow.ContentType = "application/x-gzip"
+
+	defer ow.Close()
+
 	_, err = ow.Write(gb.Bytes())
 
 	if err != nil {
-		return mo.Err[bool](err)
-	}
-
-	if err := ow.Close(); err != nil {
 		return mo.Err[bool](err)
 	}
 
@@ -74,10 +72,6 @@ func (s *CloudStorage) Get(ctx context.Context, prefix string, paths ...string) 
 	}
 
 	defer or.Close()
-
-	if err != nil {
-		return mo.Err[string](err)
-	}
 
 	gr, err := gzip.NewReader(or)
 

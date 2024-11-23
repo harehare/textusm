@@ -146,7 +146,7 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 	titlePtr := &title
 
 	if errors.Is(err, sql.ErrNoRows) {
-		r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
+		if err := r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
 			Uid:        userID,
 			Diagram:    postgres.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
@@ -155,11 +155,13 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 			Title:      titlePtr,
 			Thumbnail:  item.Thumbnail(),
 			Location:   postgres.LocationGIST,
-		})
+		}); err != nil {
+			return mo.Err[*gistitem.GistItem](err)
+		}
 	} else if err != nil {
 		return mo.Err[*gistitem.GistItem](err)
 	} else {
-		r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
+		if err := r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
 			Diagram:    postgres.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   &isPublicPtr,
@@ -167,7 +169,9 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 			Thumbnail:  item.Thumbnail(),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			Location:   postgres.LocationGIST,
-		})
+		}); err != nil {
+			return mo.Err[*gistitem.GistItem](err)
+		}
 	}
 	return mo.Ok(item)
 }
