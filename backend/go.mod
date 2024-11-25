@@ -19,7 +19,7 @@ require (
 	github.com/samber/lo v1.47.0
 	github.com/samber/mo v1.13.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.19
 	golang.org/x/crypto v0.29.0
 	golang.org/x/exp v0.0.0-20240314144324-c7f7c6466f7f
