@@ -1,4 +1,4 @@
-package share
+package sqlite
 
 import (
 	"context"
@@ -9,10 +9,9 @@ import (
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db/sqlite"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
-	db "github.com/harehare/textusm/internal/infra/sqlite"
 	"github.com/samber/mo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +20,7 @@ type SqliteShareRepository struct {
 	_db *sqlite.Queries
 }
 
-func NewSqliteShareRepository(config *config.Config) shareRepo.ShareRepository {
+func NewShareRepository(config *config.Config) shareRepo.ShareRepository {
 	return &SqliteShareRepository{_db: sqlite.New(config.SqlConn)}
 }
 
@@ -73,10 +72,10 @@ func (r *SqliteShareRepository) Find(ctx context.Context, hashKey string) mo.Res
 		WithEncryptedText(item.Text).
 		WithThumbnail(thumbnail).
 		WithDiagramString(string(item.Diagram)).
-		WithIsPublic(db.IntToBool(item.IsPublic)).
-		WithIsBookmark(db.IntToBool(item.IsBookmark)).
-		WithCreatedAt(db.IntToDateTime(item.CreatedAt)).
-		WithUpdatedAt(db.IntToDateTime(item.UpdatedAt)).
+		WithIsPublic(IntToBool(item.IsPublic)).
+		WithIsBookmark(IntToBool(item.IsBookmark)).
+		WithCreatedAt(IntToDateTime(item.CreatedAt)).
+		WithUpdatedAt(IntToDateTime(item.UpdatedAt)).
 		Build().OrEmpty()
 
 	return mo.Ok(shareRepo.ShareValue{DiagramItem: diagramitem, ShareInfo: &shareInfo})
@@ -85,13 +84,13 @@ func (r *SqliteShareRepository) Find(ctx context.Context, hashKey string) mo.Res
 func (r *SqliteShareRepository) Save(ctx context.Context, userID, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
 	expireTime := shareInfo.ExpireTime
 	_, err := r.tx(ctx).GetShareConditionItem(ctx, sqlite.GetShareConditionItemParams{
-		Location:  db.LocationSYSTEM,
+		Location:  LocationSYSTEM,
 		DiagramID: item.ID(),
 	})
 
 	if err == nil {
 		err = r.tx(ctx).DeleteShareConditionItem(ctx, sqlite.DeleteShareConditionItemParams{
-			Location:  db.LocationSYSTEM,
+			Location:  LocationSYSTEM,
 			DiagramID: item.ID(),
 		})
 
@@ -117,14 +116,14 @@ func (r *SqliteShareRepository) Save(ctx context.Context, userID, hashKey string
 		Uid:            userID,
 		Hashkey:        hashKey,
 		DiagramID:      item.ID(),
-		Location:       db.LocationSYSTEM,
+		Location:       LocationSYSTEM,
 		AllowIpList:    sql.NullString{String: strings.Join(shareInfo.AllowIPList, ","), Valid: true},
 		AllowEmailList: sql.NullString{String: strings.Join(shareInfo.AllowEmailList, ","), Valid: true},
 		ExpireTime:     sql.NullInt64{Int64: expireTime, Valid: true},
 		Password:       sql.NullString{String: savePassword, Valid: true},
 		Token:          shareInfo.Token,
-		CreatedAt:      db.DateTimeToInt(time.Now()),
-		UpdatedAt:      db.DateTimeToInt(time.Now()),
+		CreatedAt:      DateTimeToInt(time.Now()),
+		UpdatedAt:      DateTimeToInt(time.Now()),
 	})
 
 	if err != nil {

@@ -12,18 +12,13 @@ import (
 	"github.com/harehare/textusm/internal/app/server"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/db"
-	"github.com/harehare/textusm/internal/domain/service"
+	"github.com/harehare/textusm/internal/domain/service/diagramitem"
+	"github.com/harehare/textusm/internal/domain/service/gistitem"
+	"github.com/harehare/textusm/internal/domain/service/settings"
 	"github.com/harehare/textusm/internal/github"
-	firebaseItemRepo "github.com/harehare/textusm/internal/infra/firebase/item"
-	firebaseSettingsRepo "github.com/harehare/textusm/internal/infra/firebase/settings"
-	firebaseShareRepo "github.com/harehare/textusm/internal/infra/firebase/share"
-	userRepo "github.com/harehare/textusm/internal/infra/firebase/user"
-	postgresItemRepo "github.com/harehare/textusm/internal/infra/postgres/item"
-	postgresSettingsRepo "github.com/harehare/textusm/internal/infra/postgres/settings"
-	postgresShareRepo "github.com/harehare/textusm/internal/infra/postgres/share"
-	sqliteItemRepo "github.com/harehare/textusm/internal/infra/sqlite/item"
-	sqliteSettingsRepo "github.com/harehare/textusm/internal/infra/sqlite/settings"
-	sqliteShareRepo "github.com/harehare/textusm/internal/infra/sqlite/share"
+	"github.com/harehare/textusm/internal/infra/firebase"
+	"github.com/harehare/textusm/internal/infra/postgres"
+	"github.com/harehare/textusm/internal/infra/sqlite"
 	"github.com/harehare/textusm/internal/presentation/api"
 	resolver "github.com/harehare/textusm/internal/presentation/graphql"
 )
@@ -42,14 +37,14 @@ func InitializeFirebaseServer() (*http.Server, func(), error) {
 		provideGithubClientID,
 		provideGithubClientSecret,
 		db.NewFirestoreTx,
-		firebaseItemRepo.NewFirestoreItemRepository,
-		firebaseItemRepo.NewFirestoreGistItemRepository,
-		firebaseSettingsRepo.NewFirestoreSettingsRepository,
-		firebaseShareRepo.NewFirestoreShareRepository,
-		userRepo.NewFirebaseUserRepository,
-		service.NewService,
-		service.NewGistService,
-		service.NewSettingsService,
+		firebase.NewItemRepository,
+		firebase.NewGistItemRepository,
+		firebase.NewSettingsRepository,
+		firebase.NewShareRepository,
+		firebase.NewUserRepository,
+		diagramitem.NewService,
+		gistitem.NewService,
+		settings.NewService,
 		resolver.New,
 		api.New,
 		handler.NewHandler,
@@ -64,14 +59,14 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 		provideGithubClientID,
 		provideGithubClientSecret,
 		db.NewPostgresTx,
-		postgresItemRepo.NewPostgresItemRepository,
-		postgresItemRepo.NewPostgresGistItemRepository,
-		postgresSettingsRepo.NewPostgresSettingsRepository,
-		postgresShareRepo.NewPostgresShareRepository,
-		userRepo.NewFirebaseUserRepository,
-		service.NewService,
-		service.NewGistService,
-		service.NewSettingsService,
+		postgres.NewItemRepository,
+		postgres.NewGistItemRepository,
+		postgres.NewSettingsRepository,
+		postgres.NewShareRepository,
+		firebase.NewUserRepository,
+		diagramitem.NewService,
+		gistitem.NewService,
+		settings.NewService,
 		resolver.New,
 		api.New,
 		handler.NewHandler,
@@ -86,14 +81,14 @@ func InitializeSqliteServer() (*http.Server, func(), error) {
 		provideGithubClientID,
 		provideGithubClientSecret,
 		db.NewDBTx,
-		sqliteItemRepo.NewSqliteItemRepository,
-		sqliteItemRepo.NewSqliteGistItemRepository,
-		sqliteSettingsRepo.NewSqliteSettingsRepository,
-		sqliteShareRepo.NewSqliteShareRepository,
-		userRepo.NewFirebaseUserRepository,
-		service.NewService,
-		service.NewGistService,
-		service.NewSettingsService,
+		sqlite.NewItemRepository,
+		sqlite.NewGistItemRepository,
+		sqlite.NewSettingsRepository,
+		sqlite.NewShareRepository,
+		firebase.NewUserRepository,
+		diagramitem.NewService,
+		gistitem.NewService,
+		settings.NewService,
 		resolver.New,
 		api.New,
 		handler.NewHandler,

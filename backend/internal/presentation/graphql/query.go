@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	shareModel "github.com/harehare/textusm/internal/domain/model/share"
 	"github.com/harehare/textusm/internal/domain/values"

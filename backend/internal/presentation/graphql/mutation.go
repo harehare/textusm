@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
 	settingsModel "github.com/harehare/textusm/internal/domain/model/settings"
 	v "github.com/harehare/textusm/internal/domain/values"
 	"github.com/harehare/textusm/internal/util"

@@ -1,4 +1,4 @@
-package item
+package firebase
 
 import (
 	"context"
@@ -7,10 +7,9 @@ import (
 	"firebase.google.com/go/v4/storage"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
-	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
+	itemRepo "github.com/harehare/textusm/internal/domain/repository/diagramitem"
 	e "github.com/harehare/textusm/internal/error"
-	"github.com/harehare/textusm/internal/infra/firebase"
 	"github.com/samber/mo"
 	"golang.org/x/exp/slog"
 	"golang.org/x/sync/errgroup"
@@ -19,19 +18,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	itemsCollection  = "items"
-	publicCollection = "public"
-	usersCollection  = "users"
-	storageRoot      = usersCollection
-)
-
 type FirestoreItemRepository struct {
 	firestore *firestore.Client
 	storage   *storage.Client
 }
 
-func NewFirestoreItemRepository(config *config.Config) itemRepo.ItemRepository {
+func NewItemRepository(config *config.Config) itemRepo.ItemRepository {
 	return &FirestoreItemRepository{firestore: config.FirestoreClient, storage: config.StorageClient}
 }
 
@@ -167,8 +159,8 @@ func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID 
 }
 
 func (r *FirestoreItemRepository) findFromCloudStorage(ctx context.Context, userID string, itemID string) mo.Result[string] {
-	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Get(ctx, storageRoot, userID, itemID)
+	storage := NewCloudStorage(r.storage)
+	return storage.Get(ctx, usersStorageRoot, userID, itemID)
 }
 
 func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[bool] {
@@ -194,8 +186,8 @@ func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID st
 
 func (r *FirestoreItemRepository) saveToCloudStorage(ctx context.Context, userID string, item *diagramitem.DiagramItem) mo.Result[bool] {
 	text := item.EncryptedText()
-	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, storageRoot, userID, item.ID())
+	storage := NewCloudStorage(r.storage)
+	return storage.Put(ctx, &text, usersStorageRoot, userID, item.ID())
 }
 
 func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
@@ -247,6 +239,6 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 }
 
 func (r *FirestoreItemRepository) deleteToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
-	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Delete(ctx, storageRoot, userID, itemID)
+	storage := NewCloudStorage(r.storage)
+	return storage.Delete(ctx, usersStorageRoot, userID, itemID)
 }

@@ -1,4 +1,4 @@
-package settings
+package postgres
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type PostgresSettingsRepository struct {
 	_db *postgres.Queries
 }
 
-func NewPostgresSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
+func NewSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
 	return &PostgresSettingsRepository{_db: postgres.New(config.PostgresConn)}
 }
 

@@ -1,4 +1,4 @@
-package settings
+package sqlite
 
 import (
 	"context"
@@ -12,7 +12,6 @@ import (
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
 	"github.com/harehare/textusm/internal/domain/values"
-	db "github.com/harehare/textusm/internal/infra/sqlite"
 	"github.com/samber/mo"
 )
 
@@ -20,7 +19,7 @@ type SqliteSettingsRepository struct {
 	_db *sqlite.Queries
 }
 
-func NewSqliteSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
+func NewSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
 	return &SqliteSettingsRepository{_db: sqlite.New(config.SqlConn)}
 }
 
@@ -53,12 +52,12 @@ func (r *SqliteSettingsRepository) Find(ctx context.Context, userID string, diag
 		StoryColor:      settings.Color{ForegroundColor: s.StoryColor, BackgroundColor: s.StoryBackgroundColor},
 		LineColor:       s.LineColor,
 		LabelColor:      s.LabelColor,
-		TextColor:       db.NullStringToString(s.TextColor),
-		ZoomControl:     db.NullIntToBool(s.ZoomControl),
+		TextColor:       NullStringToString(s.TextColor),
+		ZoomControl:     NullIntToBool(s.ZoomControl),
 		Scale:           &scale,
-		Toolbar:         db.NullIntToBool(s.Toolbar),
-		LockEditing:     db.NullIntToBool(s.LockEditing),
-		ShowGrid:        db.NullIntToBool(s.ShowGrid),
+		Toolbar:         NullIntToBool(s.Toolbar),
+		LockEditing:     NullIntToBool(s.LockEditing),
+		ShowGrid:        NullIntToBool(s.ShowGrid),
 	}
 
 	return mo.Ok(&ss)
@@ -82,19 +81,19 @@ func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diag
 			Height:                  int64(height),
 			LineColor:               s.LineColor,
 			LabelColor:              s.LabelColor,
-			LockEditing:             db.BoolToNullInt(s.LockEditing),
-			TextColor:               db.StringToNullString(s.TextColor),
-			Toolbar:                 db.BoolToNullInt(s.Toolbar),
+			LockEditing:             BoolToNullInt(s.LockEditing),
+			TextColor:               StringToNullString(s.TextColor),
+			Toolbar:                 BoolToNullInt(s.Toolbar),
 			Scale:                   float64(scale),
-			ShowGrid:                db.BoolToNullInt(s.ShowGrid),
+			ShowGrid:                BoolToNullInt(s.ShowGrid),
 			StoryColor:              s.StoryColor.ForegroundColor,
 			StoryBackgroundColor:    s.StoryColor.BackgroundColor,
 			TaskColor:               s.TaskColor.ForegroundColor,
 			TaskBackgroundColor:     s.TaskColor.BackgroundColor,
 			Width:                   int64(width),
-			ZoomControl:             db.BoolToNullInt(s.ZoomControl),
-			CreatedAt:               db.DateTimeToInt(time.Now()),
-			UpdatedAt:               db.DateTimeToInt(time.Now()),
+			ZoomControl:             BoolToNullInt(s.ZoomControl),
+			CreatedAt:               DateTimeToInt(time.Now()),
+			UpdatedAt:               DateTimeToInt(time.Now()),
 		})
 	} else if err != nil {
 		return mo.Err[*settings.Settings](err)
@@ -107,18 +106,18 @@ func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diag
 			Height:                  int64(height),
 			LineColor:               s.LineColor,
 			LabelColor:              s.LabelColor,
-			LockEditing:             db.BoolToNullInt(s.LockEditing),
-			TextColor:               db.StringToNullString(s.TextColor),
-			Toolbar:                 db.BoolToNullInt(s.Toolbar),
+			LockEditing:             BoolToNullInt(s.LockEditing),
+			TextColor:               StringToNullString(s.TextColor),
+			Toolbar:                 BoolToNullInt(s.Toolbar),
 			Scale:                   float64(scale),
-			ShowGrid:                db.BoolToNullInt(s.ShowGrid),
+			ShowGrid:                BoolToNullInt(s.ShowGrid),
 			StoryColor:              s.StoryColor.ForegroundColor,
 			StoryBackgroundColor:    s.StoryColor.BackgroundColor,
 			TaskColor:               s.TaskColor.ForegroundColor,
 			TaskBackgroundColor:     s.TaskColor.BackgroundColor,
 			Width:                   int64(width),
-			ZoomControl:             db.BoolToNullInt(s.ZoomControl),
-			UpdatedAt:               db.DateTimeToInt(time.Now()),
+			ZoomControl:             BoolToNullInt(s.ZoomControl),
+			UpdatedAt:               DateTimeToInt(time.Now()),
 		})
 	}
 

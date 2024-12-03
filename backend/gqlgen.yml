@@ -9,9 +9,9 @@ model:
 autobind: []
 models:
   Item:
-    model: github.com/harehare/textusm/internal/domain/model/item/diagramitem.DiagramItem
+    model: github.com/harehare/textusm/internal/domain/model/diagramitem.DiagramItem
   GistItem:
-    model: github.com/harehare/textusm/internal/domain/model/item/gistitem.GistItem
+    model: github.com/harehare/textusm/internal/domain/model/gistitem.GistItem
   ShareCondition:
     model: github.com/harehare/textusm/internal/domain/model/share.ShareCondition
   Diagram:

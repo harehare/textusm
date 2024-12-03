@@ -5,16 +5,18 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/harehare/textusm/internal/domain/service"
+	"github.com/harehare/textusm/internal/domain/service/diagramitem"
+	"github.com/harehare/textusm/internal/domain/service/gistitem"
+	"github.com/harehare/textusm/internal/domain/service/settings"
 )
 
 type Api struct {
-	service         *service.Service
-	gistService     *service.GistService
-	settingsService *service.SettingsService
+	service         *diagramitem.Service
+	gistService     *gistitem.Service
+	settingsService *settings.Service
 }
 
-func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService) *Api {
+func New(service *diagramitem.Service, gistService *gistitem.Service, settingsService *settings.Service) *Api {
 	api := Api{gistService: gistService, settingsService: settingsService}
 	return &api
 }

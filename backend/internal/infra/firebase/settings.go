@@ -1,4 +1,4 @@
-package settings
+package firebase
 
 import (
 	"context"
@@ -15,17 +15,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	usersCollection    = "users"
-	settingsCollection = "settings"
-)
-
 type FirestoreSettingsRepository struct {
 	client  *firestore.Client
 	storage *storage.Client
 }
 
-func NewFirestoreSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
+func NewSettingsRepository(config *config.Config) settingsRepo.SettingsRepository {
 	return &FirestoreSettingsRepository{client: config.FirestoreClient, storage: config.StorageClient}
 }
 

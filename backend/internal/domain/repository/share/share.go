@@ -3,7 +3,7 @@ package share
 import (
 	"context"
 
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	shareModel "github.com/harehare/textusm/internal/domain/model/share"
 	"github.com/samber/mo"
 )

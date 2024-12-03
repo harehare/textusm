@@ -1,4 +1,4 @@
-package service
+package settings
 
 import (
 	"context"
@@ -7,20 +7,22 @@ import (
 	"github.com/harehare/textusm/internal/db"
 	settingsModel "github.com/harehare/textusm/internal/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/internal/domain/repository/settings"
+	"github.com/harehare/textusm/internal/domain/service/user"
 	v "github.com/harehare/textusm/internal/domain/values"
+
 	"github.com/harehare/textusm/internal/github"
 	"github.com/samber/mo"
 )
 
-type SettingsService struct {
+type Service struct {
 	repo         settingsRepo.SettingsRepository
 	transaction  db.Transaction
 	clientID     github.ClientID
 	clientSecret github.ClientSecret
 }
 
-func NewSettingsService(r settingsRepo.SettingsRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret) *SettingsService {
-	return &SettingsService{
+func NewService(r settingsRepo.SettingsRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret) *Service {
+	return &Service{
 		repo:         r,
 		transaction:  transaction,
 		clientID:     clientID,
@@ -28,10 +30,10 @@ func NewSettingsService(r settingsRepo.SettingsRepository, transaction db.Transa
 	}
 }
 
-func (s *SettingsService) Find(ctx context.Context, diagram v.Diagram) mo.Result[*settingsModel.Settings] {
+func (s *Service) Find(ctx context.Context, diagram v.Diagram) mo.Result[*settingsModel.Settings] {
 	var settings settingsModel.Settings
 	err := s.transaction.Do(ctx, func(ctx context.Context) error {
-		if err := isAuthenticated(ctx); err != nil {
+		if err := user.IsAuthenticated(ctx); err != nil {
 			return err
 		}
 		r := s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), diagram)
@@ -51,10 +53,10 @@ func (s *SettingsService) Find(ctx context.Context, diagram v.Diagram) mo.Result
 	return mo.Ok(&settings)
 }
 
-func (s *SettingsService) Save(ctx context.Context, diagram v.Diagram, settings *settingsModel.Settings) mo.Result[*settingsModel.Settings] {
+func (s *Service) Save(ctx context.Context, diagram v.Diagram, settings *settingsModel.Settings) mo.Result[*settingsModel.Settings] {
 	var updatedSettings settingsModel.Settings
 	err := s.transaction.Do(ctx, func(ctx context.Context) error {
-		if err := isAuthenticated(ctx); err != nil {
+		if err := user.IsAuthenticated(ctx); err != nil {
 			return err
 		}
 

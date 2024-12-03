@@ -1,4 +1,4 @@
-package share
+package firebase
 
 import (
 	"context"
@@ -7,11 +7,10 @@ import (
 	"firebase.google.com/go/v4/storage"
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
 	e "github.com/harehare/textusm/internal/error"
-	"github.com/harehare/textusm/internal/infra/firebase"
 	"github.com/samber/mo"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
@@ -19,17 +18,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	shareCollection = "share"
-	storageRoot     = shareCollection
-)
-
 type FirestoreShareRepository struct {
 	client  *firestore.Client
 	storage *storage.Client
 }
 
-func NewFirestoreShareRepository(config *config.Config) shareRepo.ShareRepository {
+func NewShareRepository(config *config.Config) shareRepo.ShareRepository {
 	return &FirestoreShareRepository{client: config.FirestoreClient, storage: config.StorageClient}
 }
 
@@ -146,8 +140,8 @@ func (r *FirestoreShareRepository) findFromFirestore(ctx context.Context, hashKe
 }
 
 func (r *FirestoreShareRepository) findFromCloudStorage(ctx context.Context, hashKey string, itemID string) mo.Result[string] {
-	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Get(ctx, storageRoot, hashKey, itemID)
+	storage := NewCloudStorage(r.storage)
+	return storage.Get(ctx, shareStorageRoot, hashKey, itemID)
 }
 
 func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
@@ -182,6 +176,6 @@ func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey 
 
 func (r *FirestoreShareRepository) saveToCloudStorage(ctx context.Context, hashKey string, item *diagramitem.DiagramItem) mo.Result[bool] {
 	text := item.EncryptedText()
-	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, storageRoot, hashKey, item.ID())
+	storage := NewCloudStorage(r.storage)
+	return storage.Put(ctx, &text, shareStorageRoot, hashKey, item.ID())
 }

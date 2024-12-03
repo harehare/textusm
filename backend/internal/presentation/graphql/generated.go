@@ -14,8 +14,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
 	"github.com/harehare/textusm/internal/domain/model/settings"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	"github.com/harehare/textusm/internal/domain/values"
@@ -626,8 +626,8 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 }
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
-	rc := graphql.GetOperationContext(ctx)
-	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
+	opCtx := graphql.GetOperationContext(ctx)
+	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputInputColor,
 		ec.unmarshalInputInputGistItem,
@@ -637,7 +637,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	)
 	first := true
 
-	switch rc.Operation.Operation {
+	switch opCtx.Operation.Operation {
 	case ast.Query:
 		return func(ctx context.Context) *graphql.Response {
 			var response graphql.Response
@@ -645,7 +645,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			if first {
 				first = false
 				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-				data = ec._Query(ctx, rc.Operation.SelectionSet)
+				data = ec._Query(ctx, opCtx.Operation.SelectionSet)
 			} else {
 				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
 					result := <-ec.deferredResults
@@ -675,7 +675,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			data := ec._Mutation(ctx, opCtx.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -2637,7 +2637,7 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_save(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2764,7 +2764,7 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_bookmark(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2894,7 +2894,7 @@ func (ec *executionContext) _Mutation_saveGist(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveGist(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3161,7 +3161,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3236,7 +3236,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3311,7 +3311,7 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_shareItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3450,7 +3450,7 @@ func (ec *executionContext) _Query_gistItem(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_gistItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3523,7 +3523,7 @@ func (ec *executionContext) _Query_gistItems(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_gistItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7890,11 +7890,11 @@ func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextus
 	return ec._DiagramItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v gistitem.GistItem) graphql.Marshaler {
 	return ec._GistItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*gistitem.GistItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -7918,7 +7918,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -7932,7 +7932,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 	return ret
 }
 
-func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7997,11 +7997,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v diagramitem.DiagramItem) graphql.Marshaler {
 	return ec._Item(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*diagramitem.DiagramItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -8025,7 +8025,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -8039,7 +8039,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 	return ret
 }
 
-func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8435,7 +8435,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -8474,7 +8474,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋinternalᚋdomainᚋmodelᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

@@ -1,4 +1,4 @@
-package user
+package firebase
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ type FirebaseUserRepository struct {
 	app *firebase.App
 }
 
-func NewFirebaseUserRepository(config *config.Config) userRepo.UserRepository {
+func NewUserRepository(config *config.Config) userRepo.UserRepository {
 	return &FirebaseUserRepository{app: config.FirebaseApp}
 }
 

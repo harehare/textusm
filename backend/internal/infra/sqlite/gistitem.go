@@ -1,4 +1,4 @@
-package item
+package sqlite
 
 import (
 	"context"
@@ -8,9 +8,8 @@ import (
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db/sqlite"
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
-	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
-	db "github.com/harehare/textusm/internal/infra/sqlite"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
+	itemRepo "github.com/harehare/textusm/internal/domain/repository/gistitem"
 	"github.com/samber/mo"
 )
 
@@ -18,7 +17,7 @@ type SqliteGistItemRepository struct {
 	_db *sqlite.Queries
 }
 
-func NewSqliteGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
+func NewGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
 	return &SqliteGistItemRepository{_db: sqlite.New(config.SqlConn)}
 }
 
@@ -36,7 +35,7 @@ func (r *SqliteGistItemRepository) FindByID(ctx context.Context, userID string, 
 	i, err := r.tx(ctx).GetItem(ctx, sqlite.GetItemParams{
 		Uid:       userID,
 		DiagramID: itemID,
-		Location:  db.LocationGIST,
+		Location:  LocationGIST,
 	})
 
 	if err != nil {
@@ -56,9 +55,9 @@ func (r *SqliteGistItemRepository) FindByID(ctx context.Context, userID string, 
 		WithTitle(i.Title.String).
 		WithThumbnail(thumbnail).
 		WithDiagramString(string(i.Diagram)).
-		WithIsBookmark(db.IntToBool(i.IsBookmark)).
-		WithCreatedAt(db.IntToDateTime(i.CreatedAt)).
-		WithUpdatedAt(db.IntToDateTime(i.UpdatedAt)).
+		WithIsBookmark(IntToBool(i.IsBookmark)).
+		WithCreatedAt(IntToDateTime(i.CreatedAt)).
+		WithUpdatedAt(IntToDateTime(i.UpdatedAt)).
 		Build()
 }
 
@@ -67,9 +66,9 @@ func (r *SqliteGistItemRepository) Find(ctx context.Context, userID string, offs
 	isBookmark := false
 	dbItems, err := r.tx(ctx).ListItems(ctx, sqlite.ListItemsParams{
 		Uid:        userID,
-		IsPublic:   db.BoolToInt(isPublic),
-		IsBookmark: db.BoolToInt(isBookmark),
-		Location:   db.LocationGIST,
+		IsPublic:   BoolToInt(isPublic),
+		IsBookmark: BoolToInt(isBookmark),
+		Location:   LocationGIST,
 		Limit:      int64(limit),
 		Offset:     int64(offset),
 	})
@@ -94,9 +93,9 @@ func (r *SqliteGistItemRepository) Find(ctx context.Context, userID string, offs
 			WithTitle(i.Title.String).
 			WithThumbnail(thumbnail).
 			WithDiagramString(string(i.Diagram)).
-			WithIsBookmark(db.IntToBool(i.IsBookmark)).
-			WithCreatedAt(db.IntToDateTime(i.CreatedAt)).
-			WithUpdatedAt(db.IntToDateTime(i.UpdatedAt)).
+			WithIsBookmark(IntToBool(i.IsBookmark)).
+			WithCreatedAt(IntToDateTime(i.CreatedAt)).
+			WithUpdatedAt(IntToDateTime(i.UpdatedAt)).
 			Build()
 
 		if item.IsError() {
@@ -113,7 +112,7 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 	_, err := r.tx(ctx).GetItem(ctx, sqlite.GetItemParams{
 		Uid:       userID,
 		DiagramID: item.ID(),
-		Location:  db.LocationGIST,
+		Location:  LocationGIST,
 	})
 
 	isBookmark := item.IsBookmark()
@@ -124,13 +123,13 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
 			DiagramID:  item.ID(),
-			IsBookmark: db.BoolToInt(isBookmark),
-			IsPublic:   db.BoolToInt(false),
+			IsBookmark: BoolToInt(isBookmark),
+			IsPublic:   BoolToInt(false),
 			Title:      sql.NullString{String: title, Valid: true},
-			Thumbnail:  db.StringToNullString(item.Thumbnail()),
-			Location:   db.LocationGIST,
-			CreatedAt:  db.DateTimeToInt(item.CreatedAt()),
-			UpdatedAt:  db.DateTimeToInt(item.CreatedAt()),
+			Thumbnail:  StringToNullString(item.Thumbnail()),
+			Location:   LocationGIST,
+			CreatedAt:  DateTimeToInt(item.CreatedAt()),
+			UpdatedAt:  DateTimeToInt(item.CreatedAt()),
 		}); err != nil {
 			return mo.Err[*gistitem.GistItem](err)
 		}
@@ -140,13 +139,13 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 		if err := r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
-			IsBookmark: db.BoolToInt(isBookmark),
-			IsPublic:   db.BoolToInt(false),
+			IsBookmark: BoolToInt(isBookmark),
+			IsPublic:   BoolToInt(false),
 			Title:      sql.NullString{String: title, Valid: true},
-			Thumbnail:  db.StringToNullString(item.Thumbnail()),
+			Thumbnail:  StringToNullString(item.Thumbnail()),
 			DiagramID:  item.ID(),
-			Location:   db.LocationGIST,
-			UpdatedAt:  db.DateTimeToInt(item.CreatedAt()),
+			Location:   LocationGIST,
+			UpdatedAt:  DateTimeToInt(item.CreatedAt()),
 		}); err != nil {
 			return mo.Err[*gistitem.GistItem](err)
 		}

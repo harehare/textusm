@@ -1,9 +1,9 @@
-package item
+package gistitem
 
 import (
 	"context"
 
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
 	"github.com/samber/mo"
 )
 

@@ -1,9 +1,9 @@
-package item
+package diagramitem
 
 import (
 	"context"
 
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	"github.com/samber/mo"
 )
 

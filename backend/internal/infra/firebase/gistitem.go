@@ -1,12 +1,12 @@
-package item
+package firebase
 
 import (
 	"context"
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/internal/config"
-	"github.com/harehare/textusm/internal/domain/model/item/gistitem"
-	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
+	"github.com/harehare/textusm/internal/domain/model/gistitem"
+	itemRepo "github.com/harehare/textusm/internal/domain/repository/gistitem"
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
 	"google.golang.org/api/iterator"
@@ -14,15 +14,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	gistItemsCollection = "gistitems"
-)
-
 type FirestoreGistItemRepository struct {
 	client *firestore.Client
 }
 
-func NewFirestoreGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
+func NewGistItemRepository(config *config.Config) itemRepo.GistItemRepository {
 	return &FirestoreGistItemRepository{client: config.FirestoreClient}
 }
 

@@ -1,4 +1,4 @@
-package service
+package diagramitem
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	shareModel "github.com/harehare/textusm/internal/domain/model/share"
-	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
+	itemRepo "github.com/harehare/textusm/internal/domain/repository/diagramitem"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
 	userRepo "github.com/harehare/textusm/internal/domain/repository/user"
 	e "github.com/harehare/textusm/internal/error"

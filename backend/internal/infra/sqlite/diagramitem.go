@@ -1,4 +1,4 @@
-package item
+package sqlite
 
 import (
 	"context"
@@ -9,9 +9,8 @@ import (
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db/sqlite"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
-	itemRepo "github.com/harehare/textusm/internal/domain/repository/item"
-	db "github.com/harehare/textusm/internal/infra/sqlite"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
+	itemRepo "github.com/harehare/textusm/internal/domain/repository/diagramitem"
 	"github.com/samber/mo"
 )
 
@@ -19,7 +18,7 @@ type SqliteItemRepository struct {
 	_db *sqlite.Queries
 }
 
-func NewSqliteItemRepository(config *config.Config) itemRepo.ItemRepository {
+func NewItemRepository(config *config.Config) itemRepo.ItemRepository {
 	return &SqliteItemRepository{_db: sqlite.New(config.SqlConn)}
 }
 
@@ -58,19 +57,19 @@ func (r *SqliteItemRepository) FindByID(ctx context.Context, userID string, item
 		WithEncryptedText(i.Text).
 		WithThumbnail(thumbnail).
 		WithDiagramString(string(i.Diagram)).
-		WithIsPublic(db.IntToBool(i.IsPublic)).
-		WithIsBookmark(db.IntToBool(i.IsBookmark)).
-		WithCreatedAt(db.IntToDateTime(i.CreatedAt)).
-		WithUpdatedAt(db.IntToDateTime(i.UpdatedAt)).
+		WithIsPublic(IntToBool(i.IsPublic)).
+		WithIsBookmark(IntToBool(i.IsBookmark)).
+		WithCreatedAt(IntToDateTime(i.CreatedAt)).
+		WithUpdatedAt(IntToDateTime(i.UpdatedAt)).
 		Build()
 }
 
 func (r *SqliteItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
 	dbItems, err := r.tx(ctx).ListItems(ctx, sqlite.ListItemsParams{
 		Uid:        userID,
-		Location:   db.LocationSYSTEM,
-		IsPublic:   db.BoolToInt(isPublic),
-		IsBookmark: db.BoolToInt(isBookmark),
+		Location:   LocationSYSTEM,
+		IsPublic:   BoolToInt(isPublic),
+		IsBookmark: BoolToInt(isBookmark),
 		Limit:      int64(limit),
 		Offset:     int64(offset),
 	})
@@ -116,7 +115,7 @@ func (r *SqliteItemRepository) Save(ctx context.Context, userID string, item *di
 	_, err := r.tx(ctx).GetItem(ctx, sqlite.GetItemParams{
 		Uid:       userID,
 		DiagramID: item.ID(),
-		Location:  db.LocationSYSTEM,
+		Location:  LocationSYSTEM,
 	})
 
 	isBookmark := item.IsBookmark()
@@ -127,14 +126,14 @@ func (r *SqliteItemRepository) Save(ctx context.Context, userID string, item *di
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
 			DiagramID:  item.ID(),
-			IsBookmark: db.BoolToInt(isBookmark),
-			IsPublic:   db.BoolToInt(isPublic),
+			IsBookmark: BoolToInt(isBookmark),
+			IsPublic:   BoolToInt(isPublic),
 			Title:      sql.NullString{String: title, Valid: true},
 			Text:       item.Text(),
-			Thumbnail:  db.StringToNullString(item.Thumbnail()),
-			Location:   db.LocationSYSTEM,
-			CreatedAt:  db.DateTimeToInt(time.Now()),
-			UpdatedAt:  db.DateTimeToInt(time.Now()),
+			Thumbnail:  StringToNullString(item.Thumbnail()),
+			Location:   LocationSYSTEM,
+			CreatedAt:  DateTimeToInt(time.Now()),
+			UpdatedAt:  DateTimeToInt(time.Now()),
 		})
 
 		if err != nil {
@@ -147,14 +146,14 @@ func (r *SqliteItemRepository) Save(ctx context.Context, userID string, item *di
 		err := r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
-			IsBookmark: db.BoolToInt(isBookmark),
-			IsPublic:   db.BoolToInt(isPublic),
+			IsBookmark: BoolToInt(isBookmark),
+			IsPublic:   BoolToInt(isPublic),
 			Title:      sql.NullString{String: title, Valid: true},
 			Text:       item.Text(),
-			Thumbnail:  db.StringToNullString(item.Thumbnail()),
+			Thumbnail:  StringToNullString(item.Thumbnail()),
 			DiagramID:  item.ID(),
-			Location:   db.LocationSYSTEM,
-			UpdatedAt:  db.DateTimeToInt(time.Now()),
+			Location:   LocationSYSTEM,
+			UpdatedAt:  DateTimeToInt(time.Now()),
 		})
 
 		if err != nil {

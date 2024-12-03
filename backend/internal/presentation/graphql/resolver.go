@@ -5,16 +5,18 @@ package graphql
 
 import (
 	"github.com/harehare/textusm/internal/config"
-	"github.com/harehare/textusm/internal/domain/service"
+	"github.com/harehare/textusm/internal/domain/service/diagramitem"
+	"github.com/harehare/textusm/internal/domain/service/gistitem"
+	"github.com/harehare/textusm/internal/domain/service/settings"
 )
 
 type Resolver struct {
-	service         *service.Service
-	gistService     *service.GistService
-	settingsService *service.SettingsService
+	service         *diagramitem.Service
+	gistService     *gistitem.Service
+	settingsService *settings.Service
 }
 
-func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService, config *config.Config) *Resolver {
+func New(service *diagramitem.Service, gistService *gistitem.Service, settingsService *settings.Service, config *config.Config) *Resolver {
 	r := Resolver{service: service, gistService: gistService, settingsService: settingsService}
 	return &r
 }

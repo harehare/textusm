@@ -1,4 +1,4 @@
-package share
+package postgres
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/harehare/textusm/internal/config"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db/postgres"
-	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/internal/domain/model/diagramitem"
 	"github.com/harehare/textusm/internal/domain/model/share"
 	shareRepo "github.com/harehare/textusm/internal/domain/repository/share"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -19,7 +19,7 @@ type PostgresShareRepository struct {
 	_db *postgres.Queries
 }
 
-func NewPostgresShareRepository(config *config.Config) shareRepo.ShareRepository {
+func NewShareRepository(config *config.Config) shareRepo.ShareRepository {
 	return &PostgresShareRepository{_db: postgres.New(config.PostgresConn)}
 }
 
