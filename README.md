@@ -1,7 +1,10 @@
 # TextUSM
 
-![test](https://github.com/harehare/textusm/actions/workflows/test.yml/badge.svg)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+<img alt="GitHub Actions Workflow Status" src="https://github.com/harehare/textusm/actions/workflows/test.yml/badge.svg">
+<a href="https://www.npmjs.com/package/textusm.cli" target="_blank">
+  <img alt="Version" src="https://img.shields.io/npm/v/textusm.cli.svg">
+</a>
+<img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
 
 TextUSM is a simple tool. Help you draw user story map using indented text.
 
@@ -42,6 +45,31 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
 - [cli](https://www.npmjs.com/package/textusm.cli)
 - [npm](https://www.npmjs.com/package/textusm)
+
+## Usage
+
+```shell
+# Set environment variables
+cp .env.example .env
+# Use direnv
+echo 'dotenv' > .envrc
+
+# Install dependencies
+cd frontend && npm install
+
+# Build, serve & watch
+just run
+```
+
+Open http://localhost:3000 and start modifying the code in /src.
+
+## Run tests
+
+```
+$ just test
+```
+
+<hr />
 
 ## Example
 
@@ -414,37 +442,6 @@ r1
 
 ![image](./assets/img/kbd60.png)
 
-## Developing
-
-```shell
-# Set environment variables
-cp .env.example .env
-# Use direnv
-echo 'dotenv' > .envrc
-
-# Install dependencies
-cd frontend && npm install
-
-# Build, serve & watch
-just run
-```
-
-Open http://localhost:3000 and start modifying the code in /src.
-
-## Production
-
-```sh
-npm run prod
-```
-
-## Testing
-
-```
-$ just test
-```
-
-<hr />
-
-## License
+## 📝 License
 
 [MIT](http://opensource.org/licenses/MIT)
