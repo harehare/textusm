@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	cloud.google.com/go/firestore v1.17.0
-	cloud.google.com/go/storage v1.48.0
+	cloud.google.com/go/storage v1.49.0
 	firebase.google.com/go/v4 v4.15.1
 	github.com/99designs/gqlgen v0.17.61
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -37,7 +37,7 @@ require (
 	cloud.google.com/go/iam v1.2.2 // indirect
 	cloud.google.com/go/longrunning v0.6.2 // indirect
 	cloud.google.com/go/monitoring v1.21.2 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.24.2 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
