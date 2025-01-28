@@ -16,7 +16,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.24
-	github.com/samber/lo v1.49.0
+	github.com/samber/lo v1.49.1
 	github.com/samber/mo v1.13.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.10.0
