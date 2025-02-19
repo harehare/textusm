@@ -44,7 +44,7 @@
     "firebase-tools": "^13.31.1",
     "prettier": "^3.5.1",
     "rimraf": "^6.0.1",
-    "size-limit": "^11.1.6",
+    "size-limit": "^11.2.0",
     "stylelint": "^16.14.1",
     "stylelint-config-standard": "^37.0.0",
     "terser": "^5.39.0",
