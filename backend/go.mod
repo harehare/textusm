@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.17.0
 	cloud.google.com/go/storage v1.49.0
 	firebase.google.com/go/v4 v4.15.1
-	github.com/99designs/gqlgen v0.17.57
+	github.com/99designs/gqlgen v0.17.66
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/cors v1.2.1
