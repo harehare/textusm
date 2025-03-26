@@ -69,8 +69,8 @@ firebase.google.com/go/v4 v4.15.2 h1:KJtV4rAfO2CVCp40hBfVk+mqUqg7+jQKx7yOgFDnXBg
 firebase.google.com/go/v4 v4.15.2/go.mod h1:qkD/HtSumrPMTLs0ahQrje5gTw2WKFKrzVFoqy4SbKA=
 github.com/4meepo/tagalign v1.4.1 h1:GYTu2FaPGOGb/xJalcqHeD4il5BiCywyEYZOA55P6J4=
 github.com/4meepo/tagalign v1.4.1/go.mod h1:2H9Yu6sZ67hmuraFgfZkNcg5Py9Ch/Om9l2K/2W1qS4=
-github.com/99designs/gqlgen v0.17.68 h1:vH6jTShCv7sgz1ejXEDNqho7KWlA4ZwSWzVsxyhypAM=
-github.com/99designs/gqlgen v0.17.68/go.mod h1:fvCiqQAu2VLhKXez2xFvLmE47QgAPf/KTPN5XQ4rsHQ=
+github.com/99designs/gqlgen v0.17.70 h1:xgLIgQuG+Q2L/AE9cW595CT7xCWCe/bpPIFGSfsGSGs=
+github.com/99designs/gqlgen v0.17.70/go.mod h1:fvCiqQAu2VLhKXez2xFvLmE47QgAPf/KTPN5XQ4rsHQ=
 github.com/Abirdcfly/dupword v0.1.3 h1:9Pa1NuAsZvpFPi9Pqkd93I7LIYRURj+A//dFd5tgBeE=
 github.com/Abirdcfly/dupword v0.1.3/go.mod h1:8VbB2t7e10KRNdwTVoxdBaxla6avbhGzb8sCTygUMhw=
 github.com/Antonboom/errname v1.0.0 h1:oJOOWR07vS1kRusl6YRSlat7HFnb3mSfMl6sDMRoTBA=
