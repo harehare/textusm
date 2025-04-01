@@ -24,7 +24,7 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	golang.org/x/sync v0.12.0
 	google.golang.org/api v0.227.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.71.1
 )
 
 require (
