@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	cloud.google.com/go/firestore v1.18.0
-	cloud.google.com/go/storage v1.52.0
+	cloud.google.com/go/storage v1.53.0
 	firebase.google.com/go/v4 v4.15.2
 	github.com/99designs/gqlgen v0.17.73
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -32,13 +32,13 @@ require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.2 // indirect
 	cel.dev/expr v0.20.0 // indirect
-	cloud.google.com/go v0.120.0 // indirect
+	cloud.google.com/go v0.120.1 // indirect
 	cloud.google.com/go/ai v0.8.0 // indirect
 	cloud.google.com/go/auth v0.16.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
-	cloud.google.com/go/iam v1.5.0 // indirect
-	cloud.google.com/go/longrunning v0.6.6 // indirect
+	cloud.google.com/go/iam v1.5.2 // indirect
+	cloud.google.com/go/longrunning v0.6.7 // indirect
 	cloud.google.com/go/monitoring v1.24.0 // indirect
 	dario.cat/mergo v1.0.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -278,7 +278,7 @@ require (
 	golang.org/x/tools v0.32.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
 	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250414145226-207652e42e2e // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250425173222-7b384671a197 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250425173222-7b384671a197 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
