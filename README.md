@@ -1,10 +1,8 @@
 # TextUSM
 
-<img alt="GitHub Actions Workflow Status" src="https://github.com/harehare/textusm/actions/workflows/test.yml/badge.svg">
-<a href="https://www.npmjs.com/package/textusm.cli" target="_blank">
-  <img alt="Version" src="https://img.shields.io/npm/v/textusm.cli.svg">
-</a>
-<img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+![GitHub Actions Workflow Status](https://github.com/harehare/textusm/actions/workflows/test.yml/badge.svg)
+[![Version](https://img.shields.io/npm/v/textusm.cli.svg)](https://www.npmjs.com/package/textusm.cli)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 TextUSM is a simple tool. Help you draw user story map using indented text.
 
