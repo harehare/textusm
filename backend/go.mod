@@ -8,7 +8,7 @@ require (
 	firebase.google.com/go/v4 v4.16.1
 	github.com/99designs/gqlgen v0.17.75
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.15.0
 	github.com/google/uuid v1.6.0
