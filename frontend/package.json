@@ -20,7 +20,7 @@
     "workbox-window": "^7.1.0"
   },
   "devDependencies": {
-    "@dillonkearns/elm-graphql": "^4.3.1",
+    "@dillonkearns/elm-graphql": "^4.3.2",
     "@playwright/test": "^1.53.1",
     "@sentry/vite-plugin": "^3.5.0",
     "@size-limit/file": "^11.2.0",
