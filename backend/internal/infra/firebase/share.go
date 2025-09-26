@@ -13,7 +13,6 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -32,21 +31,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) mo.
 }
 
 func (r *FirestoreShareRepository) Save(ctx context.Context, userID, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
-	eg, ctx := errgroup.WithContext(ctx)
-
-	eg.Go(func() error {
-		return r.saveToFirestore(ctx, hashKey, item, shareInfo).Error()
-	})
-
-	eg.Go(func() error {
-		return r.saveToCloudStorage(ctx, hashKey, item).Error()
-	})
-
-	if err := eg.Wait(); err != nil {
-		return mo.Err[bool](err)
-	}
-
-	return mo.Ok(true)
+	return r.saveToFirestore(ctx, hashKey, item, shareInfo)
 }
 
 func (r *FirestoreShareRepository) Delete(ctx context.Context, userID, hashKey string) mo.Result[bool] {
@@ -90,17 +75,6 @@ func (r *FirestoreShareRepository) findFromFirestore(ctx context.Context, hashKe
 		return mo.Err[shareRepo.ShareValue](item.Error())
 	}
 
-	if item.MustGet().IsSaveToStorage() {
-		ret := r.findFromCloudStorage(ctx, hashKey, item.MustGet().ID())
-		if ret.IsError() {
-			return mo.Err[shareRepo.ShareValue](ret.Error())
-		}
-		item = item.Map(func(i *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
-			i.UpdateEncryptedText(ret.MustGet())
-			return i, nil
-		})
-	}
-
 	var (
 		allowIPList    []string
 		allowEmailList []string
@@ -139,11 +113,6 @@ func (r *FirestoreShareRepository) findFromFirestore(ctx context.Context, hashKe
 	return mo.Ok(shareRepo.ShareValue{DiagramItem: item.OrEmpty(), ShareInfo: &shareInfo})
 }
 
-func (r *FirestoreShareRepository) findFromCloudStorage(ctx context.Context, hashKey string, itemID string) mo.Result[string] {
-	storage := NewCloudStorage(r.storage)
-	return storage.Get(ctx, shareStorageRoot, hashKey, itemID)
-}
-
 func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
 	var savePassword string
 
@@ -159,7 +128,6 @@ func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey 
 	}
 
 	v := item.ToMap()
-	delete(v, "Text")
 	v["password"] = savePassword
 	v["allowIPList"] = shareInfo.AllowIPList
 	v["token"] = shareInfo.Token
@@ -172,10 +140,4 @@ func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey 
 	}
 
 	return mo.Ok(true)
-}
-
-func (r *FirestoreShareRepository) saveToCloudStorage(ctx context.Context, hashKey string, item *diagramitem.DiagramItem) mo.Result[bool] {
-	text := item.EncryptedText()
-	storage := NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, shareStorageRoot, hashKey, item.ID())
 }

@@ -12,7 +12,6 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
 	"golang.org/x/exp/slog"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,18 +27,7 @@ func NewItemRepository(config *config.Config) itemRepo.ItemRepository {
 }
 
 func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	return r.findFromFirestore(ctx, userID, itemID, isPublic).Map(func(i *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
-		if i.IsSaveToStorage() {
-			ret := r.findFromCloudStorage(ctx, userID, itemID)
-			if ret.IsError() {
-				slog.Error("Failed find diagram", "userID", userID, "itemID", itemID, "isPublic", isPublic)
-				return nil, ret.Error()
-			}
-			i.UpdateEncryptedText(ret.OrEmpty())
-		}
-
-		return i, nil
-	})
+	return r.findFromFirestore(ctx, userID, itemID, isPublic)
 }
 
 func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
@@ -71,44 +59,15 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 			return mo.Err[[]*diagramitem.DiagramItem](i.Error())
 		}
 
-		items = append(items, i.Map(func(v *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
-			if shouldLoadText && v.IsSaveToStorage() {
-				ret := r.findFromCloudStorage(ctx, userID, v.ID())
-				if ret.IsError() {
-					slog.Error("Failed find diagram", "userID", userID, "itemID", v.ID(), "isPublic", isPublic)
-					return nil, ret.Error()
-				}
-				v.UpdateEncryptedText(ret.OrEmpty())
-				return v, nil
-			} else {
-				return v.ClearText(), nil
-			}
-		}).OrEmpty())
+		items = append(items, i.MustGet())
 	}
 
 	return mo.Ok(items)
 }
 
 func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	eg, ctx := errgroup.WithContext(ctx)
-
-	eg.Go(func() error {
-		return r.saveToFirestore(ctx, userID, item, isPublic).Error()
-	})
-
-	eg.Go(func() error {
-		return r.saveToCloudStorage(ctx, userID, item).Error()
-	})
-
-	if err := eg.Wait(); err != nil {
-		if item.IsNew() {
-			err := r.Delete(ctx, userID, item.ID(), isPublic)
-			if err.IsError() {
-				slog.Error("Delete failed.", "userID", userID, "itemID", item.ID())
-				return mo.Err[*diagramitem.DiagramItem](err.Error())
-			}
-		}
-
+	if err := r.saveToFirestore(ctx, userID, item, isPublic).Error(); err != nil {
+		slog.Error("Delete failed.", "userID", userID, "itemID", item.ID())
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
@@ -116,22 +75,7 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 }
 
 func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
-	eg, ctx := errgroup.WithContext(ctx)
-
-	eg.Go(func() error {
-		return r.deleteToFirestore(ctx, userID, itemID, isPublic).Error()
-	})
-
-	eg.Go(func() error {
-		return r.deleteToCloudStorage(ctx, userID, itemID).Error()
-	})
-
-	if err := eg.Wait(); err != nil {
-		slog.Error("Delete failed.", "userID", userID, "itemID", itemID)
-		return mo.Err[bool](err)
-	}
-
-	return mo.Ok(true)
+	return r.deleteToFirestore(ctx, userID, itemID, isPublic)
 }
 
 func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
@@ -158,14 +102,8 @@ func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID 
 	return diagramitem.MapToDiagramItem(fields.Data())
 }
 
-func (r *FirestoreItemRepository) findFromCloudStorage(ctx context.Context, userID string, itemID string) mo.Result[string] {
-	storage := NewCloudStorage(r.storage)
-	return storage.Get(ctx, usersStorageRoot, userID, itemID)
-}
-
 func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[bool] {
 	values := item.ToMap()
-	delete(values, "Text")
 
 	if isPublic {
 		_, err := r.firestore.Collection(publicCollection).Doc(item.ID()).Set(ctx, values)
@@ -182,12 +120,6 @@ func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID st
 	}
 
 	return mo.Ok(true)
-}
-
-func (r *FirestoreItemRepository) saveToCloudStorage(ctx context.Context, userID string, item *diagramitem.DiagramItem) mo.Result[bool] {
-	text := item.EncryptedText()
-	storage := NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, usersStorageRoot, userID, item.ID())
 }
 
 func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
@@ -236,9 +168,4 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 
 		return mo.Ok(true)
 	}
-}
-
-func (r *FirestoreItemRepository) deleteToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
-	storage := NewCloudStorage(r.storage)
-	return storage.Delete(ctx, usersStorageRoot, userID, itemID)
 }

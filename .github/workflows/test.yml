@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install Dependencies
         working-directory: frontend
-        run: npm ci --include=dev
+        run: npm ci --include=dev --legacy-peer-deps
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
@@ -137,7 +137,7 @@ jobs:
           go-version-file: "backend/go.mod"
       - uses: extractions/setup-just@v2
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
           working-directory: backend
           args: --issues-exit-code=0 --timeout=2m

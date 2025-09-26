@@ -43,7 +43,7 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install Dependencies
         working-directory: frontend
-        run: npm ci --include=dev
+        run: npm ci --include=dev --legacy-peer-deps
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main

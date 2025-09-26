@@ -152,7 +152,6 @@ type DiagramItem struct {
 	encryptedText string
 	isPublic      bool
 	isBookmark    bool
-	saveToStorage bool
 	isNew         bool
 }
 
@@ -297,12 +296,6 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 		return mo.Err[*DiagramItem](e.InvalidParameterError(e.ErrInvalidUpdatedAt))
 	}
 
-	saveToStorage, ok := v["SaveToStorage"].(bool)
-
-	if !ok {
-		saveToStorage = false
-	}
-
 	item := New().
 		WithID(id).
 		WithTitle(title).
@@ -315,19 +308,12 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 		WithUpdatedAt(updatedAt).
 		Build()
 
-	return item.Map(func(i *DiagramItem) (*DiagramItem, error) {
-		i.saveToStorage = saveToStorage
-		return i, nil
-	})
+	return item
 }
 
 func (i *DiagramItem) ClearText() *DiagramItem {
 	i.encryptedText = ""
 	return i
-}
-
-func (i *DiagramItem) IsSaveToStorage() bool {
-	return i.saveToStorage
 }
 
 func (i *DiagramItem) ToMap() map[string]interface{} {
