@@ -19,7 +19,7 @@ require (
 	github.com/samber/mo v1.16.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.11.1
-	github.com/vektah/gqlparser/v2 v2.5.30
+	github.com/vektah/gqlparser/v2 v2.5.31
 	golang.org/x/crypto v0.43.0
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	google.golang.org/api v0.254.0
