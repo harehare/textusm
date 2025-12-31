@@ -16,7 +16,7 @@
             "jfmengels/elm-review-performance": "1.0.2",
             "jfmengels/elm-review-simplify": "2.1.11",
             "jfmengels/elm-review-the-elm-architecture": "1.0.3",
-            "jfmengels/elm-review-unused": "1.2.4",
+            "jfmengels/elm-review-unused": "1.2.5",
             "matzko/elm-review-limit-aliased-record-size": "1.0.3",
             "sparksp/elm-review-camelcase": "1.1.0",
             "sparksp/elm-review-forbidden-words": "1.0.1",
