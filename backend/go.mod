@@ -14,7 +14,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/mattn/go-sqlite3 v1.14.32
+	github.com/mattn/go-sqlite3 v1.14.33
 	github.com/samber/lo v1.52.0
 	github.com/samber/mo v1.16.0
 	github.com/satori/go.uuid v1.2.0
