@@ -3,7 +3,7 @@ module github.com/harehare/textusm
 go 1.25.0
 
 require (
-	cloud.google.com/go/firestore v1.20.0
+	cloud.google.com/go/firestore v1.21.0
 	firebase.google.com/go/v4 v4.18.0
 	github.com/99designs/gqlgen v0.17.86
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -30,7 +30,7 @@ require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.2 // indirect
 	cel.dev/expr v0.24.0 // indirect
-	cloud.google.com/go v0.121.6 // indirect
+	cloud.google.com/go v0.123.0 // indirect
 	cloud.google.com/go/ai v0.8.0 // indirect
 	cloud.google.com/go/auth v0.18.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
