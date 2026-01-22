@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	cloud.google.com/go/firestore v1.21.0
-	firebase.google.com/go/v4 v4.18.0
+	firebase.google.com/go/v4 v4.19.0
 	github.com/99designs/gqlgen v0.17.86
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.2.4
