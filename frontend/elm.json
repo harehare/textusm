@@ -59,7 +59,7 @@
     },
     "test-dependencies": {
         "direct": {
-            "elm-explorations/test": "2.2.0"
+            "elm-explorations/test": "2.2.1"
         },
         "indirect": {
             "elm/random": "1.0.0"
