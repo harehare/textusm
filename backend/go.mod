@@ -22,7 +22,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.32
 	golang.org/x/crypto v0.49.0
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
-	google.golang.org/api v0.273.0
+	google.golang.org/api v0.273.1
 	google.golang.org/grpc v1.80.0
 )
 
