@@ -1,27 +1,27 @@
-import type { ElmApp } from './elm';
+import type { ElmApp } from "./elm";
 
-export const canUseNativeFileSystem = 'showOpenFilePicker' in window;
+export const canUseNativeFileSystem = "showOpenFilePicker" in window;
 
 const extensions: Array<`.${string}`> = [
-  '.txt',
-  '.usm',
-  '.opc',
-  '.bmc',
-  '.4ls',
-  '.ssc',
-  '.kpt',
-  '.persona',
-  '.mmp',
-  '.emm',
-  '.table',
-  '.smp',
-  '.gct',
-  '.imm',
-  '.erd',
-  '.kanban',
-  '.sed',
-  '.free',
-  '.ucd',
+  ".txt",
+  ".usm",
+  ".opc",
+  ".bmc",
+  ".4ls",
+  ".ssc",
+  ".kpt",
+  ".persona",
+  ".mmp",
+  ".emm",
+  ".table",
+  ".smp",
+  ".gct",
+  ".imm",
+  ".erd",
+  ".kanban",
+  ".sed",
+  ".free",
+  ".ucd",
 ];
 
 const openFile = async (): Promise<[FileSystemFileHandle, string, string] | undefined> => {
@@ -29,9 +29,9 @@ const openFile = async (): Promise<[FileSystemFileHandle, string, string] | unde
     const [handle]: [FileSystemFileHandle] = await showOpenFilePicker({
       types: [
         {
-          description: 'Text Files',
+          description: "Text Files",
           accept: {
-            'text/plain': extensions,
+            "text/plain": extensions,
           },
         },
       ],
@@ -54,9 +54,9 @@ const saveFile = async (text: string, fileHandle: FileSystemFileHandle, title: s
             suggestedName: title,
             types: [
               {
-                description: 'Text Files',
+                description: "Text Files",
                 accept: {
-                  'text/plain': extensions,
+                  "text/plain": extensions,
                 },
               },
             ],

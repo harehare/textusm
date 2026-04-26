@@ -1,6 +1,6 @@
-import type { Settings, ExportInfo, Diagram, DiagramItem } from './model';
+import type { Settings, ExportInfo, Diagram, DiagramItem } from "./model";
 
-export type Provider = 'Google' | 'Github';
+export type Provider = "Google" | "Github";
 
 type Send<T> = {
   send: (parameters: T) => void;

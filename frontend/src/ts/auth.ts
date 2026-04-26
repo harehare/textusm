@@ -1,4 +1,4 @@
-import { type FirebaseOptions, initializeApp } from 'firebase/app';
+import { type FirebaseOptions, initializeApp } from "firebase/app";
 import {
   type AuthProvider,
   signOut as firebaseSignOut,
@@ -9,8 +9,8 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   connectAuthEmulator,
   type UserCredential,
-} from 'firebase/auth';
-import { getPerformance } from 'firebase/performance';
+} from "firebase/auth";
+import { getPerformance } from "firebase/performance";
 
 type User = {
   id: string;
@@ -22,15 +22,15 @@ type User = {
 };
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.FIREBASE_API_KEY ?? '',
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? '',
-  projectId: process.env.FIREBASE_PROJECT_ID ?? '',
-  appId: process.env.FIREBASE_APP_ID ?? '',
+  apiKey: process.env.FIREBASE_API_KEY ?? "",
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? "",
+  projectId: process.env.FIREBASE_PROJECT_ID ?? "",
+  appId: process.env.FIREBASE_APP_ID ?? "",
 };
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth();
 
-if (process.env.MONITOR_ENABLE === '1') {
+if (process.env.MONITOR_ENABLE === "1") {
   getPerformance(firebaseApp);
 }
 
@@ -49,12 +49,12 @@ export const pollRefreshToken = (callback: (idToken: string) => void): void => {
       const user = auth.currentUser;
       if (user) {
         const idToken = await user.getIdToken(true).catch(() => false);
-        if (idToken && typeof idToken === 'string') {
+        if (idToken && typeof idToken === "string") {
           callback(idToken);
         }
       }
     },
-    30 * 60 * 1000
+    30 * 60 * 1000,
   );
 };
 
@@ -64,25 +64,25 @@ export const authStateChanged = (
   onBeforeAuth: () => void,
   onAfterAuth: () => void,
   onAuthError: (message: string) => void,
-  onAuthStateChanged: (idToken: string | undefined, user: User | undefined) => void
+  onAuthStateChanged: (idToken: string | undefined, user: User | undefined) => void,
 ): void => {
   firebaseOnAuthStateChanged(auth, async (user) => {
     onBeforeAuth();
     if (user) {
-      const providers = user.providerData.map((p) => (p ? p.providerId : ''));
-      const provider = providers.length > 0 && providers[0] ? providers[0] : '';
+      const providers = user.providerData.map((p) => (p ? p.providerId : ""));
+      const provider = providers.length > 0 && providers[0] ? providers[0] : "";
 
       const idToken = await user.getIdToken().catch(() => {
-        onAuthError('Authentication failed. Please login again.');
+        onAuthError("Authentication failed. Please login again.");
         return null;
       });
 
       if (idToken) {
         onAuthStateChanged(idToken, {
           id: user.uid,
-          displayName: user.displayName ?? '',
-          email: user.email ?? '',
-          photoURL: user.photoURL ?? '',
+          displayName: user.displayName ?? "",
+          email: user.email ?? "",
+          photoURL: user.photoURL ?? "",
           provider,
           accessToken: undefined,
         });
@@ -101,7 +101,7 @@ export const providers = {
   github: new GithubAuthProvider(),
   githubWithGist: (() => {
     const p = new GithubAuthProvider();
-    p.addScope('gist');
+    p.addScope("gist");
     return p;
   })(),
 };
@@ -114,13 +114,13 @@ export const signInGithubWithGist = async (): Promise<{
       .then((result) => {
         const user = result.user;
         if (!user) {
-          reject(new Error('Failed sigIn'));
+          reject(new Error("Failed sigIn"));
           return;
         }
 
         // @ts-expect-error: Unreachable code error
         if (!result?._tokenResponse?.oauthAccessToken) {
-          throw new Error('Could not get oauthAccessToken for Github gist oauthAccessToken.');
+          throw new Error("Could not get oauthAccessToken for Github gist oauthAccessToken.");
         }
 
         resolve({

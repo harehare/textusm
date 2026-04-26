@@ -5,6 +5,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -57,7 +58,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 
 	if err = fn(ctx); err != nil {
 		if txErr := tx.Rollback(ctx); txErr != nil {
-			return err
+			return errors.Join(err, fmt.Errorf("rollback failed: %w", txErr))
 		}
 
 		slog.Error(err.Error())
@@ -81,7 +82,7 @@ func (t *dbTx) Do(ctx context.Context, fn func(ctx context.Context) error) error
 
 	if err = fn(ctx); err != nil {
 		if txErr := tx.Rollback(); txErr != nil {
-			return err
+			return errors.Join(err, fmt.Errorf("rollback failed: %w", txErr))
 		}
 
 		slog.Error(err.Error())

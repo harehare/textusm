@@ -99,24 +99,19 @@ func InvalidParameterError(err error) DomainError {
 }
 
 func GetCode(err error) Code {
-	_, isRepoError := err.(*RepositoryError)
-	_, isServiceError := err.(*ServiceError)
-	_, isDomainError := err.(*DomainError)
-
-	if !isRepoError && !isServiceError {
-		return UnKnown
+	var repoErr *RepositoryError
+	if errors.As(err, &repoErr) {
+		return repoErr.code
 	}
 
-	if isRepoError {
-		return err.(*RepositoryError).code
+	var svcErr *ServiceError
+	if errors.As(err, &svcErr) {
+		return svcErr.code
 	}
 
-	if isServiceError {
-		return err.(*ServiceError).code
-	}
-
-	if isDomainError {
-		return err.(*DomainError).code
+	var domErr *DomainError
+	if errors.As(err, &domErr) {
+		return domErr.code
 	}
 
 	return UnKnown

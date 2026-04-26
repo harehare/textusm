@@ -23,7 +23,7 @@ func addBase64Padding(value string) string {
 }
 
 func removeBase64Padding(value string) string {
-	return strings.Replace(value, "=", "", -1)
+	return strings.ReplaceAll(value, "=", "")
 }
 
 func pad(src []byte) []byte {
@@ -91,17 +91,15 @@ func Decrypt(key []byte, text string) (string, error) {
 	return string(unpadMsg), nil
 }
 
-// https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
 func GenerateRandomString(n int) (string, error) {
 	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
 	ret := make([]byte, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
 		if err != nil {
 			return "", err
 		}
-		ret = append(ret, letters[num.Int64()])
+		ret[i] = letters[num.Int64()]
 	}
-
 	return string(ret), nil
 }

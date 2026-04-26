@@ -1,11 +1,17 @@
 name: deploy
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     uses: ./.github/workflows/build_and_deploy.yml
     secrets: inherit
     with:
-      ref: ${{ github.ref  }}
+      ref: ${{ github.ref }}

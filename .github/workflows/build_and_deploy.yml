@@ -6,10 +6,6 @@ on:
       ref:
         required: true
         type: string
-      noop:
-        default: "false"
-        required: false
-        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,25 +21,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-        working-directory: frontend
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
-            ${{ runner.os }}-node-
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - name: Install Dependencies
         working-directory: frontend
-        run: npm ci --include=dev --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
@@ -51,7 +39,7 @@ jobs:
           path: frontend
       - name: Generate elm-constants
         working-directory: frontend
-        run: npm run generate:elm-constants
+        run: pnpm generate:elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
@@ -75,7 +63,7 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           MONITOR_ENABLE: ${{ secrets.MONITOR_ENABLE }}
-        run: npm run prod
+        run: pnpm prod
       - name: Archive Production Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -96,7 +84,6 @@ jobs:
           name: dist
           path: frontend/dist
       - uses: FirebaseExtended/action-hosting-deploy@v0
-        if: ${{ inputs.noop != 'true' }}
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEXTUSM }}"
@@ -109,17 +96,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        if: ${{ inputs.noop != 'true' }}
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
-      - uses: actions/setup-node@v4
-        if: ${{ inputs.noop != 'true' }}
-        with:
-          node-version-file: ".tool-versions"
       - name: Deploy backend to render.com
-        if: ${{ inputs.noop != 'true' }}
         run: curl --silent --show-error --fail $RENDER_DEPLOY_HOOK_URL > /dev/null
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}

@@ -1,42 +1,42 @@
-import type { DiagramSettings, Settings } from './model';
+import type { DiagramSettings, Settings } from "./model";
 
-const settingsKey = 'textusm:settings';
+const settingsKey = "textusm:settings";
 
 const getSettingsKey = (diagram: string) => `${settingsKey}:${diagram}`;
 
 const getDefaultSettings: (isDarkMode: boolean) => Settings = (isDarkMode: boolean) => ({
-  font: 'Nunito Sans',
+  font: "Nunito Sans",
   diagramSettings: {
-    font: 'Nunito Sans',
+    font: "Nunito Sans",
     size: {
       width: 140,
       height: 65,
     },
     color: {
       activity: {
-        color: '#FFFFFF',
-        backgroundColor: '#266B9A',
+        color: "#FFFFFF",
+        backgroundColor: "#266B9A",
       },
       task: {
-        color: '#FFFFFF',
-        backgroundColor: '#3E9BCD',
+        color: "#FFFFFF",
+        backgroundColor: "#3E9BCD",
       },
       story: {
-        color: '#333333',
-        backgroundColor: '#FFFFFF',
+        color: "#333333",
+        backgroundColor: "#FFFFFF",
       },
-      line: '#434343',
-      label: '#8C9FAE',
-      text: '#111111',
+      line: "#434343",
+      label: "#8C9FAE",
+      text: "#111111",
     },
-    backgroundColor: isDarkMode ? '#323d46' : '#F4F4F5',
+    backgroundColor: isDarkMode ? "#323d46" : "#F4F4F5",
     zoomControl: true,
     scale: 1,
     toolbar: true,
     lockEditing: false,
   },
   position: -10,
-  text: '',
+  text: "",
   title: undefined,
   editor: {
     fontSize: 12,
@@ -47,7 +47,7 @@ const getDefaultSettings: (isDarkMode: boolean) => Settings = (isDarkMode: boole
   diagram: undefined,
   location: undefined,
   theme: undefined,
-  splitDirection: 'horizontal',
+  splitDirection: "horizontal",
 });
 
 export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings => {
@@ -102,6 +102,9 @@ export const saveSettings = (settings: Settings): void => {
   localStorage.setItem(settingsKey, JSON.stringify(settings));
 
   if (settings.diagram?.diagram) {
-    localStorage.setItem(getSettingsKey(settings.diagram?.diagram), JSON.stringify(settings.diagramSettings));
+    localStorage.setItem(
+      getSettingsKey(settings.diagram?.diagram),
+      JSON.stringify(settings.diagramSettings),
+    );
   }
 };

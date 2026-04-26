@@ -4,72 +4,74 @@
 [![Version](https://img.shields.io/npm/v/textusm.cli.svg)](https://www.npmjs.com/package/textusm.cli)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-TextUSM is a simple tool. Help you draw user story map using indented text.
+TextUSM is a web-based diagram editor that generates diagrams from indented text — without leaving the keyboard.
 
 ![image](./assets/img/textusm.gif)
 
 ## Features
 
-- Generate a Diagram from indented text
-  - User Story Map
-  - Business Model Canvas
-  - Opportunity Canvas
-  - User Persona
-  - 4Ls Retrospective
-  - Start, Stop, Continue Retrospective
-  - KPT Retrospective
-  - Mind Map
-  - Empathy Map
-  - Table
-  - Site Map
-  - Gantt Chart
-  - Impact Map
-  - ER Diagram
-  - Kanban
-  - Sequence Diagram
-  - Freeform
-  - Keyboard Layout
-- Export a Diagram
-  - SVG
-  - PNG
-  - TXT
-  - PDF
-  - DDL(only ER Diagram)
-  - Markdown(only Table)
+Generate diagrams from indented text:
+
+| Diagram | Export formats |
+|---------|---------------|
+| User Story Map | SVG, PNG, PDF |
+| Business Model Canvas | SVG, PNG, PDF |
+| Opportunity Canvas | SVG, PNG, PDF |
+| User Persona | SVG, PNG, PDF |
+| Mind Map | SVG, PNG, PDF |
+| Empathy Map | SVG, PNG, PDF |
+| Site Map | SVG, PNG, PDF |
+| Gantt Chart | SVG, PNG, PDF |
+| Impact Map | SVG, PNG, PDF |
+| ER Diagram | SVG, PNG, PDF, DDL |
+| Kanban | SVG, PNG, PDF |
+| Sequence Diagram | SVG, PNG, PDF |
+| Table | SVG, PNG, PDF, Markdown |
+| 4Ls / KPT / Start-Stop-Continue Retrospective | SVG, PNG, PDF |
+| Freeform | SVG, PNG, PDF |
+| Keyboard Layout | SVG, PNG, PDF |
 
 ## Installation
 
-- [Web](https://textusm.com)
-- [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
-- [cli](https://www.npmjs.com/package/textusm.cli)
-- [npm](https://www.npmjs.com/package/textusm)
+| Platform | Link |
+|----------|------|
+| Web | [textusm.com](https://textusm.com) |
+| VSCode Extension | [Marketplace](https://marketplace.visualstudio.com/items?itemName=harehare.textusm) |
+| CLI | `npm install -g textusm.cli` |
+| npm package | [textusm](https://www.npmjs.com/package/textusm) |
 
-## Usage
+## Tech Stack
+
+- **Frontend**: Elm 0.19.1 + TypeScript, Vite, Firebase, PWA
+- **Backend**: Go 1.25, GraphQL (gqlgen), PostgreSQL / SQLite
+- **Tools**: Node.js 22, pnpm, just
+
+## Getting Started
 
 ```shell
-# Set environment variables
+# Copy environment variables
 cp .env.example .env
-# Use direnv
-echo 'dotenv' > .envrc
 
 # Install dependencies
-cd frontend && npm install
+cd frontend && pnpm install
 
-# Build, serve & watch
+# Start dev server (frontend + backend + Firebase emulators)
 just run
 ```
 
-Open http://localhost:3000 and start modifying the code in /src.
+Open http://localhost:3000.
 
-## Run tests
+## Run Tests
 
+```shell
+just test
 ```
-$ just test
-```
 
-<hr />
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for full development setup and contribution guidelines.
 
-## Example
+---
+
+## Examples
 
 ### User Story Map
 
@@ -77,7 +79,7 @@ $ just test
 TextUSM
     Online tool for making user story mapping
         Press Tab to indent lines
-        Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.
+        Press Shift + Tab to unindent lines
 ```
 
 ![image](./assets/img/usm.png)
@@ -364,7 +366,7 @@ Par
             Sync Message
 ```
 
-![image](./assets//img/sed.png)
+![image](./assets/img/sed.png)
 
 ### Keyboard Layout
 
@@ -440,6 +442,6 @@ r1
 
 ![image](./assets/img/kbd60.png)
 
-## 📝 License
+## License
 
 [MIT](http://opensource.org/licenses/MIT)

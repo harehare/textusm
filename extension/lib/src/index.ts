@@ -123,7 +123,10 @@ function render(
   options = options ?? {};
   config = config ?? {};
   config.color = { ...defaultConfig.color, ...config.color };
-  config.size = { ...defaultConfig.size, ...config.size };
+  config.size = {
+    width: config.size?.width ?? defaultConfig.size!.width,
+    height: config.size?.height ?? defaultConfig.size!.height,
+  };
 
   Elm.Extension.Lib.init({
     node: elm,

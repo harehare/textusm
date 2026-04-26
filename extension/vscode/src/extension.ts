@@ -50,17 +50,15 @@ const showQuickPick = (
   context: vscode.ExtensionContext,
   callback: () => void
 ) => {
-  const options = diagrams;
   const quickPick = vscode.window.createQuickPick();
-  quickPick.items = options.map((item) => ({ label: item.label }));
+  quickPick.items = diagrams.map((item) => ({ label: item.label }));
   quickPick.onDidChangeSelection((selection) => {
     if (selection.length > 0) {
       const label = selection[0].label;
-      const values = options.filter((item) => item.label === label);
-      const diagramType = values[0].value as DiagramType;
+      const found = diagrams.find((item) => item.label === label);
 
-      if (values.length > 0) {
-        DiagramPanel.createOrShow(context, diagramType);
+      if (found) {
+        DiagramPanel.createOrShow(context, found.value);
         callback();
         quickPick.hide();
       }
@@ -148,17 +146,16 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("textusm.newDiagram", () => {
-      const options = diagrams;
       const quickPick = vscode.window.createQuickPick();
-      quickPick.items = options.map((item) => ({ label: item.label }));
+      quickPick.items = diagrams.map((item) => ({ label: item.label }));
       quickPick.onDidChangeSelection((selection) => {
         if (selection.length > 0) {
           const label = selection[0].label;
-          const values = options.filter((item) => item.label === label);
+          const found = diagrams.find((item) => item.label === label);
           const editor = vscode.window.activeTextEditor;
 
-          if (editor && values.length > 0) {
-            const diagramType = values[0].value as DiagramType;
+          if (editor && found) {
+            const diagramType = found.value;
             switch (diagramType) {
               case "usm":
                 newTextOpen(
@@ -210,6 +207,7 @@ export function activate(context: vscode.ExtensionContext) {
                   "2019-12-26 2020-01-31\n    title1\n        subtitle1\n            2019-12-26 2019-12-31\n    title2\n        subtitle2\n            2019-12-31 2020-01-04\n",
                   diagramType
                 );
+                break;
               case "imm":
                 newTextOpen("", diagramType);
                 break;
@@ -281,11 +279,14 @@ class DiagramPanel {
     if (editor) {
       editor.options.tabSize = 4;
       editor.options.insertSpaces = true;
-      editor;
     }
 
-    // @ts-expect-error
-    const onReceiveMessage = async (message) => {
+    type WebviewMessage =
+      | { command: "setText"; text: string }
+      | { command: "exportPng"; text: string }
+      | { command: "exportSvg"; text: string; width: number; height: number };
+
+    const onReceiveMessage = async (message: WebviewMessage) => {
       if (message.command === "setText") {
         if (editor) {
           await setText(editor, message.text);

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]' && contains(github.event.commits.*.message, '[skip ci]') == false
     outputs:
-      frontend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
       - uses: actions/checkout@v4
@@ -38,9 +38,14 @@ jobs:
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - uses: extractions/setup-just@v2
       - uses: actions/setup-go@v5
         with:
@@ -48,22 +53,9 @@ jobs:
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-        working-directory: frontend
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
-            ${{ runner.os }}-node-
       - name: Install Dependencies
         working-directory: frontend
-        run: npm ci --include=dev --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
@@ -71,7 +63,7 @@ jobs:
           path: frontend
       - name: Generate elm-constants
         working-directory: frontend
-        run: npm run generate:elm-constants
+        run: pnpm generate:elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
@@ -79,10 +71,10 @@ jobs:
           REPO_BUTTON_URL: ${{ secrets.REPO_BUTTON_URL }}
       - name: Check format
         working-directory: frontend
-        run: npm run format:validate
+        run: pnpm format:validate
       - name: Run Tests
         working-directory: frontend
-        run: npm run test
+        run: pnpm test
       - name: Migrate database
         run: |
           go install github.com/amacneil/dbmate@latest
@@ -92,10 +84,10 @@ jobs:
           DB_TYPE: sqlite
           DATABASE_URL: sqlite3:textusm.db
       - name: Setup E2E
-        run: npm run test:e2e:init
+        run: pnpm test:e2e:init
         working-directory: frontend
       - name: Run E2E Tests
-        run: npm run test:e2e
+        run: pnpm test:e2e
         working-directory: frontend
         env:
           API_ROOT: http://localhost:8081
@@ -140,7 +132,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           working-directory: backend
-          args: --issues-exit-code=0 --timeout=2m
+          args: --timeout=2m
       - name: Run tests
         run: just test
         working-directory: backend

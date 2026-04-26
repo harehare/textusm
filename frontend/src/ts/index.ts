@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-unassigned-import
-import '@total-typescript/ts-reset';
-import copy from 'clipboard-copy';
-import { Workbox } from 'workbox-window';
+import "@total-typescript/ts-reset";
+import copy from "clipboard-copy";
+import { Workbox } from "workbox-window";
 // @ts-expect-error: Unreachable code error
-import { Elm } from '../elm/Main.elm';
-import '../styles.css';
+import { Elm } from "../elm/Main.elm";
+import "../styles.css";
 import {
   signOut,
   signIn,
@@ -13,16 +13,16 @@ import {
   refreshToken,
   pollRefreshToken,
   signInGithubWithGist,
-} from './auth';
-import { initDatabase } from './db';
-import { initDownload } from './download';
-import { setElmApp } from './editor';
-import { loadEditor } from './editor/lang';
-import type { ElmApp, Provider } from './elm';
-import { initFile, canUseNativeFileSystem } from './file';
-import type { Settings } from './model';
-import { loadSettings, saveSettings } from './settings';
-import { isDarkMode } from './utils';
+} from "./auth";
+import { initDatabase } from "./db";
+import { initDownload } from "./download";
+import { setElmApp } from "./editor";
+import { loadEditor } from "./editor/lang";
+import type { ElmApp, Provider } from "./elm";
+import { initFile, canUseNativeFileSystem } from "./file";
+import type { Settings } from "./model";
+import { loadSettings, saveSettings } from "./settings";
+import { isDarkMode } from "./utils";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -48,7 +48,11 @@ declare global {
   }
 }
 
-const lang = navigator.languages[0] ?? navigator.language ?? navigator.userLanguage ?? navigator.browserLanguage;
+const lang =
+  navigator.languages[0] ??
+  navigator.language ??
+  navigator.userLanguage ??
+  navigator.browserLanguage;
 
 type Flags = {
   lang: string | string[];
@@ -76,7 +80,7 @@ const app = (Elm as ElmType).Main.init({
     settings,
     isOnline: window.navigator.onLine ?? true,
     isDarkMode,
-    canUseClipboardItem: 'ClipboardItem' in window,
+    canUseClipboardItem: "ClipboardItem" in window,
     canUseNativeFileSystem,
   },
 });
@@ -106,7 +110,7 @@ authStateChanged(
         },
       });
     }
-  }
+  },
 );
 
 app.ports.loadSettingsFromLocal.subscribe((diagramType: string) => {
@@ -119,16 +123,16 @@ app.ports.saveSettingsToLocal.subscribe((settings: Settings) => {
 
 app.ports.signIn.subscribe(async (provider: Provider) => {
   switch (provider) {
-    case 'Google': {
+    case "Google": {
       await signIn(providers.google).catch(() => {
-        app.ports.sendErrorNotification.send('Failed sign in.');
+        app.ports.sendErrorNotification.send("Failed sign in.");
       });
       break;
     }
 
-    case 'Github': {
+    case "Github": {
       await signIn(providers.github).catch(() => {
-        app.ports.sendErrorNotification.send('Failed sign in.');
+        app.ports.sendErrorNotification.send("Failed sign in.");
       });
     }
   }
@@ -136,7 +140,7 @@ app.ports.signIn.subscribe(async (provider: Provider) => {
 
 app.ports.signOut.subscribe(async () => {
   await signOut().catch(() => {
-    app.ports.sendErrorNotification.send('Failed sign out.');
+    app.ports.sendErrorNotification.send("Failed sign out.");
   });
   app.ports.onAuthStateChanged.send(undefined);
 });
@@ -155,7 +159,7 @@ app.ports.selectTextById.subscribe(async (id: string) => {
     inputElement.select();
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(inputElement.value).catch(() => {
-        app.ports.sendErrorNotification.send('Failed copy text to clipboard.');
+        app.ports.sendErrorNotification.send("Failed copy text to clipboard.");
       });
     }
   }
@@ -192,7 +196,7 @@ app.ports.copyText.subscribe(async (text: string) => {
 
 app.ports.getGithubAccessToken.subscribe(async (cmd) => {
   const result = await signInGithubWithGist().catch(() => {
-    app.ports.sendErrorNotification.send('Failed sign in.');
+    app.ports.sendErrorNotification.send("Failed sign in.");
     return { accessToken: undefined };
   });
   app.ports.gotGithubAccessToken.send({
@@ -208,23 +212,23 @@ for (const l of [initDownload, initDatabase, initFile]) {
 window.requestIdleCallback(async () => {
   pollRefreshToken(app.ports.updateIdToken.send);
 
-  document.addEventListener('fullscreenchange', () => {
+  document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement) {
       app.ports.fullscreen.send(false);
     }
   });
 
-  window.addEventListener('offline', () => {
+  window.addEventListener("offline", () => {
     app.ports.changeNetworkState.send(false);
   });
 
-  window.addEventListener('online', () => {
+  window.addEventListener("online", () => {
     app.ports.changeNetworkState.send(true);
   });
 
   const loadSentry = async () => {
-    if (process.env.SENTRY_ENABLE === '1' && process.env.SENTRY_DSN && process.env.SENTRY_RELEASE) {
-      const sentry = await import('@sentry/browser');
+    if (process.env.SENTRY_ENABLE === "1" && process.env.SENTRY_DSN && process.env.SENTRY_RELEASE) {
+      const sentry = await import("@sentry/browser");
       sentry.init({
         dsn: process.env.SENTRY_DSN,
         release: process.env.SENTRY_RELEASE,
@@ -232,14 +236,14 @@ window.requestIdleCallback(async () => {
     }
   };
 
-  if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    const wb = new Workbox('/sw.js');
+  if ("serviceWorker" in navigator && import.meta.env.PROD) {
+    const wb = new Workbox("/sw.js");
     await wb.register().catch(() => {
       // ignore error
     });
-    wb.addEventListener('installed', (event) => {
+    wb.addEventListener("installed", (event) => {
       if (event.isUpdate) {
-        app.ports.notifyNewVersionAvailable.send('New version is available!');
+        app.ports.notifyNewVersionAvailable.send("New version is available!");
       }
     });
   }
