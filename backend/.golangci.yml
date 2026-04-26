@@ -9,7 +9,6 @@ linters:
     - staticcheck
     - unused
     - gosec
-    - gofmt
     - gocritic
     - misspell
     - noctx
@@ -23,11 +22,13 @@ linters:
       enabled-tags:
         - diagnostic
         - performance
-
-issues:
   exclusions:
     rules:
       - path: _test\.go
         linters:
           - gosec
           - errcheck
+
+formatters:
+  enable:
+    - gofmt
