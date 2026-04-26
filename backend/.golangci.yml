@@ -15,19 +15,19 @@ linters:
     - noctx
     - exhaustive
     - bodyclose
-
-linters-settings:
-  gosec:
-    excludes:
-      - G104
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - performance
+  settings:
+    gosec:
+      excludes:
+        - G104
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
 
 issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gosec
-        - errcheck
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - errcheck
