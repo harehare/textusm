@@ -16,7 +16,7 @@
     "jspdf": "^3.0.1",
     "monaco-editor": "^0.52.2",
     "svgo": "^4.0.0",
-    "uuid": "^11.1.0",
+    "uuid": "^14.0.0",
     "workbox-window": "^7.1.0"
   },
   "devDependencies": {
