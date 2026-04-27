@@ -64,8 +64,8 @@ func NewConfig(env *Env) (*Config, error) {
 		firebaseConfig := &firebase.Config{
 			StorageBucket: env.StorageBucketName,
 		}
-		opt := option.WithCredentialsJSON(cred)
-		dbOpt := option.WithCredentialsJSON(dbCred)
+		opt := option.WithCredentialsJSON(cred)     //nolint:staticcheck
+		dbOpt := option.WithCredentialsJSON(dbCred) //nolint:staticcheck
 		_app, err := firebase.NewApp(ctx, nil, opt)
 
 		if err != nil {

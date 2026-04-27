@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/harehare/textusm/internal/domain/service/diagramitem"
@@ -17,8 +18,11 @@ type Api struct {
 }
 
 func New(service *diagramitem.Service, gistService *gistitem.Service, settingsService *settings.Service) *Api {
-	api := Api{gistService: gistService, settingsService: settingsService}
-	return &api
+	return &Api{
+		service:         service,
+		gistService:     gistService,
+		settingsService: settingsService,
+	}
 }
 
 type AccessToken struct {
@@ -28,22 +32,20 @@ type AccessToken struct {
 func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		slog.Error("failed to read request body", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytes := []byte(body)
 	var accessToken AccessToken
-	err = json.Unmarshal(bytes, &accessToken)
-
-	if err != nil {
+	if err := json.Unmarshal(body, &accessToken); err != nil {
+		slog.Warn("failed to unmarshal access token", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = a.service.RevokeGistToken(r.Context(), accessToken.AccessToken)
-
-	if err != nil {
+	if err := a.service.RevokeGistToken(r.Context(), accessToken.AccessToken); err != nil {
+		slog.Error("failed to revoke gist token", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

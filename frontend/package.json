@@ -53,7 +53,8 @@
     "vite-plugin-elm": "^3.0.1",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-pwa": "^1.0.0",
-    "xo": "^1.1.1"
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0"
   },
   "homepage": "https://github.com/harehare/textusm",
   "license": "MIT",
@@ -66,29 +67,29 @@
     "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/public/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
     "build:lib": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
     "build:vscode": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
-    "dev": "concurrently \"npm:dev:*\"",
+    "dev": "concurrently \"pnpm:dev:*\"",
     "dev:emulators": "cd .. && mkdir -p data && firebase emulators:start --only firestore,auth,storage --import=data",
-    "dev:frontend": "npm run generate:elm-constants && vite",
+    "dev:frontend": "pnpm generate:elm-constants && vite",
     "dev:backend": "cd ../backend/ && just watch",
-    "embed:build": "npm run prod && cp -r dist ../backend/internal/app",
-    "format:ts": "prettier --write src/**/*.ts",
+    "embed:build": "pnpm prod && cp -r dist ../backend/internal/app",
+    "format:ts": "oxfmt src/ts",
     "format:elm": "elm-format src/**/*.elm",
-    "format:validate": "concurrently \"npm:format:validate:*\"",
-    "format:validate:ts": "prettier --check src/**/*.ts",
+    "format:validate": "concurrently \"pnpm:format:validate:*\"",
+    "format:validate:ts": "oxfmt --check src/ts",
     "format:validate:elm": "elm-format --validate src/elm/**/*.elm",
     "generate:elm-constants": "elm-constants --no-dotenv",
     "generate:elm-types": "elm-graphql http://localhost:8081/graphql --base Graphql --output src/Graphql",
-    "lint": "concurrently \"npm:lint:*\"",
-    "lint:ts": "xo --prettier src/ts/*.ts",
+    "lint": "concurrently \"pnpm:lint:*\"",
+    "lint:ts": "oxlint src/ts",
     "lint:elm": "elm-review",
     "lint:elm:suppress": "elm-review suppress",
-    "lint-fix": "concurrently \"npm:lint-fix:*\"",
-    "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
+    "lint-fix": "concurrently \"pnpm:lint-fix:*\"",
+    "lint-fix:ts": "oxlint --fix src/ts",
     "lint-fix:elm": "elm-review --fix",
     "prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "postprod": "rimraf -rf dist/*.map",
     "preview": "concurrently \"vite preview\" \"cd ../backend/ && just run\"",
-    "prepreview": "npm run prod",
+    "prepreview": "pnpm prod",
     "setup:emulators": "cd .. && firebase init emulators",
     "test": "elm-test",
     "test:e2e:init": "playwright install --with-deps",
@@ -97,72 +98,19 @@
   "browserslist": [
     "defaults"
   ],
-  "packageManager": "npm@10.2.5",
-  "xo": {
-    "semi": false,
-    "semicolon": true,
-    "prettier": true,
-    "space": 2,
-    "useTabs": false,
-    "bracketSpacing": true,
-    "ignores": [
-      "vite.config.ts",
-      "e2e/**"
-    ],
-    "rules": {
-      "import/extensions": "off",
-      "n/prefer-global/process": "off",
-      "unicorn/prevent-abbreviations": [
-        "error",
-        {
-          "extendDefaultReplacements": false,
-          "replacements": {
-            "e": {
-              "event": false
-            }
-          }
-        }
-      ],
-      "@typescript-eslint/naming-convention": [
-        "error",
-        {
-          "selector": "objectLiteralProperty",
-          "format": []
-        },
-        {
-          "selector": "default",
-          "format": [
-            "camelCase"
-          ],
-          "leadingUnderscore": "allow",
-          "trailingUnderscore": "allow"
-        },
-        {
-          "selector": "import",
-          "format": [
-            "camelCase",
-            "PascalCase"
-          ]
-        },
-        {
-          "selector": "variable",
-          "format": [
-            "camelCase",
-            "UPPER_CASE"
-          ],
-          "leadingUnderscore": "allow",
-          "trailingUnderscore": "allow"
-        },
-        {
-          "selector": "typeLike",
-          "format": [
-            "PascalCase"
-          ]
-        }
-      ],
-      "n/file-extension-in-import": "off",
-      "default-case": "off"
-    }
+  "packageManager": "pnpm@10.33.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "@sentry/cli",
+      "core-js",
+      "elm",
+      "elm-format",
+      "esbuild",
+      "protobufjs",
+      "re2",
+      "unrs-resolver"
+    ]
   },
   "size-limit": [
     {

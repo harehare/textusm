@@ -1,8 +1,8 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import { registerLang } from './editor/lang';
-import type { ElmApp } from './elm';
-import type { DiagramType } from './model';
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import { registerLang } from "./editor/lang";
+import type { ElmApp } from "./elm";
+import type { DiagramType } from "./model";
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | undefined;
 let updateTextInterval: number | undefined;
@@ -26,19 +26,19 @@ const insertText = (text: string) => {
   }
 
   const position = monacoEditor.getPosition();
-  const lines = monacoEditor.getValue().split('\n');
+  const lines = monacoEditor.getValue().split("\n");
   if (!position) {
     return;
   }
 
   if (lines[position.lineNumber - 1]) {
-    const t = lines[position.lineNumber - 1] ?? '';
-    lines.splice(position.lineNumber - 1, 0, `${' '.repeat(t.length - t.trim().length)}` + text);
+    const t = lines[position.lineNumber - 1] ?? "";
+    lines.splice(position.lineNumber - 1, 0, `${" ".repeat(t.length - t.trim().length)}` + text);
   } else {
     lines.splice(position.lineNumber - 1, 0, text);
   }
 
-  monacoEditor.setValue(lines.join('\n'));
+  monacoEditor.setValue(lines.join("\n"));
   monacoEditor.setPosition(new monaco.Position(position.lineNumber + 1, position.column));
 };
 
@@ -71,20 +71,20 @@ class MonacoEditor extends HTMLElement {
   }
 
   static get observedAttributes(): string[] {
-    return ['value', 'fontSize', 'wordWrap', 'showLineNumber', 'changed', 'diagramType'];
+    return ["value", "fontSize", "wordWrap", "showLineNumber", "changed", "diagramType"];
   }
 
   attributeChangedCallback(
-    name: 'value' | 'fontSize' | 'wordWrap' | 'showLineNumber' | 'changed' | 'diagramType',
+    name: "value" | "fontSize" | "wordWrap" | "showLineNumber" | "changed" | "diagramType",
     oldValue: string | boolean | number,
-    newValue: string | boolean | number
+    newValue: string | boolean | number,
   ): void {
     if (!this.init) {
       return;
     }
 
     switch (name) {
-      case 'value': {
+      case "value": {
         if (newValue !== this.editor?.getValue()) {
           const position: monaco.IPosition | undefined = this.editor?.getPosition() ?? undefined;
           this.value = newValue as string;
@@ -96,7 +96,7 @@ class MonacoEditor extends HTMLElement {
         break;
       }
 
-      case 'fontSize': {
+      case "fontSize": {
         if (oldValue !== newValue) {
           this.fontSize = newValue as number;
         }
@@ -104,31 +104,31 @@ class MonacoEditor extends HTMLElement {
         break;
       }
 
-      case 'wordWrap': {
+      case "wordWrap": {
         if (oldValue !== newValue) {
-          this.wordWrap = newValue === 'true';
+          this.wordWrap = newValue === "true";
         }
 
         break;
       }
 
-      case 'showLineNumber': {
+      case "showLineNumber": {
         if (oldValue !== newValue) {
-          this.showLineNumber = newValue === 'true';
+          this.showLineNumber = newValue === "true";
         }
 
         break;
       }
 
-      case 'changed': {
+      case "changed": {
         if (oldValue !== newValue) {
-          this.changed = newValue === 'true';
+          this.changed = newValue === "true";
         }
 
         break;
       }
 
-      case 'diagramType': {
+      case "diagramType": {
         if (oldValue !== newValue) {
           this.diagramType = newValue as DiagramType;
         }
@@ -139,7 +139,7 @@ class MonacoEditor extends HTMLElement {
   }
 
   get value() {
-    return this.editor?.getValue() ?? '';
+    return this.editor?.getValue() ?? "";
   }
 
   set value(value: string) {
@@ -155,19 +155,19 @@ class MonacoEditor extends HTMLElement {
   }
 
   get wordWrap() {
-    return this.editor?.getRawOptions().wordWrap === 'on';
+    return this.editor?.getRawOptions().wordWrap === "on";
   }
 
   set wordWrap(value: boolean) {
-    this.editor?.updateOptions({ wordWrap: value ? 'on' : 'off' });
+    this.editor?.updateOptions({ wordWrap: value ? "on" : "off" });
   }
 
   get showLineNumber() {
-    return this.editor?.getRawOptions().lineNumbers === 'on';
+    return this.editor?.getRawOptions().lineNumbers === "on";
   }
 
   set showLineNumber(value: boolean) {
-    this.editor?.updateOptions({ lineNumbers: value ? 'on' : 'off' });
+    this.editor?.updateOptions({ lineNumbers: value ? "on" : "off" });
   }
 
   get changed() {
@@ -176,10 +176,10 @@ class MonacoEditor extends HTMLElement {
 
   set changed(value: boolean) {
     this.textChanged = value;
-    window.removeEventListener('beforeunload', this.beforeUnload);
+    window.removeEventListener("beforeunload", this.beforeUnload);
 
     if (this.textChanged) {
-      window.addEventListener('beforeunload', this.beforeUnload);
+      window.addEventListener("beforeunload", this.beforeUnload);
     }
   }
 
@@ -195,17 +195,17 @@ class MonacoEditor extends HTMLElement {
   }
 
   async connectedCallback(): Promise<void> {
-    const editorElement = document.querySelector('#editor');
+    const editorElement = document.querySelector("#editor");
 
     if (!editorElement) {
       return;
     }
 
     this.editor = monaco.editor.create(editorElement as HTMLElement, {
-      language: 'UserStoryMap',
-      theme: 'default',
-      lineNumbers: this.getAttribute('showLineNumber') === 'true' ? 'on' : 'off',
-      wordWrap: this.getAttribute('wordWrap') === 'true' ? 'on' : 'off',
+      language: "UserStoryMap",
+      theme: "default",
+      lineNumbers: this.getAttribute("showLineNumber") === "true" ? "on" : "off",
+      wordWrap: this.getAttribute("wordWrap") === "true" ? "on" : "off",
       minimap: {
         enabled: false,
       },
@@ -216,48 +216,48 @@ class MonacoEditor extends HTMLElement {
         verticalScrollbarSize: 6,
         horizontalScrollbarSize: 6,
       },
-      renderLineHighlight: 'none',
+      renderLineHighlight: "none",
       insertSpaces: true,
       tabSize: 4,
-      wordBasedSuggestions: 'off',
+      wordBasedSuggestions: "off",
     });
 
     this.editor.addAction({
-      id: 'open',
-      label: 'open',
+      id: "open",
+      label: "open",
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
       contextMenuOrder: 1,
       run() {
-        _app?.ports.hotkey.send('open');
+        _app?.ports.hotkey.send("open");
       },
     });
 
     this.editor.addAction({
-      id: 'save',
-      label: 'save',
+      id: "save",
+      label: "save",
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       contextMenuOrder: 2,
       run() {
-        _app?.ports.hotkey.send('save');
+        _app?.ports.hotkey.send("save");
       },
     });
 
     this.editor.addAction({
-      id: 'find',
-      label: 'find',
+      id: "find",
+      label: "find",
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF],
       contextMenuOrder: 3,
       run() {
-        _app?.ports.hotkey.send('find');
+        _app?.ports.hotkey.send("find");
       },
     });
 
     this.editor.addAction({
-      id: 'focus',
-      label: 'focus',
+      id: "focus",
+      label: "focus",
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
       contextMenuOrder: 4,
@@ -270,7 +270,7 @@ class MonacoEditor extends HTMLElement {
 
         _app?.ports.selectItemFromLineNo.send({
           lineNo: currentLineNo - 1,
-          text: monacoEditor?.getModel()?.getLineContent(currentLineNo) ?? '',
+          text: monacoEditor?.getModel()?.getLineContent(currentLineNo) ?? "",
         });
       },
     });
@@ -290,22 +290,22 @@ class MonacoEditor extends HTMLElement {
       }
     });
 
-    if (this.hasAttribute('value')) {
-      const value = this.getAttribute('value');
+    if (this.hasAttribute("value")) {
+      const value = this.getAttribute("value");
       if (value) {
         this.value = value;
       }
     }
 
-    if (this.hasAttribute('fontSize')) {
-      const fontSize = this.getAttribute('fontSize');
+    if (this.hasAttribute("fontSize")) {
+      const fontSize = this.getAttribute("fontSize");
       if (fontSize) {
         this.fontSize = Number.parseInt(fontSize, 10);
       }
     }
 
-    if (this.hasAttribute('diagramType')) {
-      const d = this.getAttribute('diagramType');
+    if (this.hasAttribute("diagramType")) {
+      const d = this.getAttribute("diagramType");
       if (d) {
         this.diagramType = d as DiagramType;
       }
@@ -316,4 +316,4 @@ class MonacoEditor extends HTMLElement {
   }
 }
 
-customElements.define('monaco-editor', MonacoEditor);
+customElements.define("monaco-editor", MonacoEditor);

@@ -57,7 +57,7 @@ func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookma
 	return util.ResultToTuple(r.service.Bookmark(ctx, itemID, isBookmark))
 }
 
-func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (string, error) {
+func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (string, error) { //nolint:gocritic
 	var p string
 	if input.Password == nil {
 		p = ""
@@ -92,7 +92,7 @@ func (r *mutationResolver) DeleteGist(ctx context.Context, gistID string) (strin
 	return gistID, err.Error()
 }
 
-func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settingsModel.Settings, error) {
+func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settingsModel.Settings, error) { //nolint:gocritic
 	settings := settingsModel.Settings{
 		Font:            input.Font,
 		Width:           input.Width,

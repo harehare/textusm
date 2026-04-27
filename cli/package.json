@@ -51,10 +51,14 @@
     "type": "git",
     "url": "git+https://github.com/harehare/textusm.git"
   },
+  "packageManager": "pnpm@10.33.2",
+  "pnpm": {
+    "onlyBuiltDependencies": ["bufferutil", "esbuild", "puppeteer", "utf-8-validate"]
+  },
   "scripts": {
     "build": "tsup index.ts js/textusm.js",
     "prepublish": "tsc index.ts --outDir dist",
-    "prebuild": "cd ../extension/lib && npm run build && cp dist/index.js ../../cli/js/textusm.js"
+    "prebuild": "cd ../extension/lib && pnpm build && cp dist/index.js ../../cli/js/textusm.js"
   },
   "tsup": {
     "entry": [

@@ -35,11 +35,12 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 		items []*diagramitem.DiagramItem
 		iter  *firestore.DocumentIterator
 	)
-	if isPublic {
+	switch {
+	case isPublic:
 		iter = r.firestore.Collection(publicCollection).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
-	} else if isBookmark {
+	case isBookmark:
 		iter = r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Where("IsBookmark", "==", isBookmark).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
-	} else {
+	default:
 		iter = r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
 	}
 

@@ -11,31 +11,31 @@ export type DiagramItem = {
   updatedAt: number;
 };
 
-type Theme = 'system' | 'dark' | 'light';
-type DiagramLocation = 'gist' | 'local' | 'localfilesystem' | 'remote';
+type Theme = "system" | "dark" | "light";
+type DiagramLocation = "gist" | "local" | "localfilesystem" | "remote";
 
-export type Diagram = Omit<DiagramItem, 'createdAt' | 'updatedAt' | 'thumbnail'>;
+export type Diagram = Omit<DiagramItem, "createdAt" | "updatedAt" | "thumbnail">;
 
 export type DiagramType =
-  | 'UserStoryMap'
-  | 'OpportunityCanvas'
-  | 'BusinessModelCanvas'
-  | 'Fourls'
-  | 'StartStopContinue'
-  | 'Kpt'
-  | 'UserPersona'
-  | 'MindMap'
-  | 'EmpathyMap'
-  | 'SiteMap'
-  | 'GanttChart'
-  | 'ImpactMap'
-  | 'ErDiagram'
-  | 'Kanban'
-  | 'Table'
-  | 'SequenceDiagram'
-  | 'Freeform'
-  | 'KeyboardLayout'
-  | 'UseCaseDiagram';
+  | "UserStoryMap"
+  | "OpportunityCanvas"
+  | "BusinessModelCanvas"
+  | "Fourls"
+  | "StartStopContinue"
+  | "Kpt"
+  | "UserPersona"
+  | "MindMap"
+  | "EmpathyMap"
+  | "SiteMap"
+  | "GanttChart"
+  | "ImpactMap"
+  | "ErDiagram"
+  | "Kanban"
+  | "Table"
+  | "SequenceDiagram"
+  | "Freeform"
+  | "KeyboardLayout"
+  | "UseCaseDiagram";
 
 export type ExportInfo = {
   width: number;
@@ -72,7 +72,7 @@ export type Settings = {
     wordWrap: boolean;
     showLineNumber: boolean;
   };
-  splitDirection: 'vertical' | 'horizontal';
+  splitDirection: "vertical" | "horizontal";
 };
 
 export type DiagramSettings = {

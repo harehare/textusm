@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/crates/oxc_linter/schemas/oxlint.schema.json",
+  "plugins": ["typescript"],
+  "rules": {
+    "no-unused-vars": "error",
+    "no-undef": "error",
+    "eqeqeq": "error",
+    "no-console": "warn"
+  },
+  "ignore": {
+    "patterns": ["vite.config.ts", "e2e/**"]
+  }
+}

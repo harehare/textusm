@@ -81,8 +81,8 @@ func (r *PostgresGistItemRepository) Find(ctx context.Context, userID string, of
 		IsPublic:   &isPublic,
 		IsBookmark: &isBookmark,
 		Location:   postgres.LocationGIST,
-		Limit:      int32(limit),
-		Offset:     int32(offset),
+		Limit:      int32(limit),  //nolint:gosec
+		Offset:     int32(offset), //nolint:gosec
 	})
 
 	if err != nil {
@@ -91,7 +91,8 @@ func (r *PostgresGistItemRepository) Find(ctx context.Context, userID string, of
 
 	var items []*gistitem.GistItem
 
-	for _, i := range dbItems {
+	for idx := range dbItems {
+		i := &dbItems[idx]
 		var thumbnail mo.Option[string]
 
 		if i.Thumbnail == nil {
@@ -145,7 +146,8 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 	isPublicPtr := false
 	titlePtr := &title
 
-	if errors.Is(err, sql.ErrNoRows) {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		if err := r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
 			Uid:        userID,
 			Diagram:    postgres.Diagram(item.Diagram()),
@@ -158,9 +160,9 @@ func (r *PostgresGistItemRepository) Save(ctx context.Context, userID string, it
 		}); err != nil {
 			return mo.Err[*gistitem.GistItem](err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*gistitem.GistItem](err)
-	} else {
+	default:
 		if err := r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
 			Diagram:    postgres.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,

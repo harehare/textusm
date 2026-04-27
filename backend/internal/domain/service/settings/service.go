@@ -60,7 +60,7 @@ func (s *Service) Save(ctx context.Context, diagram v.Diagram, settings *setting
 			return err
 		}
 
-		r := s.repo.Save(ctx, values.GetUID(ctx).MustGet(), diagram, *settings)
+		r := s.repo.Save(ctx, values.GetUID(ctx).MustGet(), diagram, settings)
 
 		if r.IsError() {
 			return r.Error()

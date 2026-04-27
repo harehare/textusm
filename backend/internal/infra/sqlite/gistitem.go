@@ -79,7 +79,8 @@ func (r *SqliteGistItemRepository) Find(ctx context.Context, userID string, offs
 
 	var items []*gistitem.GistItem
 
-	for _, i := range dbItems {
+	for idx := range dbItems {
+		i := &dbItems[idx]
 		var thumbnail mo.Option[string]
 
 		if i.Thumbnail.Valid {

@@ -1,27 +1,27 @@
-import { optimize } from 'svgo';
-import JsPdf from 'jspdf';
-import type { ElmApp } from './elm';
-import type { ExportInfo, ImageInfo } from './model';
+import { optimize } from "svgo";
+import JsPdf from "jspdf";
+import type { ElmApp } from "./elm";
+import type { ExportInfo, ImageInfo } from "./model";
 
 export const initDownload = (app: ElmApp): void => {
   const createSvg = async (id: string, width: number, height: number): Promise<string> => {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const element = document.querySelector(`#${id}`);
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    svg.setAttribute('width', width.toString());
-    svg.setAttribute('height', height.toString());
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("width", width.toString());
+    svg.setAttribute("height", height.toString());
 
     if (element) {
-      element.querySelector('#pattern')?.remove();
-      element.querySelector('#pattern-rect')?.remove();
-      svg.setAttribute('style', element.getAttribute('style') ?? '');
+      element.querySelector("#pattern")?.remove();
+      element.querySelector("#pattern-rect")?.remove();
+      svg.setAttribute("style", element.getAttribute("style") ?? "");
       svg.innerHTML = element.innerHTML;
     }
 
     return optimize(new XMLSerializer().serializeToString(svg), {
       plugins: [
         {
-          name: 'preset-default',
+          name: "preset-default",
           params: {
             overrides: {
               convertShapeToPath: {
@@ -32,30 +32,30 @@ export const initDownload = (app: ElmApp): void => {
           },
         },
       ],
-    }).data.replace(/ style="background-color:[^"]+"/, '');
+    }).data.replace(/ style="background-color:[^"]+"/, "");
   };
 
   const createImage = async ({ id, width, height, scale = 1, callback }: ImageInfo) => {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     const svgWidth = width;
     const svgHeight = height;
-    canvas.setAttribute('width', (svgWidth * scale).toString());
-    canvas.setAttribute('height', (svgHeight * scale).toString());
-    canvas.style.display = 'none';
+    canvas.setAttribute("width", (svgWidth * scale).toString());
+    canvas.setAttribute("height", (svgHeight * scale).toString());
+    canvas.style.display = "none";
 
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
 
     if (context) {
       context.scale(scale, scale);
       const img = new Image();
       img.addEventListener(
-        'load',
+        "load",
         () => {
           context.drawImage(img, 0, 0, width, height);
-          const url = canvas.toDataURL('image/png');
+          const url = canvas.toDataURL("image/png");
           callback(url);
         },
-        false
+        false,
       );
       img.src = `data:image/svg+xml;utf8,${encodeURIComponent(await createSvg(id, width, height))}`;
     }
@@ -64,26 +64,26 @@ export const initDownload = (app: ElmApp): void => {
   app.ports.downloadSvg.subscribe(async ({ id, width, height, x, y }: ExportInfo) => {
     app.ports.startDownload.send({
       content: await createSvg(id, width, height),
-      extension: '.svg',
-      mimeType: 'image/svg+xml',
+      extension: ".svg",
+      mimeType: "image/svg+xml",
     });
     app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
   });
 
   app.ports.downloadPdf.subscribe(async ({ id, width, height, title, x, y }: ExportInfo) => {
-    const html2canvas = await import('html2canvas').catch(() => null);
+    const html2canvas = await import("html2canvas").catch(() => null);
 
     if (!html2canvas) {
-      app.ports.sendErrorNotification.send('Failed to load chunks. Please reload.');
+      app.ports.sendErrorNotification.send("Failed to load chunks. Please reload.");
     }
 
     // @ts-expect-error: Unreachable code error
     window.html2canvas = html2canvas.default;
 
-    if (window.location.pathname === '/md') {
+    if (window.location.pathname === "/md") {
       const pdfDocument = new JsPdf({
-        orientation: 'p',
-        unit: 'px',
+        orientation: "p",
+        unit: "px",
         compress: true,
       });
       const pageWidth = pdfDocument.internal.pageSize.width;
@@ -106,7 +106,7 @@ export const initDownload = (app: ElmApp): void => {
               pdfDocument.addPage();
             }
 
-            pdfDocument.addImage(url, 'PNG', 8, printedHeight * -1, width, 0);
+            pdfDocument.addImage(url, "PNG", 8, printedHeight * -1, width, 0);
             printPage(printedHeight + pageHeight);
           };
 
@@ -115,7 +115,7 @@ export const initDownload = (app: ElmApp): void => {
           app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         },
       }).catch(() => {
-        app.ports.sendErrorNotification.send('Failed to create image.');
+        app.ports.sendErrorNotification.send("Failed to create image.");
       });
     } else {
       await createImage({
@@ -125,17 +125,24 @@ export const initDownload = (app: ElmApp): void => {
         scale: 3,
         callback(url: string) {
           const pdfDocument = new JsPdf({
-            orientation: 'l',
-            unit: 'px',
+            orientation: "l",
+            unit: "px",
             compress: true,
           });
           const pageWidth = pdfDocument.internal.pageSize.getWidth();
-          pdfDocument.addImage(url, 'PNG', 0, 0, width * (pageWidth / width), height * (pageWidth / width));
+          pdfDocument.addImage(
+            url,
+            "PNG",
+            0,
+            0,
+            width * (pageWidth / width),
+            height * (pageWidth / width),
+          );
           pdfDocument.save(title);
           app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         },
       }).catch(() => {
-        app.ports.sendErrorNotification.send('Failed to create image.');
+        app.ports.sendErrorNotification.send("Failed to create image.");
       });
     }
   });
@@ -147,10 +154,10 @@ export const initDownload = (app: ElmApp): void => {
       height,
       scale: 2,
       callback(url: string) {
-        const a = document.createElement('a');
-        a.setAttribute('download', title);
-        a.setAttribute('href', url);
-        a.style.display = 'none';
+        const a = document.createElement("a");
+        a.setAttribute("download", title);
+        a.setAttribute("href", url);
+        a.style.display = "none";
         a.click();
 
         setTimeout(() => {
@@ -160,7 +167,7 @@ export const initDownload = (app: ElmApp): void => {
         app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
       },
     }).catch(() => {
-      app.ports.sendErrorNotification.send('Failed to create image.');
+      app.ports.sendErrorNotification.send("Failed to create image.");
     });
   });
 
@@ -171,7 +178,7 @@ export const initDownload = (app: ElmApp): void => {
       height,
       scale: 2,
       async callback(url: string) {
-        const dataUrl = url.split(',')[1];
+        const dataUrl = url.split(",")[1];
         if (!dataUrl) {
           return;
         }
@@ -183,7 +190,7 @@ export const initDownload = (app: ElmApp): void => {
         }
 
         const blob = new Blob([buffer.buffer], {
-          type: 'image/png',
+          type: "image/png",
         });
         await navigator.clipboard.write([
           new ClipboardItem({
@@ -194,7 +201,7 @@ export const initDownload = (app: ElmApp): void => {
         app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
       },
     }).catch(() => {
-      app.ports.sendErrorNotification.send('Failed to create image.');
+      app.ports.sendErrorNotification.send("Failed to create image.");
     });
   });
 
@@ -205,12 +212,12 @@ export const initDownload = (app: ElmApp): void => {
       return;
     }
 
-    const element = documentElement.querySelector('#usm-area');
+    const element = documentElement.querySelector("#usm-area");
 
     if (element) {
       const elm = element.cloneNode(true) as Element;
-      const minimap = elm.querySelector('.minimap');
-      const zoomControl = elm.querySelector('#zoom-control');
+      const minimap = elm.querySelector(".minimap");
+      const zoomControl = elm.querySelector("#zoom-control");
 
       if (minimap) {
         minimap.remove();
@@ -222,8 +229,8 @@ export const initDownload = (app: ElmApp): void => {
 
       app.ports.startDownload.send({
         content: `<html>${elm.outerHTML}</html>`,
-        extension: '.html',
-        mimeType: 'text/html',
+        extension: ".html",
+        mimeType: "text/html",
       });
     }
   });
@@ -231,8 +238,8 @@ export const initDownload = (app: ElmApp): void => {
   app.ports.copyBase64.subscribe(async ({ id, width, height, x, y }: ExportInfo) => {
     const svg = `data:image/svg+xml;utf8,${encodeURIComponent(await createSvg(id, width, height))}`;
     const item = new ClipboardItem({
-      'text/plain': new Blob([svg], {
-        type: 'text/plain',
+      "text/plain": new Blob([svg], {
+        type: "text/plain",
       }),
     });
     await navigator.clipboard.write([item]);

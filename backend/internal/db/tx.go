@@ -5,6 +5,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -49,7 +50,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 	}
 	ctx = values.WithPostgresTx(ctx, &tx)
 
-	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = \"%s\";", values.GetUID(ctx).MustGet()))
+	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = %q;", values.GetUID(ctx).MustGet()))
 
 	if err != nil {
 		return err
@@ -57,14 +58,14 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 
 	if err = fn(ctx); err != nil {
 		if txErr := tx.Rollback(ctx); txErr != nil {
-			return err
+			return errors.Join(err, fmt.Errorf("rollback failed: %w", txErr))
 		}
 
 		slog.Error(err.Error())
 		return err
 	}
 
-	if err = tx.Commit(ctx); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -81,14 +82,14 @@ func (t *dbTx) Do(ctx context.Context, fn func(ctx context.Context) error) error
 
 	if err = fn(ctx); err != nil {
 		if txErr := tx.Rollback(); txErr != nil {
-			return err
+			return errors.Join(err, fmt.Errorf("rollback failed: %w", txErr))
 		}
 
 		slog.Error(err.Error())
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 	return nil

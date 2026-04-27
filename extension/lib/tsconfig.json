@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "es2019",
+    "moduleResolution": "bundler",
+    "target": "ES2020",
     "outDir": "./dist",
     "removeComments": true,
-    "strict": false,
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -12,7 +13,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
-    "lib": ["es2015", "dom"]
+    "lib": ["ES2020", "dom"]
   },
   "include": ["src/**/*", "src/model.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]

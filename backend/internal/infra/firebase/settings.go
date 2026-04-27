@@ -43,12 +43,12 @@ func (r *FirestoreSettingsRepository) Find(ctx context.Context, userID string, d
 	return mo.Ok(&s)
 }
 
-func (r *FirestoreSettingsRepository) Save(ctx context.Context, userID string, diagram values.Diagram, s settings.Settings) mo.Result[*settings.Settings] {
+func (r *FirestoreSettingsRepository) Save(ctx context.Context, userID string, diagram values.Diagram, s *settings.Settings) mo.Result[*settings.Settings] {
 	_, err := r.client.Collection(usersCollection).Doc(userID).Collection(settingsCollection).Doc(diagram.String()).Set(ctx, s)
 
 	if err != nil {
 		return mo.Err[*settings.Settings](err)
 	}
 
-	return mo.Ok(&s)
+	return mo.Ok(s)
 }
