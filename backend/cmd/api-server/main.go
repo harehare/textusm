@@ -9,10 +9,17 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		slog.Error("server error", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	server, cleanup, err := backend.Server()
 
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
 
 	defer cleanup()
@@ -27,9 +34,8 @@ func main() {
 	}
 
 	if err != nil && err != http.ErrServerClosed {
-		slog.Error(err.Error())
-		os.Exit(1)
-	} else {
-		os.Exit(0)
+		return err
 	}
+
+	return nil
 }

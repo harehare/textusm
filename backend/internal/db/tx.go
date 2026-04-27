@@ -50,7 +50,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 	}
 	ctx = values.WithPostgresTx(ctx, &tx)
 
-	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = \"%s\";", values.GetUID(ctx).MustGet()))
+	_, err = tx.Exec(ctx, fmt.Sprintf("SET LOCAL app.uid = %q;", values.GetUID(ctx).MustGet()))
 
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (t *postgresTx) Do(ctx context.Context, fn func(ctx context.Context) error)
 		return err
 	}
 
-	if err = tx.Commit(ctx); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -89,7 +89,7 @@ func (t *dbTx) Do(ctx context.Context, fn func(ctx context.Context) error) error
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 	return nil

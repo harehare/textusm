@@ -80,7 +80,8 @@ func (r *SqliteItemRepository) Find(ctx context.Context, userID string, offset, 
 
 	var items []*diagramitem.DiagramItem
 
-	for _, i := range dbItems {
+	for idx := range dbItems {
+		i := &dbItems[idx]
 		var thumbnail mo.Option[string]
 
 		if i.Thumbnail.Valid {

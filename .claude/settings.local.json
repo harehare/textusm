@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm search *)",
+      "Bash(npm show *)",
+      "Bash(curl -s https://registry.npmjs.org/oxfmt/latest)",
+      "Bash(pnpm --version)",
+      "Bash(npm install *)",
+      "Bash(asdf install *)",
+      "Bash(asdf shell *)",
+      "Bash(pnpm import *)",
+      "Bash(COREPACK_ENABLE_STRICT=0 pnpm import)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm *)",
+      "Bash(go build *)",
+      "Bash(npx tsc *)",
+      "Bash(golangci-lint config *)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh)",
+      "Bash(sh -s -- -b /tmp/golangci-lint-test v2.11.4)",
+      "Bash(/tmp/golangci-lint-test/golangci-lint config *)",
+      "Bash(/tmp/golangci-lint-test/golangci-lint --help)",
+      "Bash(/tmp/golangci-lint-test/golangci-lint run *)",
+      "Bash(/tmp/golangci-lint-test/golangci-lint migrate *)",
+      "Bash(cat)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

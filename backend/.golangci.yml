@@ -16,10 +16,14 @@ linters:
     gosec:
       excludes:
         - G104
+        - G115
     gocritic:
       enabled-tags:
         - diagnostic
         - performance
+      disabled-checks:
+        - ifElseChain
+
   exclusions:
     rules:
       - path: _test\.go

@@ -63,7 +63,7 @@ func (r *SqliteSettingsRepository) Find(ctx context.Context, userID string, diag
 	return mo.Ok(&ss)
 }
 
-func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diagram values.Diagram, s settings.Settings) mo.Result[*settings.Settings] {
+func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diagram values.Diagram, s *settings.Settings) mo.Result[*settings.Settings] {
 	backgroundColor := s.BackgroundColor
 	width := int32(s.Width)
 	height := int32(s.Height)
@@ -125,5 +125,5 @@ func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diag
 		return mo.Err[*settings.Settings](err)
 	}
 
-	return mo.Ok(&s)
+	return mo.Ok(s)
 }

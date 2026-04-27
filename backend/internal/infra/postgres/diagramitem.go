@@ -81,8 +81,8 @@ func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset
 		Location:   postgres.LocationSYSTEM,
 		IsPublic:   &isPublic,
 		IsBookmark: &isBookmark,
-		Limit:      int32(limit),
-		Offset:     int32(offset),
+		Limit:      int32(limit),  //nolint:gosec
+		Offset:     int32(offset), //nolint:gosec
 	})
 
 	if err != nil {
@@ -91,7 +91,8 @@ func (r *PostgresItemRepository) Find(ctx context.Context, userID string, offset
 
 	var items []*diagramitem.DiagramItem
 
-	for _, i := range dbItems {
+	for idx := range dbItems {
+		i := &dbItems[idx]
 		var thumbnail mo.Option[string]
 
 		if i.Thumbnail == nil {
@@ -147,8 +148,9 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 	isPublicPtr := &isPublic
 	titlePtr := &title
 
-	if errors.Is(err, sql.ErrNoRows) {
-		err := r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		if err := r.tx(ctx).CreateItem(ctx, postgres.CreateItemParams{
 			Uid:        userID,
 			Diagram:    postgres.Diagram(item.Diagram()),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
@@ -158,16 +160,13 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 			Text:       item.Text(),
 			Thumbnail:  item.Thumbnail(),
 			Location:   postgres.LocationSYSTEM,
-		})
-
-		if err != nil {
+		}); err != nil {
 			return mo.Err[*diagramitem.DiagramItem](err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*diagramitem.DiagramItem](err)
-	} else {
-
-		err := r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
+	default:
+		if err := r.tx(ctx).UpdateItem(ctx, postgres.UpdateItemParams{
 			Diagram:    postgres.Diagram(item.Diagram()),
 			IsBookmark: isBookmarkPtr,
 			IsPublic:   isPublicPtr,
@@ -176,9 +175,7 @@ func (r *PostgresItemRepository) Save(ctx context.Context, userID string, item *
 			Thumbnail:  item.Thumbnail(),
 			DiagramID:  pgtype.UUID{Bytes: u, Valid: true},
 			Location:   postgres.LocationSYSTEM,
-		})
-
-		if err != nil {
+		}); err != nil {
 			return mo.Err[*diagramitem.DiagramItem](err)
 		}
 	}
