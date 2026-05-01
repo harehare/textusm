@@ -14,7 +14,7 @@
     "firebase": "^11.9.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.55.1",
     "svgo": "^4.0.0",
     "uuid": "^14.0.0",
     "workbox-window": "^7.1.0"
