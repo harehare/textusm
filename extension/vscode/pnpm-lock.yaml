@@ -12,8 +12,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.3
       uuid:
-        specifier: ^9.0.1
-        version: 9.0.1
+        specifier: ^14.0.0
+        version: 14.0.0
     devDependencies:
       '@types/mocha':
         specifier: ^10.0.6
@@ -1011,8 +1011,8 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
-  uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   watchpack@2.5.1:
@@ -1868,7 +1868,7 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  uuid@9.0.1: {}
+  uuid@14.0.0: {}
 
   watchpack@2.5.1:
     dependencies:
