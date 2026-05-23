@@ -36,9 +36,8 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 	})
 
 	r.Get("/version", func(rw http.ResponseWriter, _ *http.Request) {
-		_, err := rw.Write([]byte(env.Version))
-		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
+		if _, err := rw.Write([]byte(env.Version)); err != nil {
+			slog.Error("failed to write version response", "error", err)
 		}
 	})
 

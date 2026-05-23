@@ -19,7 +19,7 @@ func AuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 
 			idToken := strings.SplitN(authHeader, " ", 2)
 
-			if len(idToken) < 2 && idToken[0] != "Bearer" {
+			if len(idToken) < 2 || idToken[0] != "Bearer" {
 				http.Error(w, "{\"error\": \"authorization failed\"}", http.StatusUnauthorized)
 				return
 			}

@@ -88,8 +88,11 @@ func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*
 }
 
 func (r *mutationResolver) DeleteGist(ctx context.Context, gistID string) (string, error) {
-	err := r.gistService.Delete(ctx, gistID)
-	return gistID, err.Error()
+	result := r.gistService.Delete(ctx, gistID)
+	if result.IsError() {
+		return "", result.Error()
+	}
+	return gistID, nil
 }
 
 func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settingsModel.Settings, error) { //nolint:gocritic
