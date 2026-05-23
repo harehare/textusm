@@ -6,15 +6,16 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"net"
-	"os"
 	"slices"
 	"time"
 
 	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"
-	jwt "github.com/form3tech-oss/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/db"
 	"github.com/harehare/textusm/internal/domain/model/diagramitem"
@@ -25,32 +26,41 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/harehare/textusm/internal/github"
 	"github.com/samber/mo"
-	uuid "github.com/satori/go.uuid"
 )
 
-var (
-	shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
-	pubKey          = os.Getenv("ENCRYPT_PUBLIC_KEY")
-	priKey          = os.Getenv("ENCRYPT_PRIVATE_KEY")
+const (
+	maxExpSecond     = 365 * 24 * 60 * 60
+	minExpSecond     = 60
+	maxAllowListSize = 100
 )
+
+type ShareEncryptKey string
+type EncryptPublicKey string
+type EncryptPrivateKey string
 
 type Service struct {
-	repo         itemRepo.ItemRepository
-	shareRepo    shareRepo.ShareRepository
-	userRepo     userRepo.UserRepository
-	transaction  db.Transaction
-	clientID     github.ClientID
-	clientSecret github.ClientSecret
+	repo            itemRepo.ItemRepository
+	shareRepo       shareRepo.ShareRepository
+	userRepo        userRepo.UserRepository
+	transaction     db.Transaction
+	clientID        github.ClientID
+	clientSecret    github.ClientSecret
+	shareEncryptKey ShareEncryptKey
+	pubKey          EncryptPublicKey
+	priKey          EncryptPrivateKey
 }
 
-func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret) *Service {
+func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository, transaction db.Transaction, clientID github.ClientID, clientSecret github.ClientSecret, shareEncryptKey ShareEncryptKey, pubKey EncryptPublicKey, priKey EncryptPrivateKey) *Service {
 	return &Service{
-		repo:         r,
-		shareRepo:    s,
-		userRepo:     u,
-		transaction:  transaction,
-		clientID:     clientID,
-		clientSecret: clientSecret,
+		repo:            r,
+		shareRepo:       s,
+		userRepo:        u,
+		transaction:     transaction,
+		clientID:        clientID,
+		clientSecret:    clientSecret,
+		shareEncryptKey: shareEncryptKey,
+		pubKey:          pubKey,
+		priKey:          priKey,
 	}
 }
 
@@ -175,7 +185,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 		}
 
 		userID := values.GetUID(ctx)
-		shareID := itemIDToShareID(itemID)
+		shareID := s.itemIDToShareID(itemID)
 
 		if shareID.IsError() {
 			return shareID.Error()
@@ -234,15 +244,24 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 			return err
 		}
 
-		jwtTokenResult := verifyToken(string(t))
+		jwtTokenResult := s.verifyToken(string(t))
 
 		if jwtTokenResult.IsError() {
 			return jwtTokenResult.Error()
 		}
 
 		jwtToken, _ := jwtTokenResult.Get()
-		claims := jwtToken.Claims.(jwt.MapClaims)
-		shareResponse := s.shareRepo.Find(ctx, claims["sub"].(string))
+		claims, ok := jwtToken.Claims.(jwt.MapClaims)
+		if !ok {
+			return e.ForbiddenError(errors.New("invalid token claims"))
+		}
+
+		sub, ok := claims["sub"].(string)
+		if !ok {
+			return e.ForbiddenError(errors.New("invalid token sub claim"))
+		}
+
+		shareResponse := s.shareRepo.Find(ctx, sub)
 
 		if shareResponse.IsError() {
 			return shareResponse.Error()
@@ -270,7 +289,12 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 			}
 		}
 
-		if claims["check_password"].(bool) {
+		checkPassword, ok := claims["check_password"].(bool)
+		if !ok {
+			return e.ForbiddenError(errors.New("invalid token check_password claim"))
+		}
+
+		if checkPassword {
 			if password == "" {
 				return e.ForbiddenError(e.ErrPasswordIsRequired)
 			}
@@ -298,39 +322,24 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) mo.Resu
 			return err
 		}
 
-		userID := values.GetUID(ctx)
-
-		if userID.IsAbsent() {
-			return e.NoAuthorizationError(e.ErrNotAuthorization)
-		}
-
-		ret := s.repo.FindByID(ctx, userID.OrEmpty(), itemID, false)
-
-		if ret.IsError() {
-			return ret.Error()
-		}
-
-		shareID := itemIDToShareID(itemID)
+		shareID := s.itemIDToShareID(itemID)
 
 		if shareID.IsError() {
 			return shareID.Error()
 		}
 
-		shareResponse := s.shareRepo.Find(ctx, shareID.OrEmpty())
+		result := s.shareRepo.Find(ctx, shareID.OrEmpty())
 
-		if shareResponse.OrEmpty().ShareInfo == nil || shareResponse.IsError() {
-			// TODO:
-			return nil
+		if result.IsError() {
+			return result.Error()
 		}
 
-		share := shareResponse.OrEmpty().ShareInfo
-
+		v, _ := result.Get()
 		shareCondition = &shareModel.ShareCondition{
-			Token:          share.Token,
-			UsePassword:    share.Password != "",
-			ExpireTime:     int(share.ExpireTime),
-			AllowIPList:    share.AllowIPList,
-			AllowEmailList: share.AllowEmailList,
+			Token:          v.ShareInfo.Token,
+			ExpireTime:     int(v.ShareInfo.ExpireTime),
+			AllowIPList:    v.ShareInfo.AllowIPList,
+			AllowEmailList: v.ShareInfo.AllowEmailList,
 		}
 
 		return nil
@@ -344,6 +353,13 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) mo.Resu
 }
 
 func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password string, allowIPList []string, allowEmailList []string) mo.Result[string] {
+	if expSecond < minExpSecond || expSecond > maxExpSecond {
+		return mo.Err[string](e.InvalidParameterError(errors.New("expSecond must be between 60 and 31536000")))
+	}
+	if len(allowIPList) > maxAllowListSize || len(allowEmailList) > maxAllowListSize {
+		return mo.Err[string](e.InvalidParameterError(errors.New("allow list size exceeds maximum of 100")))
+	}
+
 	var shareToken string
 	err := s.transaction.Do(ctx, func(ctx context.Context) error {
 		userID := values.GetUID(ctx)
@@ -359,13 +375,13 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		}
 
 		item := itemResult.OrEmpty()
-		shareID := itemIDToShareID(item.ID())
+		shareID := s.itemIDToShareID(item.ID())
 
 		if shareID.IsError() {
 			return shareID.Error()
 		}
 
-		privateKey, err := base64.StdEncoding.DecodeString(priKey)
+		privateKey, err := base64.StdEncoding.DecodeString(string(s.priKey))
 
 		if err != nil {
 			return err
@@ -381,7 +397,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		expireTime := now.Add(time.Second * time.Duration(expSecond)).Unix()
 		token := jwt.New(jwt.SigningMethodRS512)
 		claims := token.Claims.(jwt.MapClaims)
-		claims["jti"] = uuid.NewV4().String()
+		claims["jti"] = uuid.New().String()
 		claims["sub"] = shareID.OrEmpty()
 		claims["iat"] = now.Unix()
 		claims["exp"] = expireTime
@@ -433,8 +449,8 @@ func (s *Service) RevokeToken(ctx context.Context) error {
 	return s.userRepo.RevokeToken(ctx)
 }
 
-func verifyToken(token string) mo.Result[*jwt.Token] {
-	publicKey, err := base64.StdEncoding.DecodeString(pubKey)
+func (s *Service) verifyToken(token string) mo.Result[*jwt.Token] {
+	publicKey, err := base64.StdEncoding.DecodeString(string(s.pubKey))
 
 	if err != nil {
 		return mo.Err[*jwt.Token](e.ForbiddenError(err))
@@ -447,7 +463,7 @@ func verifyToken(token string) mo.Result[*jwt.Token] {
 
 	verifiedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, err
+			return nil, errors.New("unexpected signing method")
 		}
 		return jwtPublicKey, nil
 	})
@@ -474,8 +490,8 @@ func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID string, owner
 	return mo.Ok(isOwner)
 }
 
-func itemIDToShareID(itemID string) mo.Result[string] {
-	mac := hmac.New(sha256.New, shareEncryptKey)
+func (s *Service) itemIDToShareID(itemID string) mo.Result[string] {
+	mac := hmac.New(sha256.New, []byte(s.shareEncryptKey))
 	_, err := mac.Write([]byte(itemID))
 
 	if err != nil {

@@ -40,7 +40,10 @@ func InitializeFirebaseServer() (*http.Server, func(), error) {
 	transaction := db.NewFirestoreTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
-	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
+	shareEncryptKey := provideShareEncryptKey(env)
+	encryptPublicKey := provideEncryptPublicKey(env)
+	encryptPrivateKey := provideEncryptPrivateKey(env)
+	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret, shareEncryptKey, encryptPublicKey, encryptPrivateKey)
 	gistItemRepository := firebase.NewGistItemRepository(configConfig)
 	gistitemService := gistitem.NewService(gistItemRepository, transaction, clientID, clientSecret)
 	settingsRepository := firebase.NewSettingsRepository(configConfig)
@@ -73,7 +76,10 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 	transaction := db.NewPostgresTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
-	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
+	shareEncryptKey := provideShareEncryptKey(env)
+	encryptPublicKey := provideEncryptPublicKey(env)
+	encryptPrivateKey := provideEncryptPrivateKey(env)
+	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret, shareEncryptKey, encryptPublicKey, encryptPrivateKey)
 	gistItemRepository := postgres.NewGistItemRepository(configConfig)
 	gistitemService := gistitem.NewService(gistItemRepository, transaction, clientID, clientSecret)
 	settingsRepository := postgres.NewSettingsRepository(configConfig)
@@ -106,7 +112,10 @@ func InitializeSqliteServer() (*http.Server, func(), error) {
 	transaction := db.NewDBTx(configConfig)
 	clientID := provideGithubClientID(env)
 	clientSecret := provideGithubClientSecret(env)
-	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret)
+	shareEncryptKey := provideShareEncryptKey(env)
+	encryptPublicKey := provideEncryptPublicKey(env)
+	encryptPrivateKey := provideEncryptPrivateKey(env)
+	service := diagramitem.NewService(itemRepository, shareRepository, userRepository, transaction, clientID, clientSecret, shareEncryptKey, encryptPublicKey, encryptPrivateKey)
 	gistItemRepository := sqlite.NewGistItemRepository(configConfig)
 	gistitemService := gistitem.NewService(gistItemRepository, transaction, clientID, clientSecret)
 	settingsRepository := sqlite.NewSettingsRepository(configConfig)
@@ -132,4 +141,16 @@ func provideGithubClientID(env *config.Env) github.ClientID {
 
 func provideGithubClientSecret(env *config.Env) github.ClientSecret {
 	return github.ClientSecret(env.GithubClientSecret)
+}
+
+func provideShareEncryptKey(env *config.Env) diagramitem.ShareEncryptKey {
+	return diagramitem.ShareEncryptKey(env.ShareEncryptKey)
+}
+
+func provideEncryptPublicKey(env *config.Env) diagramitem.EncryptPublicKey {
+	return diagramitem.EncryptPublicKey(env.EncryptPublicKey)
+}
+
+func provideEncryptPrivateKey(env *config.Env) diagramitem.EncryptPrivateKey {
+	return diagramitem.EncryptPrivateKey(env.EncryptPrivateKey)
 }

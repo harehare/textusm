@@ -31,11 +31,26 @@ func provideGithubClientSecret(env *config.Env) github.ClientSecret {
 	return github.ClientSecret(env.GithubClientSecret)
 }
 
+func provideShareEncryptKey(env *config.Env) diagramitem.ShareEncryptKey {
+	return diagramitem.ShareEncryptKey(env.ShareEncryptKey)
+}
+
+func provideEncryptPublicKey(env *config.Env) diagramitem.EncryptPublicKey {
+	return diagramitem.EncryptPublicKey(env.EncryptPublicKey)
+}
+
+func provideEncryptPrivateKey(env *config.Env) diagramitem.EncryptPrivateKey {
+	return diagramitem.EncryptPrivateKey(env.EncryptPrivateKey)
+}
+
 func InitializeFirebaseServer() (*http.Server, func(), error) {
 	wire.Build(
 		config.Set,
 		provideGithubClientID,
 		provideGithubClientSecret,
+		provideShareEncryptKey,
+		provideEncryptPublicKey,
+		provideEncryptPrivateKey,
 		db.NewFirestoreTx,
 		firebase.NewItemRepository,
 		firebase.NewGistItemRepository,
@@ -58,6 +73,9 @@ func InitializePostgresServer() (*http.Server, func(), error) {
 		config.Set,
 		provideGithubClientID,
 		provideGithubClientSecret,
+		provideShareEncryptKey,
+		provideEncryptPublicKey,
+		provideEncryptPrivateKey,
 		db.NewPostgresTx,
 		postgres.NewItemRepository,
 		postgres.NewGistItemRepository,
@@ -80,6 +98,9 @@ func InitializeSqliteServer() (*http.Server, func(), error) {
 		config.Set,
 		provideGithubClientID,
 		provideGithubClientSecret,
+		provideShareEncryptKey,
+		provideEncryptPublicKey,
+		provideEncryptPrivateKey,
 		db.NewDBTx,
 		sqlite.NewItemRepository,
 		sqlite.NewGistItemRepository,
