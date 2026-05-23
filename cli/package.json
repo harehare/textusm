@@ -20,12 +20,8 @@
     "@types/html-escaper": "^3.0.2",
     "@types/mustache": "^4.2.5",
     "@types/node": "^22.8.0",
-    "@types/puppeteer": "^7.0.4",
-    "@types/svgo": "^3.0.0",
     "tsup": "^8.3.4",
-    "typescript": "^5.6.3",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.6.3"
   },
   "homepage": "https://github.com/harehare/textusm",
   "keywords": [
@@ -51,7 +47,7 @@
     "type": "git",
     "url": "git+https://github.com/harehare/textusm.git"
   },
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@11.1.2",
   "pnpm": {
     "onlyBuiltDependencies": ["bufferutil", "esbuild", "puppeteer", "utf-8-validate"]
   },

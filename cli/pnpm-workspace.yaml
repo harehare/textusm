@@ -1,0 +1,5 @@
+allowBuilds:
+  bufferutil: set this to true or false
+  esbuild: set this to true or false
+  puppeteer: set this to true or false
+  utf-8-validate: set this to true or false

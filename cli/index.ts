@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { OptionValues, createCommand } from "commander";
+import { createCommand } from "commander";
 import * as fs from "fs";
 import * as path from "path";
 import * as puppeteer from "puppeteer";
@@ -180,7 +180,7 @@ const readStdin = async (): Promise<string> => {
   return text;
 };
 
-interface Options extends OptionValues {
+interface Options {
   configFile: string | null;
   input: string | null;
   width: string | null;
@@ -191,9 +191,7 @@ interface Options extends OptionValues {
 }
 
 const program = createCommand();
-// @ts-ignore
-const options = program
-  // @ts-ignore
+program
   .version(packageJson.version)
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
@@ -214,11 +212,10 @@ const options = program
     "-d, --diagramType [diagramType]",
     `Diagram type. It should be one of ${Object.keys(diagramMap).join(", ")}`
   )
-  .parse()
-  .opts();
+  .parse();
 
 const { configFile, input, width, height, output, diagramType, cdp } =
-  options as Options;
+  program.opts() as Options;
 
 if (diagramType && Object.keys(diagramMap).indexOf(diagramType) === -1) {
   console.error(`Output file must be ${Object.keys(diagramMap).join(", ")}`);
@@ -250,15 +247,7 @@ const writeResult = (output: string | null, result: string): void => {
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
   const js = fs.readFileSync(
-    path.join(
-      path.resolve(__dirname),
-      path.sep,
-      "..",
-      path.sep,
-      "js",
-      path.sep,
-      "textusm.js"
-    ),
+    path.join(path.resolve(__dirname), "..", "js", "textusm.js"),
     "utf-8"
   );
 
@@ -270,12 +259,12 @@ const writeResult = (output: string | null, result: string): void => {
   try {
     const page = await browser.newPage();
     const svgWidth = width
-      ? parseInt(width)
+      ? parseInt(width, 10)
       : diagramType
       ? diagramMap[diagramType].width
       : 1024;
     const svgHeight = height
-      ? parseInt(height)
+      ? parseInt(height, 10)
       : diagramType
       ? diagramMap[diagramType].height
       : 1024;
@@ -325,7 +314,7 @@ const writeResult = (output: string | null, result: string): void => {
 
       writeResult(output, optimizedSvg.data.split("&quot;").join("'"));
     } else if (output.endsWith(".png")) {
-      const clip = await page.$eval("#usm", (svg) => {
+      const clip = await page.$eval("#usm", (svg: Element) => {
         const rect = svg.getBoundingClientRect();
         return {
           x: rect.left,
@@ -366,11 +355,11 @@ const writeResult = (output: string | null, result: string): void => {
       browser.close();
     }
   } catch (e) {
-    console.log(e);
-    console.error("Internal error.");
-    browser.close();
+    console.error("Internal error.", e);
+    await browser.close();
+    process.exit(1);
   }
 })().catch((e) => {
-  console.log(e);
-  console.error("Internal error.");
+  console.error("Internal error.", e);
+  process.exit(1);
 });
