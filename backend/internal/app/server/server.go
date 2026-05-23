@@ -40,6 +40,16 @@ func NewServer(handler *chi.Mux, env *config.Env, config *config.Config) (server
 		if config.PostgresConn != nil {
 			config.PostgresConn.Close()
 		}
+		if config.SqlConn != nil {
+			if err := config.SqlConn.Close(); err != nil {
+				slog.Error("failed to close sqlite connection", "error", err)
+			}
+		}
+		if config.FirestoreClient != nil {
+			if err := config.FirestoreClient.Close(); err != nil {
+				slog.Error("failed to close firestore client", "error", err)
+			}
+		}
 	}
 
 	return

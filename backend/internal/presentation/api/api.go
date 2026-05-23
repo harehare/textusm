@@ -30,6 +30,7 @@ type AccessToken struct {
 }
 
 func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1*1024*1024)
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		slog.Error("failed to read request body", "error", err)

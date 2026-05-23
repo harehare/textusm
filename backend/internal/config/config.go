@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"log/slog"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
@@ -143,6 +144,12 @@ func NewConfig(env *Env) (*Config, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			cfg.MaxConns = env.DBMaxConns
+			cfg.MinConns = env.DBMinConns
+			cfg.MaxConnLifetime = 30 * time.Minute
+			cfg.MaxConnIdleTime = 5 * time.Minute
+			cfg.HealthCheckPeriod = 1 * time.Minute
 
 			pgConn, err = pgxpool.NewWithConfig(ctx, cfg)
 

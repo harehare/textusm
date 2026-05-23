@@ -17,6 +17,11 @@ type Env struct {
 	StorageBucketName   string `required:"false" envconfig:"STORAGE_BUCKET_NAME"`
 	GoEnv               string `required:"true" envconfig:"GO_ENV"`
 	DBType              string `required:"false" envconfig:"DB_TYPE"`
+	DBMaxConns          int32  `envconfig:"DB_MAX_CONNS" default:"10"`
+	DBMinConns          int32  `envconfig:"DB_MIN_CONNS" default:"2"`
+	ShareEncryptKey     string `required:"false" envconfig:"SHARE_ENCRYPT_KEY"`
+	EncryptPublicKey    string `required:"false" envconfig:"ENCRYPT_PUBLIC_KEY"`
+	EncryptPrivateKey   string `required:"false" envconfig:"ENCRYPT_PRIVATE_KEY"`
 }
 
 func NewEnv() (*Env, error) {
