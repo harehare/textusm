@@ -99,17 +99,17 @@ func InvalidParameterError(err error) DomainError {
 }
 
 func GetCode(err error) Code {
-	var repoErr *RepositoryError
+	var repoErr RepositoryError
 	if errors.As(err, &repoErr) {
 		return repoErr.code
 	}
 
-	var svcErr *ServiceError
+	var svcErr ServiceError
 	if errors.As(err, &svcErr) {
 		return svcErr.code
 	}
 
-	var domErr *DomainError
+	var domErr DomainError
 	if errors.As(err, &domErr) {
 		return domErr.code
 	}

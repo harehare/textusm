@@ -28,7 +28,10 @@
       "Read(//tmp/**)",
       "Bash(go vet *)",
       "Bash(go run *)",
-      "Bash(go mod *)"
+      "Bash(go mod *)",
+      "Bash(go test *)",
+      "Bash(xargs ls)",
+      "Bash(xargs cat)"
     ]
   }
 }

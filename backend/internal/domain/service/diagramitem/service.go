@@ -8,12 +8,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"net"
-	"slices"
 	"time"
 
 	"log/slog"
 
-	"github.com/99designs/gqlgen/graphql"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/context/values"
@@ -78,7 +76,7 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, is
 	var items []*diagramitem.DiagramItem
 
 	err := s.transaction.Do(ctx, func(ctx context.Context) error {
-		shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "text")
+		_, shouldLoadText := fields["text"]
 
 		if err := isAuthenticated(ctx); err != nil {
 			return err

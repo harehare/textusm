@@ -1,0 +1,9 @@
+allowBuilds:
+  '@firebase/util': true
+  '@sentry/cli': true
+  core-js: true
+  elm: true
+  elm-format: true
+  esbuild: true
+  protobufjs: true
+  re2: true

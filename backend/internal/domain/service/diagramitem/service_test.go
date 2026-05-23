@@ -3,6 +3,7 @@ package diagramitem
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"testing"
 	"time"
 
@@ -54,7 +55,7 @@ func (m *MockItemRepository) FindByID(ctx context.Context, userID string, itemID
 }
 
 func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
-	ret := m.Called(ctx, userID, offset, limit, isPublic)
+	ret := m.Called(ctx, userID, offset, limit, isPublic, isBookmark, shouldLoadText)
 	return ret.Get(0).(mo.Result[[]*diagramitem.DiagramItem])
 }
 
@@ -99,8 +100,7 @@ func (m *MockUserRepository) RevokeToken(ctx context.Context) error {
 }
 
 func (m *MockTransaction) Do(ctx context.Context, fn func(ctx context.Context) error) error {
-	ret := m.Called(ctx, fn(ctx))
-	return ret.Get(0).(error)
+	return fn(ctx)
 }
 
 func TestFindDiagrams(t *testing.T) {
@@ -115,7 +115,7 @@ func TestFindDiagrams(t *testing.T) {
 	i := diagramitem.New().WithID("id").WithPlainText(baseText).Build().OrEmpty()
 	items := []*diagramitem.DiagramItem{i}
 
-	mockItemRepo.On("Find", ctx, "userID", 0, 10, false, false).Return(items, nil)
+	mockItemRepo.On("Find", ctx, "userID", 0, 10, false, false, false).Return(mo.Ok(items))
 
 	service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, "")
 	fields := make(map[string]struct{})
@@ -137,7 +137,7 @@ func TestFindDiagram(t *testing.T) {
 	baseText := "test"
 	item := diagramitem.New().WithID("id").WithPlainText(baseText).Build().OrEmpty()
 
-	mockItemRepo.On("FindByID", ctx, "userID", "testID", false).Return(&item, nil)
+	mockItemRepo.On("FindByID", ctx, "userID", "testID", false).Return(mo.Ok(item))
 
 	service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, "")
 	ret := service.FindByID(ctx, "testID", false)
@@ -158,7 +158,8 @@ func TestSaveDiagram(t *testing.T) {
 	baseText := "test"
 	item := diagramitem.New().WithID("").WithPlainText(baseText).Build().OrEmpty()
 
-	mockItemRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
+	mockItemRepo.On("FindByID", ctx, "userID", mock.Anything, true).Return(mo.Err[*diagramitem.DiagramItem](errors.New("not found")))
+	mockItemRepo.On("Save", ctx, "userID", item, false).Return(mo.Ok(item))
 
 	service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, "")
 	ret := service.Save(ctx, item, false)
@@ -177,8 +178,8 @@ func TestDeleteDiagram(t *testing.T) {
 	ctx = values.WithUID(ctx, "userID")
 
 	const encryptKey = "9cbe21a8914986ffd301e3403e14b61b52f7c348b0e3c65b762ae79118b4a4bc"
-	mockItemRepo.On("Delete", ctx, "userID", "testID", false).Return(nil)
-	mockShareRepo.On("Delete", ctx, "userID", "39fec4b1b30fc71f52616e4120ee953cff68fd0d0a4d37560a0567ae2941916b").Return(nil)
+	mockItemRepo.On("Delete", ctx, "userID", "testID", false).Return(mo.Ok(true))
+	mockShareRepo.On("Delete", ctx, "userID", "39fec4b1b30fc71f52616e4120ee953cff68fd0d0a4d37560a0567ae2941916b").Return(mo.Ok(true))
 
 	service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, encryptKey)
 
@@ -215,8 +216,8 @@ func TestShare(t *testing.T) {
 	for _, test := range tests {
 		item := diagramitem.New().WithID(test.id).WithPlainText("").Build().OrEmpty()
 		a := []string{}
-		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
-		mockShareRepo.On("Save", ctx, "userID", test.hashKey, &item, mock.Anything).Return(nil)
+		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(mo.Ok(item))
+		mockShareRepo.On("Save", ctx, "userID", test.hashKey, item, mock.Anything).Return(mo.Ok(true))
 
 		service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, test.key)
 		shareToken := service.Share(ctx, test.id, minExpSecond, "password", a, a)
@@ -246,12 +247,8 @@ func TestShare(t *testing.T) {
 }
 
 func TestFindShareItem(t *testing.T) {
-	mockItemRepo := new(MockItemRepository)
-	mockShareRepo := new(MockShareRepository)
-	mockUserRepo := new(MockUserRepository)
-	mockTransaction := new(MockTransaction)
-	ctx := context.Background()
-	ctx = values.WithUID(ctx, "userID")
+	baseCtx := context.Background()
+	baseCtx = values.WithUID(baseCtx, "userID")
 
 	tests := []struct {
 		inputPassword  string
@@ -328,14 +325,18 @@ func TestFindShareItem(t *testing.T) {
 	}
 
 	itemID := "testID"
-	token := "testToken"
 	expireTime := time.Now().Add(time.Hour * 2).Unix()
+	const validExpSecond = 3600
 
 	for _, test := range tests {
-		ctx = values.WithIP(ctx, test.ip)
+		mockItemRepo := new(MockItemRepository)
+		mockShareRepo := new(MockShareRepository)
+		mockUserRepo := new(MockUserRepository)
+		mockTransaction := new(MockTransaction)
+
+		ctx := values.WithIP(baseCtx, test.ip)
 		item := diagramitem.New().WithID(itemID).WithPlainText("test").Build().OrEmpty()
 		shareInfo := sm.Share{
-			Token:          token,
 			Password:       test.hashedPassword,
 			AllowIPList:    test.allowIPList,
 			ExpireTime:     expireTime,
@@ -346,12 +347,12 @@ func TestFindShareItem(t *testing.T) {
 			Name:  "test",
 			Email: test.email,
 		}
-		mockItemRepo.On("FindByID", ctx, "userID", itemID, false).Return(&item, nil)
-		mockShareRepo.On("Find", ctx, "9ccb761f669123b71cff48beb77555a68e5819995ac6eb8495efa2ed01e298f7").Return(&item, &shareInfo, nil)
-		mockShareRepo.On("Save", ctx, "userID", "9ccb761f669123b71cff48beb77555a68e5819995ac6eb8495efa2ed01e298f7", &item, mock.Anything).Return(nil)
-		mockUserRepo.On("Find", ctx, "userID").Return(&user, nil)
+		mockItemRepo.On("FindByID", mock.Anything, "userID", itemID, false).Return(mo.Ok(item))
+		mockShareRepo.On("Save", mock.Anything, "userID", mock.Anything, item, mock.Anything).Return(mo.Ok(true))
+		mockShareRepo.On("Find", mock.Anything, mock.Anything).Return(mo.Ok(shareRepo.ShareValue{DiagramItem: item, ShareInfo: &shareInfo}))
+		mockUserRepo.On("Find", mock.Anything, "userID").Return(mo.Ok(&user))
 		service := newTestService(mockItemRepo, mockShareRepo, mockUserRepo, mockTransaction, "")
-		shareId := service.Share(ctx, itemID, int(expireTime), test.inputPassword, test.allowIPList, test.allowEmailList)
+		shareId := service.Share(ctx, itemID, validExpSecond, test.inputPassword, test.allowIPList, test.allowEmailList)
 		ret := service.FindShareItem(ctx, shareId.OrEmpty(), test.inputPassword)
 
 		if ret.IsOk() && test.isErr {
