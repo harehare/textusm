@@ -9,7 +9,7 @@ import (
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/harehare/textusm/internal/util"
 	"github.com/samber/mo"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 var (
@@ -51,7 +51,7 @@ func New() DiagramItemBuilder {
 
 func (b *builder) WithID(id string) DiagramItemBuilder {
 	if id == "" {
-		b.id = uuid.NewV4().String()
+		b.id = uuid.New().String()
 		b.isNew = true
 	} else {
 		b.id = id
@@ -157,7 +157,7 @@ type DiagramItem struct {
 
 func (i *DiagramItem) ID() string {
 	if i.id == "" {
-		i.id = uuid.NewV4().String()
+		i.id = uuid.New().String()
 	}
 
 	return i.id

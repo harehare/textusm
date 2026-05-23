@@ -6,7 +6,7 @@ import (
 	"github.com/harehare/textusm/internal/domain/values"
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 type GistItemBuilder interface {
@@ -40,7 +40,7 @@ func New() GistItemBuilder {
 
 func (b *builder) WithID(id string) GistItemBuilder {
 	if id == "" {
-		b.id = uuid.NewV4().String()
+		b.id = uuid.New().String()
 	} else {
 		b.id = id
 	}
@@ -118,7 +118,7 @@ type GistItem struct {
 
 func (i *GistItem) ID() string {
 	if i.id == "" {
-		i.id = uuid.NewV4().String()
+		i.id = uuid.New().String()
 	}
 
 	return i.id
