@@ -35,12 +35,13 @@ jobs:
     name: frontend-test
     needs: changes
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
@@ -50,17 +51,16 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "backend/go.mod"
+          cache-dependency-path: "backend/go.sum"
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Install Dependencies
         working-directory: frontend
         run: pnpm install --frozen-lockfile
-      - name: get-npm-version
+      - name: Get app version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: frontend
+        run: echo "current-version=$(node -p "require('./frontend/package.json').version")" >> $GITHUB_OUTPUT
       - name: Generate elm-constants
         working-directory: frontend
         run: pnpm generate:elm-constants
@@ -97,7 +97,7 @@ jobs:
           FIREBASE_AUTH_DOMAIN: textusm
           FIRESTORE_EMULATOR_HOST: "localhost:8082"
           FIREBASE_PROJECT_ID: textusm
-          FIREBASE_STORAGE_BUKET: textusm.appspot.com
+          FIREBASE_STORAGE_BUCKET: textusm.appspot.com
           FIREBASE_STORAGE_EMULATOR_HOST: "localhost:9199"
           FIREBASE_AUTH_EMULATOR_HOST: "localhost:9099"
           FIREBASE_APP_ID: dev
@@ -121,12 +121,14 @@ jobs:
     name: backend_test
     needs: changes
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: ${{ needs.changes.outputs.backend == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: "backend/go.mod"
+          cache-dependency-path: "backend/go.sum"
       - uses: extractions/setup-just@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
@@ -141,6 +143,7 @@ jobs:
     name: analyze
     needs: changes
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.backend == 'true' }}
     permissions:
       security-events: write
@@ -151,9 +154,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Setup Go (Go analysis only)
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v5
         with:
           go-version-file: "backend/go.mod"
+          cache-dependency-path: "backend/go.sum"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:

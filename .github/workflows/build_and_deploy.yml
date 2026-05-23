@@ -23,7 +23,7 @@ jobs:
           ref: ${{ inputs.ref }}
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".tool-versions"
@@ -32,11 +32,9 @@ jobs:
       - name: Install Dependencies
         working-directory: frontend
         run: pnpm install --frozen-lockfile
-      - name: get-npm-version
+      - name: Get app version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: frontend
+        run: echo "current-version=$(node -p "require('./frontend/package.json').version")" >> $GITHUB_OUTPUT
       - name: Generate elm-constants
         working-directory: frontend
         run: pnpm generate:elm-constants
