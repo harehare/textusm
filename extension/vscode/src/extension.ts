@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
 type DiagramType =
   | "usm"
@@ -259,6 +259,7 @@ export function deactivate() {}
 class DiagramPanel {
   public static activePanel: DiagramPanel | null;
   public static readonly viewType = "textUSM";
+  private static textChangedDisposable: vscode.Disposable | null = null;
 
   private readonly _panel: vscode.WebviewPanel;
 
@@ -353,7 +354,7 @@ class DiagramPanel {
           .split("<div")
           .join('<div xmlns="http://www.w3.org/1999/xhtml"')
           .split("<img")
-          .join('<img xmlns="1http://www.w3.org/1999/xhtml"')}
+          .join('<img xmlns="http://www.w3.org/1999/xhtml"')}
         </svg>`,
           {
             plugins: [
@@ -442,20 +443,24 @@ class DiagramPanel {
   }
 
   private static addTextChangedEvent(editor: vscode.TextEditor | undefined) {
+    if (DiagramPanel.textChangedDisposable) {
+      DiagramPanel.textChangedDisposable.dispose();
+    }
     let updated: null | NodeJS.Timeout = null;
-    vscode.workspace.onDidChangeTextDocument((e) => {
-      if (e?.document?.uri === editor?.document?.uri) {
-        if (updated) {
-          clearTimeout(updated);
+    DiagramPanel.textChangedDisposable =
+      vscode.workspace.onDidChangeTextDocument((e) => {
+        if (e?.document?.uri === editor?.document?.uri) {
+          if (updated) {
+            clearTimeout(updated);
+          }
+          updated = setTimeout(() => {
+            DiagramPanel.activePanel?._panel.webview.postMessage({
+              command: "textChanged",
+              text: e.document.getText(),
+            });
+          }, 300);
         }
-        updated = setTimeout(() => {
-          DiagramPanel.activePanel?._panel.webview.postMessage({
-            command: "textChanged",
-            text: e.document.getText(),
-          });
-        }, 300);
-      }
-    });
+      });
   }
 
   private constructor(
@@ -470,6 +475,8 @@ class DiagramPanel {
     this._update(iconPath, scriptSrc, title, text, diagramType);
     this._panel.onDidDispose(() => {
       this._panel.dispose();
+      DiagramPanel.textChangedDisposable?.dispose();
+      DiagramPanel.textChangedDisposable = null;
       setPreviewActiveContext(false);
       DiagramPanel.activePanel = null;
     });
@@ -520,6 +527,10 @@ class DiagramPanel {
       text,
       diagramType
     );
+  }
+
+  private static escapeForTemplateLiteral(s: string): string {
+    return s.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$\{/g, "\\${");
   }
 
   private getWebviewContent(
@@ -576,7 +587,7 @@ class DiagramPanel {
       .getConfiguration()
       .get("textusm.showGrid");
 
-    const nonce = uuidv4();
+    const nonce = randomUUID();
 
     return `<!DOCTYPE html>
 <html>
@@ -599,7 +610,7 @@ class DiagramPanel {
         const app = Elm.Extension.VSCode.init({
             node: document.getElementById("svg"),
             flags: {
-              text: \`${text}\`,
+              text: \`${DiagramPanel.escapeForTemplateLiteral(text)}\`,
               fontName: "${fontName}",
               backgroundColor: "${
                 backgroundColor && backgroundColor !== "transparent"
