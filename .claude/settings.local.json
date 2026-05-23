@@ -25,7 +25,10 @@
       "Bash(/tmp/golangci-lint-test/golangci-lint run *)",
       "Bash(/tmp/golangci-lint-test/golangci-lint migrate *)",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(go vet *)",
+      "Bash(go run *)",
+      "Bash(go mod *)"
     ]
   }
 }

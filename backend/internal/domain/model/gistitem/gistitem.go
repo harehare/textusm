@@ -3,10 +3,10 @@ package gistitem
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/harehare/textusm/internal/domain/values"
 	e "github.com/harehare/textusm/internal/error"
 	"github.com/samber/mo"
-	"github.com/google/uuid"
 )
 
 type GistItemBuilder interface {

@@ -68,3 +68,5 @@ firebase-export-*
 *.db
 
 temp
+
+.claude/settings.local.json
