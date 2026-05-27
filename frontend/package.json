@@ -38,7 +38,7 @@
     "elm-book": "^1.0.1",
     "elm-constants": "^1.0.0",
     "elm-format": "^0.8.8",
-    "elm-optimize-level-2": "^0.3.5",
+    "elm-optimize-level-2": "^0.4.0",
     "elm-review": "^2.13.2",
     "elm-test": "^0.19.1-revision15",
     "firebase-tools": "^15.16.0",
