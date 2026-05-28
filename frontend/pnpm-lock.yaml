@@ -127,23 +127,23 @@ importers:
         specifier: ^39.0.1
         version: 39.0.1(stylelint@17.12.0(typescript@6.0.3))
       terser:
-        specifier: ^5.43.1
-        version: 5.47.1
+        specifier: ^5.48.0
+        version: 5.48.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
         specifier: ^7.0.0
-        version: 7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)
+        version: 7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-elm:
         specifier: ^3.0.1
-        version: 3.0.1(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0))
+        version: 3.0.1(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0))
       vite-plugin-html:
         specifier: ^3.2.2
-        version: 3.2.2(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0))
+        version: 3.2.2(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0))
       vite-plugin-pwa:
         specifier: ^1.0.0
-        version: 1.3.0(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1)
+        version: 1.3.0(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1)
 
 packages:
 
@@ -5686,11 +5686,6 @@ packages:
     resolution: {integrity: sha512-un0FmiRUQNr5PJqy9kP7c40F5BOfpGlYTrxonDChEZB7pzZxRNp/bt+ymiy9/npwXya9KH99nJ/GXFIiUkYGFQ==}
     engines: {node: '>=8'}
 
-  terser@5.47.1:
-    resolution: {integrity: sha512-tPbLXTI6ohPASb/1YViL428oEHu6/qv1OxqYnfaonVCFHqx4+wCd95pHrQWsL5X4pl90CTyW9piSAsS2L0VoMw==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   terser@5.48.0:
     resolution: {integrity: sha512-J/9An6vs9Us6wKRriSFXBWdRZapREHqFzdNUKk0pmu804EMR6dr6winwo7e5JDxN4xahxQsuysyYFwlwj4XN/Q==}
     engines: {node: '>=10'}
@@ -10347,7 +10342,7 @@ snapshots:
       he: 1.2.0
       param-case: 3.0.4
       relateurl: 0.2.7
-      terser: 5.47.1
+      terser: 5.48.0
 
   html-tags@5.1.0: {}
 
@@ -12407,13 +12402,6 @@ snapshots:
       ansi-escapes: 4.3.2
       supports-hyperlinks: 2.3.0
 
-  terser@5.47.1:
-    dependencies:
-      '@jridgewell/source-map': 0.3.11
-      acorn: 8.16.0
-      commander: 2.20.3
-      source-map-support: 0.5.21
-
   terser@5.48.0:
     dependencies:
       '@jridgewell/source-map': 0.3.11
@@ -12639,16 +12627,16 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite-plugin-elm@3.0.1(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)):
+  vite-plugin-elm@3.0.1(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)):
     dependencies:
       acorn: 8.16.0
       acorn-walk: 8.3.5
       elm-esm: 1.1.4
       find-up: 7.0.0
       node-elm-compiler: 5.0.6
-      vite: 7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)
+      vite: 7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)
 
-  vite-plugin-html@3.2.2(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)):
+  vite-plugin-html@3.2.2(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       colorette: 2.0.20
@@ -12662,20 +12650,20 @@ snapshots:
       html-minifier-terser: 6.1.0
       node-html-parser: 5.4.2
       pathe: 0.2.0
-      vite: 7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)
+      vite: 7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)
 
-  vite-plugin-pwa@1.3.0(vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1):
+  vite-plugin-pwa@1.3.0(vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1):
     dependencies:
       debug: 4.4.3
       pretty-bytes: 6.1.1
       tinyglobby: 0.2.16
-      vite: 7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0)
+      vite: 7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0)
       workbox-build: 7.4.1
       workbox-window: 7.4.1
     transitivePeerDependencies:
       - supports-color
 
-  vite@7.3.3(@types/node@24.12.4)(terser@5.47.1)(yaml@2.9.0):
+  vite@7.3.3(@types/node@24.12.4)(terser@5.48.0)(yaml@2.9.0):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -12686,7 +12674,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.12.4
       fsevents: 2.3.3
-      terser: 5.47.1
+      terser: 5.48.0
       yaml: 2.9.0
 
   wcwidth@1.0.1:
