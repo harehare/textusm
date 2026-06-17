@@ -126,11 +126,11 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
                     , SvgAttr.fill <| Color.toString backColor
-                    , SvgAttr.rx "1"
-                    , SvgAttr.ry "1"
+                    , SvgAttr.rx "6"
+                    , SvgAttr.ry "6"
                     , SvgAttr.style "filter:url(#shadow)"
                     , SvgAttr.class "ts-card"
-                    , SvgAttr.stroke "rgba(0, 0, 0, 0.05)"
+                    , SvgAttr.stroke "rgba(255, 255, 255, 0.08)"
                     , css [ Css.hover [ Css.cursor Css.pointer ] ]
                     ]
                     []
@@ -189,10 +189,10 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
                             , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
                             , SvgAttr.x (String.fromInt <| x_ - 8)
                             , SvgAttr.y (String.fromInt <| y_ - 8)
-                            , SvgAttr.rx "1"
-                            , SvgAttr.ry "1"
+                            , SvgAttr.rx "8"
+                            , SvgAttr.ry "8"
                             , SvgAttr.fill "transparent"
-                            , SvgAttr.stroke "rgba(38, 107, 154, 0.6)"
+                            , SvgAttr.stroke "rgba(99, 102, 241, 0.8)"
                             , SvgAttr.strokeWidth "2"
                             ]
                             []
@@ -201,8 +201,8 @@ view { settings, property, position, selectedItem, item, canMove, defaultColor, 
                             , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 4
                             , SvgAttr.x (String.fromInt <| x_ - 2)
                             , SvgAttr.y (String.fromInt <| y_ - 2)
-                            , SvgAttr.rx "1"
-                            , SvgAttr.ry "1"
+                            , SvgAttr.rx "7"
+                            , SvgAttr.ry "7"
                             , SvgAttr.fill <| Color.toString backColor
                             , SvgAttr.style "filter:url(#shadow)"
                             ]
