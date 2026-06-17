@@ -122,7 +122,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gohugoio/hashstructure v0.6.0 // indirect
-	github.com/gohugoio/hugo v0.161.0 // indirect
+	github.com/gohugoio/hugo v0.162.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
 	github.com/golangci/go-printf-func-name v0.1.0 // indirect
@@ -195,7 +195,7 @@ require (
 	github.com/olekukonko/ll v0.1.6 // indirect
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.3.0 // indirect
+	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
