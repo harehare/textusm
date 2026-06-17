@@ -572,6 +572,9 @@ fromTypeString s =
         "ER" ->
             ErDiagram
 
+        "ERDiagram" ->
+            ErDiagram
+
         "Kanban" ->
             Kanban
 
