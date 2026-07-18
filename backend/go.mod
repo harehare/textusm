@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	cloud.google.com/go/firestore v1.22.0
-	firebase.google.com/go/v4 v4.20.0
+	firebase.google.com/go/v4 v4.21.0
 	github.com/99designs/gqlgen v0.17.94
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-chi/cors v1.2.2
