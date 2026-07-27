@@ -133,7 +133,13 @@ fromString rgb =
         "#258F9B" ->
             green2
 
+        "#266B9A" ->
+            background1Defalut
+
         "#0F172A" ->
+            backgroundDarkDefalut
+
+        "#323D46" ->
             backgroundDarkDefalut
 
         "#334155" ->
@@ -145,6 +151,12 @@ fromString rgb =
         "#3B82F6" ->
             background1Defalut
 
+        "#3E9BCD" ->
+            background2Defalut
+
+        "#434343" ->
+            lineDefalut
+
         "#6366F1" ->
             background2Defalut
 
@@ -155,6 +167,9 @@ fromString rgb =
             olive
 
         "#64748B" ->
+            labelDefalut
+
+        "#8C9FAE" ->
             labelDefalut
 
         "#CD89F7" ->
