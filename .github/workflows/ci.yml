@@ -16,7 +16,7 @@ permissions:
 jobs:
   changes:
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]' && contains(github.event.commits.*.message, '[skip ci]') == false
+    if: contains(github.event.commits.*.message, '[skip ci]') == false
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
