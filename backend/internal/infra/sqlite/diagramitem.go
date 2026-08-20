@@ -122,7 +122,8 @@ func (r *SqliteItemRepository) Save(ctx context.Context, userID string, item *di
 	isBookmark := item.IsBookmark()
 	title := item.Title()
 
-	if errors.Is(err, sql.ErrNoRows) {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		err := r.tx(ctx).CreateItem(ctx, sqlite.CreateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
@@ -140,10 +141,9 @@ func (r *SqliteItemRepository) Save(ctx context.Context, userID string, item *di
 		if err != nil {
 			return mo.Err[*diagramitem.DiagramItem](err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*diagramitem.DiagramItem](err)
-	} else {
-
+	default:
 		err := r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
