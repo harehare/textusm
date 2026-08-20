@@ -119,7 +119,8 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 	isBookmark := item.IsBookmark()
 	title := item.Title()
 
-	if errors.Is(err, sql.ErrNoRows) {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		if err := r.tx(ctx).CreateItem(ctx, sqlite.CreateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),
@@ -134,9 +135,9 @@ func (r *SqliteGistItemRepository) Save(ctx context.Context, userID string, item
 		}); err != nil {
 			return mo.Err[*gistitem.GistItem](err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*gistitem.GistItem](err)
-	} else {
+	default:
 		if err := r.tx(ctx).UpdateItem(ctx, sqlite.UpdateItemParams{
 			Uid:        userID,
 			Diagram:    string(item.Diagram()),

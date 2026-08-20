@@ -70,7 +70,8 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 
 	_, err := r.tx(ctx).GetSettings(ctx, postgres.Diagram(diagram))
 
-	if errors.Is(err, sql.ErrNoRows) {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		err = r.tx(ctx).CreateSettings(ctx, postgres.CreateSettingsParams{
 			Uid:                     userID,
 			Diagram:                 postgres.Diagram(diagram),
@@ -92,9 +93,9 @@ func (r *PostgresSettingsRepository) Save(ctx context.Context, userID string, di
 			Width:                   width,
 			ZoomControl:             s.ZoomControl,
 		})
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*settings.Settings](err)
-	} else {
+	default:
 		err = r.tx(ctx).UpdateSettings(ctx, postgres.UpdateSettingsParams{
 			ActivityColor:           s.ActivityColor.ForegroundColor,
 			ActivityBackgroundColor: s.ActivityColor.BackgroundColor,

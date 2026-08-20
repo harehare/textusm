@@ -46,17 +46,17 @@ type Color
 
 background1Defalut : Color
 background1Defalut =
-    Color "Background1 Defalut" "#266B9A"
+    Color "Background1 Default" "#3B82F6"
 
 
 background2Defalut : Color
 background2Defalut =
-    Color "Background2 Defalut" "#3E9BCD"
+    Color "Background2 Default" "#6366F1"
 
 
 backgroundDarkDefalut : Color
 backgroundDarkDefalut =
-    Color "Background Dark Defalut" "#323d46"
+    Color "Background Dark Default" "#0F172A"
 
 
 backgroundDefalut : Color
@@ -136,11 +136,20 @@ fromString rgb =
         "#266B9A" ->
             background1Defalut
 
+        "#0F172A" ->
+            backgroundDarkDefalut
+
         "#323D46" ->
             backgroundDarkDefalut
 
+        "#334155" ->
+            lineDefalut
+
         "#333333" ->
             gray
+
+        "#3B82F6" ->
+            background1Defalut
 
         "#3E9BCD" ->
             background2Defalut
@@ -148,11 +157,17 @@ fromString rgb =
         "#434343" ->
             lineDefalut
 
+        "#6366F1" ->
+            background2Defalut
+
         "#7C48A5" ->
             purple2
 
         "#808000" ->
             olive
+
+        "#64748B" ->
+            labelDefalut
 
         "#8C9FAE" ->
             labelDefalut
@@ -230,7 +245,7 @@ iconColor =
 
 labelDefalut : Color
 labelDefalut =
-    Color "Label Defalut" "#8C9FAE"
+    Color "Label Default" "#64748B"
 
 
 lightGray : Color
@@ -245,7 +260,7 @@ lime =
 
 lineDefalut : Color
 lineDefalut =
-    Color "Line Defalut" "#434343"
+    Color "Line Default" "#334155"
 
 
 name : Color -> String

@@ -101,12 +101,12 @@ default =
             , backgroundColor = Color.background2Defalut
             }
         , story =
-            { color = Color.gray
-            , backgroundColor = Color.white
+            { color = Color.fromString "#94A3B8"
+            , backgroundColor = Color.fromString "#1E293B"
             }
         , line = Color.lineDefalut
         , label = Color.labelDefalut
-        , text = Just <| Color.textDefalut
+        , text = Just <| Color.fromString "#F1F5F9"
         }
     , backgroundColor =
         Color.backgroundDarkDefalut

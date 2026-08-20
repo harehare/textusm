@@ -23,7 +23,10 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
 	r.Use(chiMiddleware.RequestID)
-	r.Use(chiMiddleware.RealIP)
+	// Fall back to the raw TCP peer, then prefer the IP Render's edge proxy
+	// appends to X-Forwarded-For (the only hop between us and the client).
+	r.Use(chiMiddleware.ClientIPFromRemoteAddr)
+	r.Use(chiMiddleware.ClientIPFromXFFTrustedProxies(1))
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
@@ -48,7 +51,7 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 
 		r.Route("/", func(r chi.Router) {
 			r.Use(middleware.AuthMiddleware(config.FirebaseApp))
-			r.Use(httprate.LimitByIP(10, 1*time.Minute))
+			r.Use(httprate.LimitBy(10, 1*time.Minute, keyByResolvedIP))
 			r.Route("/token", func(r chi.Router) {
 				r.Delete("/revoke", restApi.RevokeGistToken)
 				r.Delete("/gist/revoke", restApi.RevokeGistToken)
@@ -61,7 +64,7 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 		r.Use(middleware.AuthMiddleware(config.FirebaseApp))
 		r.Use(middleware.IPMiddleware())
 		r.Use(cors)
-		r.Use(httprate.LimitByIP(100, 1*time.Minute))
+		r.Use(httprate.LimitBy(100, 1*time.Minute, keyByResolvedIP))
 
 		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolvers}))
 		graphql.AddTransport(transport.Options{})
@@ -75,4 +78,11 @@ func NewHandler(env *config.Env, config *config.Config, resolvers *resolver.Reso
 	slog.SetDefault(logger)
 
 	return r, nil
+}
+
+// keyByResolvedIP rate-limits by the IP resolved via ClientIPFromRemoteAddr /
+// ClientIPFromXFFTrustedProxies, rather than the spoofable r.RemoteAddr used
+// by the deprecated httprate.LimitByIP.
+func keyByResolvedIP(r *http.Request) (string, error) {
+	return httprate.CanonicalizeIP(chiMiddleware.GetClientIP(r.Context())), nil
 }

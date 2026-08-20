@@ -1,12 +1,32 @@
 import path from 'node:path';
 import elmPlugin from 'vite-plugin-elm';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
 const outDirectory = path.join(import.meta.dirname, 'dist');
 const day = 60 * 60 * 24;
+
+// vite-plugin-elm injects `import.meta.hot.accept(["/src/elm/Dep.elm", ...])` for HMR.
+// Vite 7.x warns when it can't resolve these server-relative paths because
+// vite-plugin-elm has no resolveId hook. This plugin intercepts them as virtual modules.
+const elmHmrDepResolver: Plugin = {
+  name: 'elm-hmr-dep-resolver',
+  enforce: 'pre',
+  resolveId(id: string) {
+    if (id.endsWith('.elm') && id.startsWith('/')) {
+      return `\0elm-hmr:${id}`;
+    }
+    return undefined;
+  },
+  load(id: string) {
+    if (id.startsWith('\0elm-hmr:')) {
+      return 'export default null;';
+    }
+    return undefined;
+  },
+};
 const env = [
   'FIREBASE_API_KEY',
   'FIREBASE_AUTH_DOMAIN',
@@ -60,6 +80,7 @@ export default defineConfig(({ mode }) => ({
   },
   define: Object.fromEntries(env.map((key) => [`process.env.${key}`, JSON.stringify(process.env[key])])),
   plugins: [
+    elmHmrDepResolver,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     elmPlugin({
       optimize: false,

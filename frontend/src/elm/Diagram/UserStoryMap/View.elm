@@ -138,7 +138,8 @@ labelView { settings, property, width, userStoryMap } =
                     , SvgAttr.x2 <| String.fromInt width
                     , SvgAttr.y2 <| String.fromInt (Constants.itemMargin // 2 + (CardSize.toInt settings.size.height + Constants.itemMargin) * 2)
                     , SvgAttr.stroke <| Color.toString <| DiagramSettings.getLineColor settings property
-                    , SvgAttr.strokeWidth "2"
+                    , SvgAttr.strokeWidth "1"
+                    , SvgAttr.strokeDasharray "6,4"
                     ]
                     []
                 )
@@ -184,7 +185,8 @@ labelView { settings, property, width, userStoryMap } =
                                     , SvgAttr.x2 <| String.fromInt width
                                     , SvgAttr.y2 <| String.fromInt releaseY
                                     , SvgAttr.stroke <| Color.toString <| DiagramSettings.getLineColor settings property
-                                    , SvgAttr.strokeWidth "2"
+                                    , SvgAttr.strokeWidth "1"
+                                    , SvgAttr.strokeDasharray "6,4"
                                     ]
                                     []
                                 , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (Property.getReleaseLevel (xx + 1) property |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
@@ -402,15 +404,17 @@ labelTextView settings ( posX, posY ) t =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt posY
-        , SvgAttr.width "100"
+        , SvgAttr.width "120"
         , SvgAttr.height "40"
         , SvgAttr.color <| Color.toString settings.color.label
-        , SvgAttr.fontSize "12"
-        , SvgAttr.fontWeight "bold"
+        , SvgAttr.fontSize "10"
+        , SvgAttr.fontWeight "600"
         ]
         [ Html.div
             [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
             , Attr.style "word-wrap" "break-word"
+            , Attr.style "letter-spacing" "0.6px"
+            , Attr.style "text-transform" "uppercase"
             ]
             [ Html.text t ]
         ]

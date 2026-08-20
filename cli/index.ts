@@ -141,23 +141,23 @@ const defaultSettings: Settings = {
     width: 140,
     height: 65,
   },
-  backgroundColor: "#F5F5F6",
+  backgroundColor: "#F8FAFC",
   color: {
     activity: {
       color: "#FFFFFF",
-      backgroundColor: "#266B9A",
+      backgroundColor: "#3B82F6",
     },
     task: {
       color: "#FFFFFF",
-      backgroundColor: "#3E9BCD",
+      backgroundColor: "#6366F1",
     },
     story: {
-      color: "#000000",
-      backgroundColor: "#FFFFFF",
+      color: "#1E293B",
+      backgroundColor: "#F1F5F9",
     },
-    line: "#434343",
-    label: "#8C9FAE",
-    text: "#111111",
+    line: "#CBD5E1",
+    label: "#64748B",
+    text: "#1E293B",
   },
   diagramType: "UserStoryMap",
 };

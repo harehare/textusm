@@ -71,7 +71,8 @@ func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diag
 
 	_, err := r.tx(ctx).GetSettings(ctx, sqlite.GetSettingsParams{Uid: userID, Diagram: string(diagram)})
 
-	if errors.Is(err, sql.ErrNoRows) {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		err = r.tx(ctx).CreateSettings(ctx, sqlite.CreateSettingsParams{
 			Uid:                     userID,
 			Diagram:                 string(diagram),
@@ -95,9 +96,9 @@ func (r *SqliteSettingsRepository) Save(ctx context.Context, userID string, diag
 			CreatedAt:               DateTimeToInt(time.Now()),
 			UpdatedAt:               DateTimeToInt(time.Now()),
 		})
-	} else if err != nil {
+	case err != nil:
 		return mo.Err[*settings.Settings](err)
-	} else {
+	default:
 		err = r.tx(ctx).UpdateSettings(ctx, sqlite.UpdateSettingsParams{
 			Uid:                     userID,
 			ActivityColor:           s.ActivityColor.ForegroundColor,
