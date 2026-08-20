@@ -1,12 +1,18 @@
+<div align="center">
+
+<img src="./frontend/src/public/images/logo.svg" width="80" height="80" alt="TextUSM logo" />
+
 # TextUSM
 
-![GitHub Actions Workflow Status](https://github.com/harehare/textusm/actions/workflows/test.yml/badge.svg)
+![GitHub Actions Workflow Status](https://github.com/harehare/textusm/actions/workflows/ci.yml/badge.svg)
 [![Version](https://img.shields.io/npm/v/textusm.cli.svg)](https://www.npmjs.com/package/textusm.cli)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 TextUSM is a web-based diagram editor that generates diagrams from indented text — without leaving the keyboard.
 
 ![image](./assets/img/textusm.gif)
+
+</div>
 
 ## Features
 
@@ -135,6 +141,23 @@ Budget
 ```
 
 ![image](./assets/img/opc.png)
+
+### User Persona
+
+```
+Name
+    https://app.textusm.com/images/logo.svg
+Who am i...
+Three reasons to use your product
+Three reasons to buy your product
+My interests
+My personality
+My Skills
+My dreams
+My relationship with technology
+```
+
+![image](./assets/img/persona.png)
 
 ### 4Ls Retrospective
 
