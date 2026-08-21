@@ -27,7 +27,6 @@ updates:
     labels:
       - "dependencies"
 
-
   - package-ecosystem: "gomod"
     directory: "/backend"
     schedule:
@@ -35,4 +34,3 @@ updates:
       time: "20:00"
     labels:
       - "dependencies"
-      - "automerge"
