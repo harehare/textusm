@@ -8,7 +8,6 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "automerge"
 
   - package-ecosystem: elm
     directory: "/frontend"
@@ -18,7 +17,6 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "automerge"
 
   - package-ecosystem: elm
     directory: "/frontend/review"
@@ -28,7 +26,7 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "automerge"
+
 
   - package-ecosystem: "gomod"
     directory: "/backend"
