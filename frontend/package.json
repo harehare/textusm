@@ -42,7 +42,7 @@
     "elm-review": "^2.13.2",
     "elm-test": "^0.19.1-revision15",
     "firebase-tools": "^15.27.0",
-    "prettier": "^3.6.1",
+    "prettier": "^3.9.6",
     "rimraf": "^6.0.1",
     "size-limit": "^12.1.0",
     "stylelint": "^17.12.0",
