@@ -18,7 +18,7 @@ require (
 	github.com/samber/lo v1.53.0
 	github.com/samber/mo v1.17.0
 	github.com/stretchr/testify v1.12.1
-	github.com/vektah/gqlparser/v2 v2.5.36
+	github.com/vektah/gqlparser/v2 v2.5.37
 	golang.org/x/crypto v0.55.0
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	google.golang.org/api v0.288.0
