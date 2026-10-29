@@ -134,7 +134,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           working-directory: backend
-          args: --timeout=2m
+          args: --timeout=5m
       - name: Run tests
         run: just test
         working-directory: backend
