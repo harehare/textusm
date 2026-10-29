@@ -215,17 +215,17 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.20.5",
     "@types/vscode": "^1.120.0",
     "clean-webpack-plugin": "^4.0.0",
-    "oxfmt": "^0.51.0",
-    "oxlint": "^1.66.0",
-    "terser-webpack-plugin": "^5.6.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack": "^5.107.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-merge": "^5.10.0",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "terser-webpack-plugin": "^5.6.1",
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.2.3",
+    "webpack-merge": "^6.0.1",
     "webpack-node-externals": "^3.0.0"
   },
   "repository": {
@@ -233,6 +233,6 @@
     "url": "https://github.com/harehare/textusm.git"
   },
   "dependencies": {
-    "svgo": "^3.3.2"
+    "svgo": "^4.1.0"
   }
 }
