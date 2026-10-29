@@ -8,7 +8,7 @@
     "watch": "webpack --mode development --watch",
     "build": "NODE_ENV=production webpack --mode production",
     "prepublishOnly": "pnpm build",
-    "test": "jest",
+    "test": "vitest run --passWithNoTests",
     "lint": "oxlint src/",
     "format": "oxfmt src/"
   },
@@ -32,35 +32,16 @@
   "author": "harehare",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.6.5",
     "clean-webpack-plugin": "^4.0.0",
-    "jest": "^29.7.0",
     "module": "^1.2.5",
-    "oxfmt": "^0.51.0",
-    "oxlint": "^1.66.0",
-    "ts-jest": "^29.4.11",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack": "^5.107.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-merge": "^5.10.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "ts"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "tsconfig.json"
-      }
-    },
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ]
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.2.3",
+    "webpack-merge": "^6.0.1"
   }
 }
