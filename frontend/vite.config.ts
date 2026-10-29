@@ -44,20 +44,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: outDirectory,
     sourcemap: mode === 'production',
-    minify: (mode === 'production' ? 'terser' : false) as false | 'terser',
-    terserOptions: {
-      compress: {
-        pure_funcs: ['F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9'],
-        pure_getters: true,
-        keep_fargs: false,
-        unsafe_comps: true,
-        drop_console: true,
-        unsafe: true,
-        passes: 3,
+    minify: (mode === 'production' ? 'oxc' : false) as false | 'oxc',
+    rolldownOptions: {
+      treeshake: {
+        manualPureFunctions: ['F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9'],
       },
-    },
-    rollupOptions: {
       output: {
+        minify: {
+          compress: {
+            dropConsole: true,
+          },
+        },
         manualChunks(id) {
           if (id.includes('jspdf') || id.includes('html2canvas')) {
             return 'vendor-pdf';
@@ -118,6 +115,8 @@ export default defineConfig(({ mode }) => ({
               clientsClaim: true,
               skipWaiting: true,
               maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
+              // The TypeScript language worker is too large to precache; it is fetched on demand.
+              globIgnores: ['**/ts.worker-*.js'],
               navigateFallback: '/index.html',
               navigateFallbackAllowlist: [/^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/],
               runtimeCaching: [

@@ -56,7 +56,7 @@ func Encrypt(key []byte, text string) (string, error) {
 		return "", err
 	}
 
-	cfb := cipher.NewCFBEncrypter(block, iv) //nolint:staticcheck
+	cfb := cipher.NewCFBEncrypter(block, iv) //nolint:staticcheck,gosec // iv is filled from crypto/rand above
 	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(msg))
 	finalMsg := removeBase64Padding(base64.URLEncoding.EncodeToString(ciphertext))
 	return finalMsg, nil
