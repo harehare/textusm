@@ -43,7 +43,7 @@
     "elm-test": "^0.19.1-revision15",
     "firebase-tools": "^15.34.1",
     "oxfmt": "^0.75.0",
-    "oxlint": "^1.90.0",
+    "oxlint": "^1.91.0",
     "prettier": "^3.9.10",
     "rimraf": "^6.0.1",
     "size-limit": "^14.3.0",
