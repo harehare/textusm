@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@dillonkearns/elm-graphql": "^4.3.2",
-    "@playwright/test": "^1.64.1",
+    "@playwright/test": "^1.65.0",
     "@sentry/vite-plugin": "^11.9.0",
     "@size-limit/file": "^14.3.0",
     "@total-typescript/ts-reset": "^0.6.1",
